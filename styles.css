@@ -155,3 +155,16 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
 @media (min-width: 900px) {
   .centered-embed { margin: 8px auto 32px; }
 }
+
+
+/* Center Apple embed block */
+.centered-embed { display: block; margin: 0 auto; }
+
+/* Heading above Apple embed */
+.embed-heading { text-align: center; font-size: 1.5rem; margin: 16px 0; }
+
+/* Responsive Apple height: compact on mobile, taller on desktop (no scrollbar) */
+.apple-embed { height: 352px !important; }          /* mobile/small */
+@media (min-width: 900px) {
+  .apple-embed { height: 450px !important; }        /* desktop */
+}
