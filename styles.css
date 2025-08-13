@@ -322,7 +322,7 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
 /* Mobile-only title adjustment */
 @media (max-width: 768px) {
   .hero-title { /* Replace with your actual class for NEWFACE 2 */
-    font-size: 0.8rem; /* Shrink until it fits one line */
+    font-size: 1.4rem; /* Shrink until it fits one line */
     white-space: nowrap; /* Prevent line break */
     text-align: center; /* Keep it centered with your shift */
   }
