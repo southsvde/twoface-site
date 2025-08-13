@@ -1,52 +1,83 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shows | TWOFACE</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <title>Shows — TWOFACE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="TWOFACE live shows and appearances." />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-    <!-- Navbar -->
-    <header>
-        <nav class="navbar">
-            <div class="logo"><a href="index.html">TWOFACE</a></div>
-            <ul class="nav-links">
-                <li><a href="music.html">Music</a></li>
-                <li><a href="shows.html" class="active">Shows</a></li>
-                <li><a href="merch.html">Merch</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+  <!-- Header / Nav (same look as index) -->
+  <header class="site-header">
+    <div class="container">
+      <h1 class="brand"><a href="index.html" style="text-decoration:none;color:inherit;">TWOFACE</a></h1>
+      <nav class="nav">
+        <a href="index.html#music">Music</a>
+        <a href="shows.html">Shows</a>
+        <a href="merch.html">Merch</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
 
-    <!-- Shows Section -->
-    <main>
-        <section class="page-header">
-            <h1>Upcoming Shows</h1>
-            <p>Catch TWOFACE live at these upcoming performances:</p>
-        </section>
+  <!-- Page intro -->
+  <main class="container content" style="padding-top:32px;">
+    <h2 style="letter-spacing:.08em;margin-bottom:8px;">Upcoming Shows</h2>
+    <p class="muted" style="max-width:720px;">Catch TWOFACE live. New dates drop here first.</p>
 
-        <section class="shows-list">
-            <div class="show-item">
-                <h2>📍 New York City</h2>
-                <p>November 14, 2025 - Pianos NYC</p>
-                <p><a href="#" target="_blank">Get Tickets</a></p>
-            </div>
+    <!-- Show card -->
+    <div class="shows" style="margin-top:16px;">
+      <article class="show-card">
+        <div>
+          <!-- UPDATE ME: set exact date/time when confirmed -->
+          <div class="show-date">November — TBD</div>
+          <div class="show-venue">Pianos • New York, NY</div>
+        </div>
+        <div class="show-actions">
+          <!-- UPDATE ME: replace '#' with ticket link when available -->
+          <a class="btn small" aria-disabled="true" href="#" onclick="return false;">Tickets (soon)</a>
+          <button class="btn small outline" id="addToCalendarBtn">Add to Calendar</button>
+        </div>
+      </article>
+    </div>
 
-            <div class="show-item">
-                <h2>📍 Indianapolis</h2>
-                <p>December 3, 2025 - Local Venue</p>
-                <p><a href="#" target="_blank">Get Tickets</a></p>
-            </div>
-        </section>
-    </main>
+    <!-- Add more <article class="show-card"> blocks as you announce dates -->
+  </main>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025 TWOFACE. All rights reserved.</p>
-    </footer>
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <span>© <script>document.write(new Date().getFullYear())</script> TWOFACE</span>
+      <a href="#" class="to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">Back to top ↑</a>
+    </div>
+  </footer>
 
+  <!-- Small inline script just for the calendar button (avoids loading merch JS) -->
+  <script>
+    // Generates a placeholder .ics file (change date/time when you have it)
+    document.getElementById('addToCalendarBtn')?.addEventListener('click', () => {
+      const year = new Date().getFullYear();
+      const dt = new Date(year, 10, 15, 20, 0, 0); // Nov 15 @ 8pm local (UPDATE ME)
+      const pad = n => String(n).padStart(2,'0');
+      const toUTC = d => (
+        d.getUTCFullYear() + pad(d.getUTCMonth()+1) + pad(d.getUTCDate()) + 'T' +
+        pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + 'Z'
+      );
+      const start = toUTC(dt);
+      const end = toUTC(new Date(dt.getTime() + 2 * 60 * 60 * 1000)); // +2h
+      const ics = [
+        'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//TWOFACE//Shows//EN','BEGIN:VEVENT',
+        'UID:twoface-pianos-'+year+'@twoface',
+        'SUMMARY:TWOFACE at Pianos (NYC)','LOCATION:Pianos, New York, NY',
+        'DTSTART:'+start,'DTEND:'+end,'END:VEVENT','END:VCALENDAR'
+      ].join('\r\n');
+      const blob = new Blob([ics], {type:'text/calendar;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), {href:url, download:'twoface-pianos.ics'});
+      document.body.appendChild(a); a.click(); URL.revokeObjectURL(url); a.remove();
+    });
+  </script>
 </body>
 </html>
