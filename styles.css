@@ -294,3 +294,14 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
     align-items: center;
   }
 }
+
+.btn {
+  display: flex;              /* Use flexbox for alignment */
+  align-items: center;        /* Center vertically */
+  justify-content: center;    /* Center horizontally */
+  height: 50px;               /* Keep the bubble height consistent */
+  padding: 0 20px;            /* Space on sides */
+  border-radius: 25px;        /* Rounded bubble look */
+  font-size: 16px;            /* Adjust text size */
+  text-decoration: none;      /* Remove underline */
+}
