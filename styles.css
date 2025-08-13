@@ -88,10 +88,17 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
   margin-bottom: 0;
 }
 
+.hero-title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 0.3rem; /* reduce gap between title and subtitle */
+}
+
 /* Hero subtitle styling */
 .hero-subtitle {
   display: block;              /* forces it to a new line */
-  font-size: 18px;              /* smaller than main title */
+  font-size: 1.2rem;              /* smaller than main title */
+  font-style: italic;
   font-weight: 400;             /* lighter weight for subtle look */
   opacity: 0.85;                /* slightly muted */
   margin-top: 6px;              /* space above the subtitle */
