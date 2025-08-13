@@ -47,18 +47,9 @@
   <main class="container content">
     <section id="music">
       <h3>New Release (Spotify)</h3>
-      <div class="embeds">
-        
-  <!-- 1) Spotify Artist Preview (keeps newcomers tasting the catalog)
-  <iframe
-    style="border-radius:12px"
-    src="https://tify.com/embed/artist/6jRknjP5uo6uPtu6advrLy?utm_source=generator"
-    width="100%" height="352" frameborder="0" allowfullscreen=""
-    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-    loading="lazy"></iframe>  -->
-
-  <!-- 2) FEATURED RELEASE — SPOTIFY ALBUM (Update this URL for new releases) -->
-  <!-- UPDATE ME: Replace the album ID in the URL below to change the featured Spotify release -->
+      <!-- === MUSIC EMBEDS (Spotify album + Apple album) === -->
+<div class="embeds">
+  <!-- 1) FEATURED RELEASE — SPOTIFY ALBUM (UPDATE ME when you drop a new project) -->
   <iframe
     style="border-radius:12px"
     src="https://open.spotify.com/embed/album/7FdOfHUYB9zJkleAlIzebg?utm_source=generator"
@@ -66,18 +57,27 @@
     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
     loading="lazy"></iframe>
 
-  <!-- 3) FEATURED RELEASE — APPLE MUSIC ALBUM (Update this URL for new releases) -->
-  <!-- UPDATE ME: Replace the album URL/ID to change the featured Apple release -->
+  <!-- 2) New Release (Apple Music) — centered -->
   <h2 class="embed-heading">New Release (Apple Music)</h2>
+
+  <!-- Apple album embed (UPDATE ME when you drop a new project) -->
   <iframe
-    class="apple-embed centered-embed"  <!-- added centered-embed -->
+    class="apple-embed centered-embed"
     allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
-    frameborder="0" height="450"
+    frameborder="0"
+    height="450"  <!-- desktop height; CSS will shrink on mobile -->
     style="width:100%;max-width:660px;overflow:hidden;border-radius:12px;background:transparent;"
     sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
     src="https://embed.music.apple.com/us/album/newface-2/1829342485?theme=dark">
   </iframe>
-        
+
+  <!-- Optional: buttons to full catalogs -->
+  <div class="link-row" style="justify-content:center;margin-top:8px;">
+    <a class="btn" target="_blank" rel="noopener"
+       href="https://open.spotify.com/artist/6jRknjP5uo6uPtu6advrLy">View all on Spotify</a>
+    <a class="btn outline" target="_blank" rel="noopener"
+       href="https://music.apple.com/us/artist/twoface/1467728165">View all on Apple Music</a>
+  </div>
 </div>
     
 
