@@ -189,3 +189,47 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
 
 /* Make sure overlay sits above the video (keep your other overlay rules) */
 .hero-overlay { z-index: 1; position: absolute; }
+
+/* MOBILE TWEAKS SECTION */
+/* === Mobile tweaks (≤ 768px) — keeps desktop unchanged === */
+@media (max-width: 768px) {
+  /* Use the small viewport height on iOS; keep a minimum */
+  .hero { height: 100svh; min-height: 560px; }
+
+  /* Nudge the video framing for phones */
+  .hero-video { object-position: center 62%; }
+
+  /* Center block a bit lower + add side padding */
+  .hero-overlay { top: 60%; padding: 0 16px; }
+
+  /* Title & subtitle scale down on phones */
+  .hero-title {
+    font-size: clamp(2rem, 8vw, 2.6rem);
+    margin-bottom: 0.25rem; /* tighter gap to subtitle */
+  }
+  .hero-subtitle {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-top: 2px;
+  }
+
+  /* Buttons: wrap nicely on two lines if needed */
+  .link-row {
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn {
+    padding: 10px 16px;
+    font-size: 0.95rem;
+  }
+
+  /* Header spacing / nav sizing on mobile */
+  .site-header .container { padding: 12px 16px; }
+  .brand { font-size: 1.25rem; }
+  .nav a { font-size: 0.95rem; margin-left: 12px; }
+
+  /* Music section headings + Apple height on phones */
+  .embed-heading { font-size: 1.25rem; margin: 12px 0; }
+  .apple-embed { height: 320px !important; }
+}
