@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Merch — TWOFACE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Official TWOFACE merch — hats, tees, hoodies." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ===== Site Header (matches index.html) ===== -->
+  <header class="site-header">
+    <div class="container">
+      <h1 class="brand"><a href="index.html" style="text-decoration:none;color:inherit;">TWOFACE</a></h1>
+      <nav class="nav">
+        <!-- UPDATE ME: If you make a dedicated music page later, swap index.html for music.html -->
+        <a href="index.html">Music</a>
+        <a href="shows.html">Shows</a>
+        <a href="merch.html">Merch</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== Page Header ===== -->
+  <section class="container content" style="padding-top:32px;">
+    <h2 style="letter-spacing:.08em;margin-bottom:8px;">Merch</h2>
+    <p class="muted" style="max-width:720px;">
+      Official TWOFACE gear. Secure checkout powered by Stripe. New items drop here first.
+    </p>
+  </section>
+
+  <!-- ===== Merch Grid (populated by js/main.js) ===== -->
+  <main class="container content" style="padding-top:16px;">
+    <div class="merch-grid" id="merchGrid">
+      <!-- Items are injected by js/main.js -->
+      <!-- UPDATE ME in js/main.js:
+           - set price numbers
+           - replace link: "#" with your Stripe Payment Links
+           - adjust sizes array per item
+      -->
+    </div>
+
+    <!-- Optional: Tip Jar / Donate button (remove if not needed) -->
+    <div style="margin-top:28px;">
+      <!-- UPDATE ME: paste your Stripe Payment Link -->
+      <a class="btn" href="#" target="_blank" rel="noopener">Tip Jar</a>
+      <span class="muted" style="margin-left:8px;">(optional)</span>
+    </div>
+
+    <!-- ===== Policies / Info ===== -->
+    <section style="margin-top:40px;">
+      <h3 style="margin-bottom:10px;">Size Guide & Care</h3>
+      <ul class="muted" style="line-height:1.6;">
+        <li>Tees & hoodies are true-to-size. For an oversized fit, go one size up.</li>
+        <li>Machine wash cold, inside out. Tumble dry low.</li>
+      </ul>
+    </section>
+
+    <section style="margin-top:24px;">
+      <h3 style="margin-bottom:10px;">Shipping & Returns</h3>
+      <ul class="muted" style="line-height:1.6;">
+        <li>Orders ship within 3–5 business days.</li>
+        <li>Exchanges accepted for unworn items within 14 days. Customer pays return shipping.</li>
+        <li>Questions? <a href="index.html#contact">Join the list</a> or reply to your order email.</li>
+      </ul>
+    </section>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="container">
+      <span>© <script>document.write(new Date().getFullYear())</script> TWOFACE</span>
+      <a href="#" class="to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <!-- Reuse the same JS that powers the merch cards -->
+  <script src="js/main.js"></script>
+</body>
+</html>
