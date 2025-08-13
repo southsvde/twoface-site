@@ -233,3 +233,64 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
   .embed-heading { font-size: 1.25rem; margin: 12px 0; }
   .apple-embed { height: 320px !important; }
 }
+
+/* Default (desktop): keep title parts on one line */
+.title-seg { display: inline; }
+
+/* === Mobile layout (≤ 768px) — desktop unchanged === */
+@media (max-width: 768px) {
+  /* 1) Shift hero block a bit UP (more centered) */
+  .hero-overlay { top: 54%; }   /* try 53–55% to taste */
+
+  /* 2) Force title to two lines on mobile only */
+  .title-seg { 
+    display: block;             /* NEWFACE* 2  /  OUT NOW */
+    line-height: 1.05;
+  }
+
+  /* Optional: small type tuning */
+  .hero-title { font-size: clamp(2.2rem, 8.5vw, 3rem); }
+  .hero-subtitle { font-size: 1rem; margin-top: 4px; }
+
+  /* 3) Buttons: Spotify + Apple on one line, Instagram below */
+  .link-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+  .link-row .btn:nth-child(1),
+  .link-row .btn:nth-child(2) {
+    flex: 1 1 calc(50% - 12px);   /* side-by-side */
+  }
+  .link-row .btn:nth-child(3) {
+    flex: 1 1 100%;               /* full row under */
+  }
+  .btn { padding: 10px 16px; font-size: 0.95rem; }
+}
+
+
+/* === Mobile navbar tweaks === */
+@media (max-width: 768px) {
+  /* Reduce top/bottom padding so nav bar is slimmer */
+  nav {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  /* Logo closer to menu items */
+  nav .logo {
+    margin-right: 12px;
+  }
+
+  /* Menu links slightly smaller & spaced tighter */
+  nav ul li a {
+    font-size: 0.9rem;
+    margin: 0 6px;
+  }
+
+  /* Optional: keep everything vertically centered */
+  nav ul {
+    align-items: center;
+  }
+}
