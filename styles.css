@@ -106,8 +106,14 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
 
 .hero-overlay {
     position: absolute;
-    top: 55%; /* lower text */
+    top: 53%; /* lower text */
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+}
+
+@media (max-width: 768px) {
+    .hero-overlay {
+        top: 58%; /* slightly lower to account for taller images on mobile */
+    }
 }
