@@ -100,13 +100,22 @@
     
 
     <section id="contact">
-      <h3>Contact / Updates</h3>
-      <form id="emailForm" class="email-form" action="https://formspree.io/f/xbldkqqo" method="POST">
-        <input name="email" type="email" placeholder="Your email" required aria-label="Email">
-        <button class="btn" type="submit">Join List</button>
-      </form>
-      <p class="muted">You’ll get updates on new music, shows, and drops.</p>
-    </section>
+  <h3>Contact / Updates</h3>
+
+  <!-- Email signup form (AJAX submit) -->
+  <form id="emailForm" class="email-form" action="https://formspree.io/f/xbldkqqo" method="POST" novalidate>
+    <!-- required email field -->
+    <input name="email" type="email" placeholder="Your email" required aria-label="Email" />
+
+    <!-- submit button -->
+    <button class="btn" type="submit">Join List</button>
+  </form>
+
+  <!-- Live status message (updated by JS) -->
+  <p id="formStatus" class="muted" role="status" aria-live="polite" style="margin-top:8px;"></p>
+
+  <p class="muted">You’ll get updates on new music, shows, and drops.</p>
+</section>
   </main>
 
   <footer class="site-footer">
