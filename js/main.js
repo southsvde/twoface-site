@@ -1,9 +1,10 @@
 
 // Minimal merch data with Stripe link placeholders (replace '#' with real Payment Links)
 const merch = [
-  { title: "Dad Hat", price: null, link: "#", sizes: [] },
-  { title: "T‑Shirt", price: null, link: "#", sizes: ["S","M","L","XL"] },
-  { title: "Hoodie", price: null, link: "#", sizes: ["S","M","L","XL"] },
+// UPDATE ME
+  { title: "Dad Hat", price: 30, link: "https://buy.stripe.com/...", sizes: [] },
+  { title: "T-Shirt", price: 35, link: "https://buy.stripe.com/...", sizes: ["S","M","L","XL"] },
+  { title: "Hoodie", price: 60, link: "https://buy.stripe.com/...", sizes: ["S","M","L","XL"] },
 ];
 
 const grid = document.getElementById('merchGrid');
