@@ -213,6 +213,7 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
     margin-top: 2px;
   }
 
+  
   /* Buttons: wrap nicely on two lines if needed */
   .link-row {
     gap: 10px;
@@ -316,4 +317,11 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
 
   /* Optional: if side padding makes it feel right-heavy, keep it symmetric & small */
   .hero-overlay { padding: 0 14px; }
+}
+
+@media (max-width: 768px) {
+  h1 { /* Or your actual heading selector for "NEWFACE 2" */
+    font-size: 1.8rem; /* Adjust until it fits one line */
+    white-space: nowrap; /* Prevents it from breaking */
+  }
 }
