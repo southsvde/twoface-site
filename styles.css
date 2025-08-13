@@ -103,3 +103,11 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
   opacity: 0.85;                /* slightly muted */
   margin-top: 6px;              /* space above the subtitle */
 }
+
+.hero-overlay {
+    position: absolute;
+    top: 55%; /* lower text */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
