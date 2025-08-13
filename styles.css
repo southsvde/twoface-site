@@ -311,7 +311,7 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
   /* Make sure we explicitly center from the middle, then over-correct a bit left */
   .hero-overlay {
     left: 50%;
-    transform: translate(-53%, -50%);  /* was -50% — try -53% for a ~3% left shift */
+    transform: translate(-54%, -50%);  /* was -50% — try -53% for a ~3% left shift */
   }
 
   /* Optional: if side padding makes it feel right-heavy, keep it symmetric & small */
