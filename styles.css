@@ -305,3 +305,15 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
   font-size: 16px;            /* Adjust text size */
   text-decoration: none;      /* Remove underline */
 }
+
+/* === Mobile-only: tiny left shift to visually center the hero text === */
+@media (max-width: 768px) {
+  /* Make sure we explicitly center from the middle, then over-correct a bit left */
+  .hero-overlay {
+    left: 50%;
+    transform: translate(-53%, -50%);  /* was -50% — try -53% for a ~3% left shift */
+  }
+
+  /* Optional: if side padding makes it feel right-heavy, keep it symmetric & small */
+  .hero-overlay { padding: 0 14px; }
+}
