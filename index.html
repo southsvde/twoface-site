@@ -42,9 +42,33 @@
     <section id="music">
       <h3>Music</h3>
       <div class="embeds">
-        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/artist/6jRknjP5uo6uPtu6advrLy?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-        <iframe allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" frameborder="0" height="175" style="width:100%;max-width:660px;overflow:hidden;background:transparent;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/us/artist/twoface/1467728165"></iframe>
-      </div>
+  <!-- 1) Spotify Artist Preview (keeps newcomers tasting the catalog) -->
+  <iframe
+    style="border-radius:12px"
+    src="https://open.spotify.com/embed/artist/6jRknjP5uo6uPtu6advrLy?utm_source=generator"
+    width="100%" height="352" frameborder="0" allowfullscreen=""
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy"></iframe>
+
+  <!-- 2) FEATURED RELEASE — SPOTIFY ALBUM (Update this URL for new releases) -->
+  <!-- UPDATE ME: Replace the album ID in the URL below to change the featured Spotify release -->
+  <iframe
+    style="border-radius:12px"
+    src="https://open.spotify.com/embed/album/7FdOfHUYB9zJkleAlIzebg?utm_source=generator"
+    width="100%" height="352" frameborder="0" allowfullscreen=""
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy"></iframe>
+
+  <!-- 3) FEATURED RELEASE — APPLE MUSIC ALBUM (Update this URL for new releases) -->
+  <!-- UPDATE ME: Replace the album URL/ID to change the featured Apple release -->
+  <iframe
+    allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+    frameborder="0" height="352"
+    style="width:100%;max-width:660px;overflow:hidden;border-radius:12px;background:transparent;"
+    sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
+    src="https://embed.music.apple.com/us/album/newface-2/1829342485?theme=dark">
+  </iframe>
+</div>
     </section>
 
     <section id="shows">
