@@ -72,3 +72,18 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
 .embeds iframe {
   border: 0;
 }
+
+/* === Music Embed Styling === */
+/* Adds space between music panels + subtle fade to separate them visually */
+
+.embeds iframe {
+  border: 0;                     /* removes default iframe border */
+  margin-bottom: 32px;           /* space below each embed panel */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35); /* subtle shadow for depth */
+  border-radius: 12px;           /* match rounded corners from hero buttons */
+}
+
+/* Remove extra space after the very last panel */
+.embeds iframe:last-child {
+  margin-bottom: 0;
+}
