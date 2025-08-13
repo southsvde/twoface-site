@@ -55,3 +55,20 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
 .site-footer { border-top:1px solid var(--border); padding: 18px 0; }
 .site-footer .container { display:flex; align-items:center; justify-content:space-between; }
 .to-top { color: var(--muted); text-decoration:none; }
+
+/* Apple Music embed responsive height fix */
+.apple-embed {
+  height: 352px !important; /* default height for mobile/small screens */
+}
+
+/* On wider screens, make it taller so no scrollbar appears */
+@media (min-width: 900px) {
+  .apple-embed {
+    height: 450px !important;
+  }
+}
+
+/* Remove any default iframe borders */
+.embeds iframe {
+  border: 0;
+}
