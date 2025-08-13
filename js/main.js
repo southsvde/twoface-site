@@ -53,3 +53,44 @@ document.getElementById('addToCalendarBtn')?.addEventListener('click', () => {
   URL.revokeObjectURL(url);
   a.remove();
 });
+
+/* === Email form: AJAX submit to Formspree so the page doesn't navigate away === */
+(function () {
+  // Get elements
+  const form = document.getElementById('emailForm');
+  const status = document.getElementById('formStatus');
+
+  if (!form) return; // safety if form isn't on this page
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault(); // keep user on the page
+    status.textContent = 'Sending…';
+
+    // Collect form data
+    const formData = new FormData(form);
+    const email = formData.get('email');
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        // Formspree expects JSON; include only what you need
+        body: JSON.stringify({ email })
+      });
+
+      if (res.ok) {
+        form.reset();
+        status.textContent = 'Thanks — check your inbox!';
+      } else {
+        // Try to read any error message from Formspree
+        const data = await res.json().catch(() => ({}));
+        status.textContent = data?.errors?.[0]?.message || 'Oops — something went wrong. Try again in a minute.';
+      }
+    } catch (err) {
+      status.textContent = 'Network error — please try again.';
+    }
+  });
+})();
