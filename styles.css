@@ -117,3 +117,15 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
         top: 58%; /* slightly lower to account for taller images on mobile */
     }
 }
+
+/* === Center Apple Music embed on the page === */
+/* Works whether the parent is grid or not */
+.centered-embed {
+  display: block;          /* makes margin auto work */
+  margin: 0 auto;          /* centers horizontally */
+}
+
+/* If you want a touch more breathing room above/below on desktop */
+@media (min-width: 900px) {
+  .centered-embed { margin: 8px auto 32px; }
+}
