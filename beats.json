@@ -1,0 +1,37 @@
+{
+  "night-drive": {
+    "title": "Night Drive",
+    "bpm": 120,
+    "tags": ["Dark", "Trap"],
+    "previewSrc": "audio/night-drive_preview.mp3",
+    "prices": {
+      "ne_mp3": "night-drive.ne_mp3",
+      "ne_mp3_wav": "night-drive.ne_mp3_wav",
+      "ex_mp3_wav": "night-drive.ex_mp3_wav",
+      "ex_mp3_wav_stems": "night-drive.ex_mp3_wav_stems"
+    },
+    "assets": {
+      "ne_mp3": [
+        "beats/night-drive/NIGHT-DRIVE_MP3.zip",
+        "beats/licenses/TWOFACE_NonExclusive_License.pdf"
+      ],
+      "ne_mp3_wav": [
+        "beats/night-drive/NIGHT-DRIVE_MP3.zip",
+        "beats/night-drive/NIGHT-DRIVE_WAV.zip",
+        "beats/licenses/TWOFACE_NonExclusive_License.pdf"
+      ],
+      "ex_mp3_wav": [
+        "beats/night-drive/NIGHT-DRIVE_MP3.zip",
+        "beats/night-drive/NIGHT-DRIVE_WAV.zip",
+        "beats/licenses/TWOFACE_Exclusive_License.pdf"
+      ],
+      "ex_mp3_wav_stems": [
+        "beats/night-drive/NIGHT-DRIVE_MP3.zip",
+        "beats/night-drive/NIGHT-DRIVE_WAV.zip",
+        "beats/night-drive/NIGHT-DRIVE_STEMS.zip",
+        "beats/licenses/TWOFACE_Exclusive_License.pdf"
+      ]
+    },
+    "exclusiveAvailable": true
+  }
+}
