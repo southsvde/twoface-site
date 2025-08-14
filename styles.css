@@ -330,3 +330,10 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
 
 /* Subtle success/error look for the form status */
 #formStatus { min-height: 1.2em; }
+
+/* BEATS */
+#beats .beat-card { border:1px solid #222; border-radius:12px; padding:16px; margin-bottom:16px; }
+#beats .row { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+#beats .buttons { display:flex; gap:8px; flex-wrap:wrap; }
+#beats .buttons button[disabled] { opacity:0.45; cursor:not-allowed; }
+#beats audio { width:100%; margin-top:10px; }
