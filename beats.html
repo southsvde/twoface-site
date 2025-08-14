@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Beats — TWOFACE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header class="site-header">
+  <div class="container">
+    <h1 class="brand">TWOFACE</h1>
+    <nav class="nav">
+      <a href="index.html#music">Music</a>
+      <a href="shows.html">Shows</a>
+      <a href="merch.html">Merch</a>
+      <a href="beats.html" class="active">Beats</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container content" id="beats">
+  <h3>Beats</h3>
+  <p class="muted">Preview & license directly — secure delivery after purchase.</p>
+  <div id="beats-grid"></div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <span>© 2025 TWOFACE</span>
+    <a href="#top" class="to-top">Back to top ↑</a>
+  </div>
+</footer>
+
+<script>
+(async () => {
+  const res = await fetch('/beats.json');
+  const catalog = await res.json();
+  const grid = document.getElementById('beats-grid');
+
+  const tiers = [
+    {key:'ne_mp3', label:'Non-Exclusive MP3'},
+    {key:'ne_mp3_wav', label:'Non-Exclusive MP3+WAV'},
+    {key:'ex_mp3_wav', label:'Exclusive MP3+WAV'},
+    {key:'ex_mp3_wav_stems', label:'Exclusive MP3+WAV+Stems'}
+  ];
+
+  Object.entries(catalog).forEach(([id, beat]) => {
+    const card = document.createElement('article');
+    card.className = 'beat-card';
+    const exclDisabled = beat.exclusiveAvailable === false;
+
+    card.innerHTML = `
+      <div class="row">
+        <div class="meta">
+          <h4>${beat.title}</h4>
+          <p class="muted">${beat.bpm} BPM · ${beat.tags.join(' · ')}</p>
+        </div>
+        <div class="buttons">
+          ${tiers.map(t => {
+            const isExclusive = t.key.startsWith('ex_');
+            const disabledAttr = (isExclusive && exclDisabled) ? 'disabled' : '';
+            const cls = isExclusive ? 'btn outline' : 'btn';
+            return `<button class="${cls}" data-id="${id}" data-tier="${t.key}" ${disabledAttr}>${t.label}</button>`;
+          }).join('')}
+        </div>
+      </div>
+      <audio controls preload="none" src="${beat.previewSrc}"></audio>
+    `;
+    grid.appendChild(card);
+  });
+
+  grid.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-tier]');
+    if (!btn || btn.disabled) return;
+    const beatId = btn.getAttribute('data-id');
+    const tier = btn.getAttribute('data-tier');
+
+    const r = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ beatId, tier })
+    });
+    const { url, error } = await r.json();
+    if (error) { alert(error); return; }
+    window.location.href = url; // Stripe Checkout
+  });
+})();
+</script>
+</body>
+</html>
