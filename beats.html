@@ -2,91 +2,329 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Beats — TWOFACE</title>
+  <title>TWOFACE — Beats</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Preview and license TWOFACE beats directly." />
   <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    /* ---------- Page-local styles (scoped) ---------- */
+    :root {
+      --bg: #0e0e0f;
+      --panel: #151517;
+      --muted: #a0a0a7;
+      --text: #f5f5f7;
+      --accent: #7d5fff; /* play button + focus ring */
+      --chip: #1f1f22;
+      --chipText: #e6e6eb;
+      --chipHover: #2a2a2e;
+      --btn: #222227;
+      --btnHover: #2c2c33;
+      --good: #16a34a;
+      --disabled: #3a3a40;
+    }
+
+    body { background:#0b0b0c; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+    /* Header (reuse your existing styles, minimal tweaks so this file stands alone) */
+    .site-header { position: sticky; top: 0; z-index: 50; background: rgba(10,10,11,0.9); backdrop-filter: blur(6px); border-bottom: 1px solid #1c1c1f; }
+    .site-header .container { display:flex; align-items:center; justify-content:space-between; height:64px; }
+    .brand { color: var(--text); letter-spacing: .1em; margin:0; font-size: 22px; }
+    .nav a { color:#cfcfd6; margin-left:18px; text-decoration:none; font-weight:500; }
+    .nav a:hover, .nav a[aria-current="page"] { color: #fff; }
+
+    /* Page title */
+    .page-head { padding: 24px 0 10px; }
+    .page-head h2 { margin:0 0 6px; color: #fff; font-size:28px; }
+    .page-head p { margin:0; color: var(--muted); }
+
+    /* Track list */
+    .tracks { display:flex; flex-direction:column; gap:14px; margin: 20px 0 60px; }
+
+    .track {
+      background: var(--panel);
+      border: 1px solid #1d1d22;
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 56px auto 1fr auto;
+      grid-template-areas: "art title wave actions";
+      align-items:center;
+      gap: 14px;
+    }
+
+    /* Art + play */
+    .t-art { grid-area: art; position:relative; width:56px; height:56px; border-radius:10px; overflow:hidden; background:#0b0b0c; border:1px solid #222; }
+    .t-art img { width:100%; height:100%; object-fit:cover; display:block; }
+    .t-play {
+      position:absolute; inset:0; display:grid; place-items:center;
+      background: linear-gradient(0deg, rgba(0,0,0,.35), rgba(0,0,0,.35));
+      color:#fff; cursor:pointer; border:none; outline:none;
+    }
+    .t-play .dot {
+      width: 38px; height:38px; border-radius:50%;
+      background: var(--accent);
+      display:grid; place-items:center;
+      box-shadow: 0 0 0 2px rgba(125,95,255,.25);
+      transition: transform .12s ease-in-out;
+    }
+    .t-play:hover .dot { transform: scale(1.05); }
+    .t-play svg { transform: translateX(1px); }
+
+    /* Title/meta */
+    .t-title { grid-area: title; min-width: 220px; }
+    .t-title h4 { margin:0 0 2px; color:#fff; font-weight:700; letter-spacing:.02em; }
+    .meta { display:flex; gap:10px; align-items:center; color:var(--muted); font-size:13px; }
+    .meta .chip { background:var(--chip); color:var(--chipText); padding:2px 8px; border-radius:999px; border:1px solid #26262b; }
+    .meta .sep { opacity:.5; }
+
+    /* Wave/progress */
+    .t-wave { grid-area: wave; height: 36px; border-radius: 8px; overflow:hidden; position:relative; border:1px solid #222; background: #101013; }
+    /* fake waveform bars */
+    .wave-bars {
+      position:absolute; inset:0;
+      background:
+        repeating-linear-gradient(
+          to right,
+          #1f1f24 0 2px,
+          transparent 2px 7px
+        );
+      opacity:.9;
+    }
+    .wave-progress {
+      position:absolute; top:0; left:0; height:100%; width:0%;
+      background: linear-gradient(90deg, rgba(125,95,255,.28), rgba(125,95,255,.12));
+      border-right: 2px solid rgba(125,95,255,.9);
+      transition: width .06s linear;
+      pointer-events:none;
+    }
+    .t-time {
+      position:absolute; right:8px; bottom:6px; font-size:12px; color:#c9c9d2; opacity:.9;
+      background: rgba(14,14,18,.55); padding:2px 6px; border-radius:6px; border:1px solid #24242a;
+    }
+
+    /* Actions (tiers) */
+    .t-actions { grid-area: actions; display:flex; gap:8px; align-items:center; }
+    .tier {
+      appearance:none; border:none; cursor:pointer; font:inherit;
+      background: var(--btn); color:#eaeaf2; padding:10px 14px; border-radius:999px;
+      border:1px solid #2e2e34; white-space:nowrap;
+      transition: background .15s ease;
+      text-decoration:none; display:inline-flex; gap:8px; align-items:center;
+    }
+    .tier:hover { background: var(--btnHover); }
+    .tier small { color:#bdbdd0; font-weight:600; letter-spacing:.02em; }
+    .tier[aria-disabled="true"] { opacity:.45; cursor:not-allowed; }
+
+    /* mobile */
+    @media (max-width: 900px) {
+      .track { grid-template-columns: 56px 1fr; grid-template-areas:
+        "art title"
+        "wave wave"
+        "actions actions"; gap: 10px; }
+      .t-actions { flex-wrap:wrap; }
+    }
+
+    @media (max-width: 480px) {
+      .meta { flex-wrap: wrap; gap:6px; }
+      .t-actions .tier { flex: 1 0 calc(50% - 8px); justify-content:center; }
+    }
+  </style>
 </head>
 <body>
-<header class="site-header">
-  <div class="container">
-    <h1 class="brand">TWOFACE</h1>
-    <nav class="nav">
-      <a href="index.html#music">Music</a>
-      <a href="shows.html">Shows</a>
-      <a href="merch.html">Merch</a>
-      <a href="beats.html" class="active">Beats</a>
-      <a href="index.html#contact">Contact</a>
-    </nav>
-  </div>
-</header>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <h1 class="brand">TWOFACE</h1>
+      <nav class="nav">
+        <a href="index.html#music">Music</a>
+        <a href="shows.html">Shows</a>
+        <a href="merch.html">Merch</a>
+        <a href="beats.html" aria-current="page">Beats</a>
+        <!-- If you add a contact page later -->
+        <!-- <a href="index.html#contact">Contact</a> -->
+      </nav>
+    </div>
+  </header>
 
-<main class="container content" id="beats">
-  <h3>Beats</h3>
-  <p class="muted">Preview & license directly — secure delivery after purchase.</p>
-  <div id="beats-grid"></div>
-</main>
+  <main class="container">
+    <div class="page-head">
+      <h2>Beats</h2>
+      <p>Preview &amp; license directly — secure delivery after purchase.</p>
+    </div>
 
-<footer class="site-footer">
-  <div class="container">
-    <span>© 2025 TWOFACE</span>
-    <a href="#top" class="to-top">Back to top ↑</a>
-  </div>
-</footer>
+    <section id="tracks" class="tracks" aria-live="polite">
+      <!-- Populated by JS from beats.json -->
+    </section>
+  </main>
 
-<script>
-(async () => {
-  const res = await fetch('/beats.json');
-  const catalog = await res.json();
-  const grid = document.getElementById('beats-grid');
+  <footer class="site-footer">
+    <div class="container" style="padding:20px 0;color:#a3a3ad;border-top:1px solid #1c1c1f;margin-top:40px;">
+      © 2025 TWOFACE
+    </div>
+  </footer>
 
-  const tiers = [
-    {key:'ne_mp3', label:'Non-Exclusive MP3'},
-    {key:'ne_mp3_wav', label:'Non-Exclusive MP3+WAV'},
-    {key:'ex_mp3_wav', label:'Exclusive MP3+WAV'},
-    {key:'ex_mp3_wav_stems', label:'Exclusive MP3+WAV+Stems'}
-  ];
+  <script>
+    // ------- Data source (expects beats.json in site root) -------
+    // beats.json schema example is at the bottom of this file.
 
-  Object.entries(catalog).forEach(([id, beat]) => {
-    const card = document.createElement('article');
-    card.className = 'beat-card';
-    const exclDisabled = beat.exclusiveAvailable === false;
+    const listEl = document.querySelector('#tracks');
 
-    card.innerHTML = `
-      <div class="row">
-        <div class="meta">
+    // shared audio element so only one track plays at a time
+    const player = new Audio();
+    player.preload = 'metadata';
+    let currentRow = null;
+
+    function fmtTime(sec) {
+      if (isNaN(sec) || sec === Infinity) return '0:00';
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60).toString().padStart(2,'0');
+      return `${m}:${s}`;
+    }
+
+    function buildRow(beat) {
+      const row = document.createElement('article');
+      row.className = 'track';
+      row.dataset.src = beat.audio || '';
+
+      const hasArt = !!beat.art;
+      const artSrc = hasArt ? beat.art : 'img/hero.jpg';
+
+      row.innerHTML = `
+        <div class="t-art">
+          <img src="${artSrc}" alt="${beat.title} cover" />
+          <button class="t-play" aria-label="Play ${beat.title}" title="Play">
+            <span class="dot">
+              <!-- play icon -->
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M8 5v14l11-7-11-7Z" fill="white"/>
+              </svg>
+            </span>
+          </button>
+        </div>
+
+        <div class="t-title">
           <h4>${beat.title}</h4>
-          <p class="muted">${beat.bpm} BPM · ${beat.tags.join(' · ')}</p>
+          <div class="meta">
+            ${beat.mood?.length ? `<span class="chip">${beat.mood.join(' • ')}</span>` : ''}
+            ${beat.key ? `<span class="chip">${beat.key}</span>` : ''}
+            ${beat.bpm ? `<span>${beat.bpm} BPM</span>` : ''}
+          </div>
         </div>
-        <div class="buttons">
-          ${tiers.map(t => {
-            const isExclusive = t.key.startsWith('ex_');
-            const disabledAttr = (isExclusive && exclDisabled) ? 'disabled' : '';
-            const cls = isExclusive ? 'btn outline' : 'btn';
-            return `<button class="${cls}" data-id="${id}" data-tier="${t.key}" ${disabledAttr}>${t.label}</button>`;
-          }).join('')}
+
+        <div class="t-wave" role="progressbar" aria-valuemin="0" aria-valuenow="0" aria-valuemax="100">
+          <div class="wave-bars"></div>
+          <div class="wave-progress"></div>
+          <div class="t-time">0:00</div>
         </div>
-      </div>
-      <audio controls preload="none" src="${beat.previewSrc}"></audio>
-    `;
-    grid.appendChild(card);
-  });
 
-  grid.addEventListener('click', async (e) => {
-    const btn = e.target.closest('button[data-tier]');
-    if (!btn || btn.disabled) return;
-    const beatId = btn.getAttribute('data-id');
-    const tier = btn.getAttribute('data-tier');
+        <div class="t-actions">
+          <a class="tier" ${beat.tiers?.mp3 ? `href="${beat.tiers.mp3}" target="_blank" rel="noopener"` : 'aria-disabled="true"'}><small>$15</small> MP3</a>
+          <a class="tier" ${beat.tiers?.mp3wav ? `href="${beat.tiers.mp3wav}" target="_blank" rel="noopener"` : 'aria-disabled="true"'}><small>$20</small> MP3+WAV</a>
+          <a class="tier" ${beat.tiers?.excl_nowav ? `href="${beat.tiers.excl_nowav}" target="_blank" rel="noopener"` : 'aria-disabled="true"'}><small>$60</small> Exclusive (No Stems)</a>
+          <a class="tier" ${beat.tiers?.excl_stems ? `href="${beat.tiers.excl_stems}" target="_blank" rel="noopener"` : 'aria-disabled="true"'}><small>$100</small> Exclusive + Stems</a>
+        </div>
+      `;
 
-    const r = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ beatId, tier })
-    });
-    const { url, error } = await r.json();
-    if (error) { alert(error); return; }
-    window.location.href = url; // Stripe Checkout
-  });
-})();
-</script>
+      // click to play/pause
+      const playBtn = row.querySelector('.t-play');
+      const wave = row.querySelector('.t-wave');
+      const bar = row.querySelector('.wave-progress');
+      const ttime = row.querySelector('.t-time');
+
+      playBtn.addEventListener('click', () => {
+        const src = row.dataset.src;
+        if (!src) return;
+
+        // if clicking same row, toggle
+        if (currentRow === row && !player.paused) {
+          player.pause();
+          return;
+        }
+
+        // switch rows
+        if (currentRow && currentRow !== row) {
+          currentRow.querySelector('.wave-progress').style.width = '0%';
+          currentRow.querySelector('.t-time').textContent = '0:00';
+        }
+
+        currentRow = row;
+        player.src = src;
+        player.play().catch(() => {});
+      });
+
+      // when metadata loads, set duration label
+      player.addEventListener('loadedmetadata', () => {
+        if (currentRow === row) {
+          ttime.textContent = fmtTime(player.duration);
+        }
+      });
+
+      // update progress while playing
+      player.addEventListener('timeupdate', () => {
+        if (currentRow !== row) return;
+        const pct = (player.currentTime / (player.duration || 1)) * 100;
+        bar.style.width = `${pct}%`;
+        wave.setAttribute('aria-valuenow', Math.round(pct));
+        ttime.textContent = fmtTime(player.currentTime);
+      });
+
+      // when ended, reset
+      player.addEventListener('ended', () => {
+        if (currentRow === row) {
+          bar.style.width = '0%';
+          ttime.textContent = fmtTime(player.duration || 0);
+        }
+      });
+
+      listEl.appendChild(row);
+    }
+
+    async function init() {
+      try {
+        const res = await fetch('beats.json', { cache: 'no-store' });
+        const beats = await res.json();
+
+        if (!Array.isArray(beats) || beats.length === 0) {
+          listEl.innerHTML = `<p style="color:#bbb">No beats found. Add entries to <code>beats.json</code>.</p>`;
+          return;
+        }
+
+        beats.forEach(buildRow);
+      } catch (err) {
+        console.error(err);
+        listEl.innerHTML = `<p style="color:#bbb">Couldn’t load beats. Check <code>beats.json</code> and CORS (Cloudflare R2).</p>`;
+      }
+    }
+
+    init();
+  </script>
+
+  <!--
+    =========================
+    beats.json (example)
+    =========================
+    Save this JSON at the site root as beats.json. Replace URLs with your R2 pre-signed/public dev URLs and Stripe Payment Links.
+
+    [
+      {
+        "id": "night-drive",
+        "title": "Night Drive",
+        "bpm": 120,
+        "key": "A Minor",
+        "mood": ["Dark", "Trap"],
+        "art": "img/hero.jpg",
+        "audio": "https://<your-r2-public-or-presigned-url>/night_drive.mp3",
+        "tiers": {
+          "mp3": "https://buy.stripe.com/XXXXXXXXXXXX15",        // $15
+          "mp3wav": "https://buy.stripe.com/XXXXXXXXXXXX20",     // $20
+          "excl_nowav": "https://buy.stripe.com/XXXXXXXXXXXX60",  // $60
+          "excl_stems": "https://buy.stripe.com/XXXXXXXXXXXX100"  // $100
+        }
+      }
+    ]
+  -->
 </body>
 </html>
