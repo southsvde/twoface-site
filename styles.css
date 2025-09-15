@@ -337,3 +337,40 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
 #beats .buttons { display:flex; gap:8px; flex-wrap:wrap; }
 #beats .buttons button[disabled] { opacity:0.45; cursor:not-allowed; }
 #beats audio { width:100%; margin-top:10px; }
+
+/* --- Spacing + responsive layout for the two CTA buttons --- */
+.cta-row {
+  /* On wider screens, sit side-by-side with a gap */
+  display: flex;
+  gap: 12px;                  /* space between buttons */
+  flex-wrap: wrap;            /* allows wrap on narrow widths */
+  margin-bottom: 20px;        /* breathing room before next section */
+}
+
+.cta-row a,
+.cta-row button {
+  flex: 1 1 180px;            /* grow to fill, but can wrap if tight */
+}
+
+/* --- Contact section top padding (so it never hugs the buttons) --- */
+#contact {
+  padding-top: clamp(20px, 5vw, 40px);  /* responsive space above header */
+}
+
+/* --- Mobile tweaks: stack buttons full-width --- */
+@media (max-width: 480px) {
+  .cta-row {
+    flex-direction: column;   /* stack vertically on small screens */
+    gap: 12px;                /* keep a comfy gap between stacked buttons */
+    margin-bottom: 24px;      /* a touch more room before Contact */
+  }
+
+  .cta-row a,
+  .cta-row button {
+    width: 100%;              /* full-width tap targets on mobile */
+  }
+
+  #contact {
+    padding-top: clamp(24px, 6vw, 48px); /* a little extra air on phones */
+  }
+}
