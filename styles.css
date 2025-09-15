@@ -19,31 +19,62 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); fon
 .brand { font-size: 24px; letter-spacing: .12em; margin: 0; }
 .nav a { color: var(--fg); text-decoration: none; margin-left: 16px; font-size: 14px; opacity: .85; }
 .nav a:hover { opacity: 1; } */
+/* ===== Site Header (scoped so it doesn't affect other links) ===== */
 .site-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;   /* logo left, nav right */
   padding: 16px 24px;
 }
 
-.logo {
-  margin-right: auto;            /* pushes nav to the right */
+/* LOGO: force white and remove link styles, even if visited */
+.site-header .logo {
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 28px;                  /* adjust if you want it larger/smaller */
   text-decoration: none;
 }
+.site-header .logo:link,
+.site-header .logo:visited,
+.site-header .logo:hover,
+.site-header .logo:active {
+  color: #fff;                      /* keep logo white always */
+}
 
+/* NAV: right side, consistent spacing */
 .site-nav {
   display: flex;
-  gap: 24px;                     /* even spacing, preserves DOM order */
+  gap: 24px;                        /* space between links */
 }
 
-.site-nav a {
+/* Force nav link color to your light/white, overriding visited states */
+.site-nav a:link,
+.site-nav a:visited {
+  color: rgba(255,255,255,0.9);
   text-decoration: none;
-  /* your normal link styles here */
+  font-weight: 500;
+}
+.site-nav a:hover {
+  color: #fff;
+  text-decoration: none;
+  opacity: 1;
 }
 
+/* Active page styling */
 .site-nav a.active {
-  /* highlight current page (color/underline), but NO reordering */
-  text-decoration: underline;
+  color: #fff;
+  text-decoration: underline;       /* or use a bottom border if you prefer */
+  text-underline-offset: 3px;
 }
+
+/* Optional: tighten on small screens */
+@media (max-width: 600px) {
+  .site-header { padding: 12px 16px; }
+  .site-nav { gap: 18px; }
+  .site-header .logo { font-size: 24px; letter-spacing: 0.12em; }
+}
+
 
 
 .hero { position: relative; height: 72vh; min-height: 420px; border-bottom: 1px solid var(--border); }
