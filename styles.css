@@ -338,39 +338,52 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
 #beats .buttons button[disabled] { opacity:0.45; cursor:not-allowed; }
 #beats audio { width:100%; margin-top:10px; }
 
-/* --- Spacing + responsive layout for the two CTA buttons --- */
+/* --- CTA row layout & spacing --- */
 .cta-row {
-  /* On wider screens, sit side-by-side with a gap */
   display: flex;
-  gap: 12px;                  /* space between buttons */
-  flex-wrap: wrap;            /* allows wrap on narrow widths */
-  margin-bottom: 20px;        /* breathing room before next section */
+  justify-content: center;     /* center the pair on desktop */
+  align-items: center;
+  gap: 12px;                    /* space *between* the two buttons */
+  flex-wrap: wrap;
+  margin: 12px 0 28px;          /* add space *below* the buttons (desktop too) */
 }
 
-.cta-row a,
-.cta-row button {
-  flex: 1 1 180px;            /* grow to fill, but can wrap if tight */
+/* Buttons should size to their content, not stretch full-width */
+.cta-row .btn,
+.cta-row .btn.outline {
+  flex: 0 0 auto;               /* <-- key change: prevents the super-long bars */
+  padding: 10px 16px;           /* reasonable desktop padding */
+  line-height: 1.2;
+  border-radius: 9999px;        /* keep your pill look */
 }
 
-/* --- Contact section top padding (so it never hugs the buttons) --- */
+/* Contact section gets consistent air above it */
 #contact {
-  padding-top: clamp(20px, 5vw, 40px);  /* responsive space above header */
+  padding-top: 28px;            /* desktop spacing */
 }
 
-/* --- Mobile tweaks: stack buttons full-width --- */
+/* --- Mobile tweaks --- */
 @media (max-width: 480px) {
   .cta-row {
-    flex-direction: column;   /* stack vertically on small screens */
-    gap: 12px;                /* keep a comfy gap between stacked buttons */
-    margin-bottom: 24px;      /* a touch more room before Contact */
+    flex-direction: column;     /* stack vertically on phones */
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 24px;        /* space below to separate from Contact */
   }
 
-  .cta-row a,
-  .cta-row button {
-    width: 100%;              /* full-width tap targets on mobile */
+  .cta-row .btn,
+  .cta-row .btn.outline {
+    width: min(92%, 360px);     /* not full-screen wide; caps the size */
+    padding: 12px 14px;         /* smaller, thumb-friendly buttons */
+    font-size: 15px;            /* prevent giant text */
   }
 
   #contact {
-    padding-top: clamp(24px, 6vw, 48px); /* a little extra air on phones */
+    padding-top: 28px;          /* keep some air even after stacked buttons */
   }
+}
+
+/* --- Optional (tablet/desktop nicer gap) --- */
+@media (min-width: 768px) {
+  .cta-row { gap: 16px; }       /* a touch more breathing room on larger screens */
 }
