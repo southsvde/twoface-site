@@ -13,11 +13,38 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); fon
 
 .container { width: min(1120px, 92vw); margin: 0 auto; }
 
+/*
 .site-header { position: sticky; top: 0; z-index: 20; background: rgba(10,10,10,.9); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); }
 .site-header .container { display:flex; align-items:center; justify-content:space-between; padding: 14px 0; }
 .brand { font-size: 24px; letter-spacing: .12em; margin: 0; }
 .nav a { color: var(--fg); text-decoration: none; margin-left: 16px; font-size: 14px; opacity: .85; }
-.nav a:hover { opacity: 1; }
+.nav a:hover { opacity: 1; } */
+.site-header {
+  display: flex;
+  align-items: center;
+  padding: 16px 24px;
+}
+
+.logo {
+  margin-right: auto;            /* pushes nav to the right */
+  text-decoration: none;
+}
+
+.site-nav {
+  display: flex;
+  gap: 24px;                     /* even spacing, preserves DOM order */
+}
+
+.site-nav a {
+  text-decoration: none;
+  /* your normal link styles here */
+}
+
+.site-nav a.active {
+  /* highlight current page (color/underline), but NO reordering */
+  text-decoration: underline;
+}
+
 
 .hero { position: relative; height: 72vh; min-height: 420px; border-bottom: 1px solid var(--border); }
 /*.hero-img { object-fit: cover; object-position: center 25%; width: 100%; height: 100%; filter: contrast(1.05) saturate(0); opacity: .85; }*/
