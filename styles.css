@@ -445,3 +445,24 @@ h3 { font-size: 22px; letter-spacing:.08em; margin: 0 0 16px; }
 @media (min-width: 768px) {
   .cta-row { gap: 16px; }       /* a touch more breathing room on larger screens */
 }
+
+.beats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+@media (min-width: 720px) {
+  .beats-grid { grid-template-columns: 1fr 1fr; }
+}
+.beat-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.beat-card h3 { margin: 0 0 6px; }
+.beat-card .muted { opacity: 0.7; margin: 0 0 10px; }
+.beat-card audio { width: 100%; margin: 10px 0 12px; }
+.beat-actions .btn { display: inline-block; }
+
