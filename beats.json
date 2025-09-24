@@ -1,17 +1,17 @@
 [
   {
-    "id": "night-drive",
-    "title": "Night Drive",
-    "bpm": 120,
-    "key": "A Minor",
+    "id": "brampton-beat",
+    "title": "BRAMPTON",
+    "bpm": 122,
+    "key": "Dm",
     "mood": ["Dark", "Trap"],
-    "art": "img/hero.jpg",
-    "audio": "https://pub-2a87cb6f03f244929f901bfa56ad456d.r2.dev/night_drive.mp3",
+    "art": "img/IMG_2884.jpg",
+    "audio": "/audio/brampton.mp3",
     "tiers": {
-      "mp3": "https://buy.stripe.com/...",         // $15 Non-Exclusive MP3
-      "mp3wav": "https://buy.stripe.com/...",      // $20 Non-Exclusive MP3+WAV
-      "excl_nowav": "https://buy.stripe.com/...",  // $60 Exclusive (No Stems)
-      "excl_stems": "https://buy.stripe.com/..."   // $100 Exclusive + Stems
+      "mp3": "#",
+      "mp3wav": "#",
+      "excl_nowav": "#",
+      "excl_stems": "#"
     }
   }
 ]
