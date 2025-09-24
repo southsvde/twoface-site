@@ -8,10 +8,7 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 
-<!-- IMPORTANT: this class activates all the Beats styles -->
 <body class="page-beats">
-
-  <!-- Shared header -->
   <header class="site-header">
     <a class="logo" href="index.html">TWOFACE</a>
     <nav class="site-nav">
@@ -28,29 +25,15 @@
       <p class="muted">Preview &amp; license directly — secure delivery after purchase.</p>
     </div>
 
-    <!-- JS injects the rows here -->
     <section id="tracks" class="tracks" aria-live="polite"></section>
+    <p id="beats-status" class="muted"></p>
   </main>
 
   <footer class="site-footer">
     <div class="container">© 2025 TWOFACE</div>
   </footer>
 
-  <script>
-    /* ============================================================
-       TWOFACE — Beats inline player
-       - Loads /beats.json (root)
-       - One shared <audio> so only one track plays at a time
-       - Play/Pause toggle (no reset), click+drag seek, BUY menu
-       ============================================================ */
-
-    const listEl = document.querySelector('#tracks');
-    const player = new Audio();
-    player.preload = 'metadata';
-
-    let currentRow = null;
-    let isDragging = false;
-
-    const ICONS = {
-      play:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7-11-7Z" fill="white"/></svg>',
-      pause: '<svg width="14" height="
+  <!-- External script so any error is visible in DevTools and won’t block HTML -->
+  <script src="js/beats.js" defer></script>
+</body>
+</html>
