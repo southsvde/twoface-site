@@ -94,3 +94,59 @@ document.getElementById('addToCalendarBtn')?.addEventListener('click', () => {
     }
   });
 })();
+
+// js/beats.js (example)
+// Verbose + commented for clarity, per your style preference:
+
+async function loadBeats() {
+  const container = document.querySelector('#beats-list'); // an element in beats.html
+  if (!container) return;
+
+  try {
+    // Local dev path; works on Vercel too since /data is deployed as static assets
+    const res = await fetch('data/beats.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const beats = await res.json();
+
+    // Clear any previous error
+    container.innerHTML = '';
+
+    // Render each beat as a card with an audio player + license button
+    beats.forEach(beat => {
+      const card = document.createElement('article');
+      card.className = 'beat-card';
+
+      card.innerHTML = `
+        <div class="beat-meta">
+          <h3>${beat.title}</h3>
+          <p class="muted">BPM ${beat.bpm} • Key ${beat.key}</p>
+        </div>
+
+        <audio
+          controls
+          preload="none"
+          src="${beat.audioUrl}">
+            Your browser does not support the audio element.
+        </audio>
+
+        <div class="beat-actions">
+          <a class="btn" href="${beat.licenseUrl}" target="_blank" rel="noopener">License</a>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error('Failed to load beats:', err);
+    const fallback = document.querySelector('#beats-error');
+    if (fallback) {
+      fallback.textContent = `Couldn’t load beats. Check data/beats.json path. (${err.message})`;
+      fallback.style.display = 'block';
+    }
+  }
+}
+
+// Kick it off on page load
+document.addEventListener('DOMContentLoaded', loadBeats);
+
