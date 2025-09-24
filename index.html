@@ -123,5 +123,25 @@
   </footer>
 
   <script src="js/main.js"></script>
+
+
+  
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Don’t restore previous scroll position when returning to this page
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    // If someone lands with #music, remove it so future reloads start at top
+    if (location.hash) {
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+    // Always start at the top
+    window.scrollTo(0, 0);
+  });
+</script>
+
+
+  
 </body>
 </html>
