@@ -1,1 +1,13 @@
+[
+  {
+    "id": "brampton-beat",
+    "title": "BRAMPTON",
+    "bpm": 122,
+    "key": "Dm",
+    "price": 30,
+    "licenseUrl": "#",               // TODO: Stripe Payment Link or cart URL
+    "audioUrl": "audio/brampton.mp3", // <-- local relative path for now
+    "cover": "img/placeholder-cover.jpg" // optional; can omit if you want
+  }
+]
 
