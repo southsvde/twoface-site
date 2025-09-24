@@ -1,10 +1,10 @@
 /* ============================================================
    TWOFACE — Global Stylesheet (styles.css)
-   - Minimal globals to preserve your homepage look
-   - Beats-specific styles are SCOPED under .page-beats
+   - Minimal globals to preserve homepage look
+   - All Beats page rules are scoped under .page-beats
    ============================================================ */
 
-/* -------- 1) Minimal Globals (preserve your existing vibe) -------- */
+/* -------- 1) Minimal Globals (safe for all pages) -------- */
 :root{
   --bg:#0b0b0c; --text:#f5f5f7; --muted:#a0a0a7;
   --panel:#151517; --panelBorder:#1d1d22; --borderSubtle:#1c1c1f;
@@ -13,56 +13,88 @@
   --containerMax:1100px; --headerH:64px; --radius-lg:12px; --radius-pill:999px;
 }
 
-/* Keep font as whatever you had — no global font-family change */
 html,body{height:100%;}
-body{margin:0;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
-img{max-width:100%;display:block;}
-a{color:inherit;text-decoration:none;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
 
+img{max-width:100%;display:block;}
+
+/* NOTE: No global <a> reset here to avoid changing homepage link styles */
+
+/* Shared container */
 .container{max-width:var(--containerMax);margin:0 auto;padding:0 20px;}
 
-/* Header/Nav (same structure you’ve been using) */
+/* -------- 2) Header / Nav (shared) -------- */
 .site-header{
-  position:sticky;top:0;z-index:50;background:rgba(10,10,11,.9);
-  backdrop-filter:blur(6px);border-bottom:1px solid var(--borderSubtle);
-  display:flex;align-items:center;justify-content:space-between;height:var(--headerH);padding:0 24px;
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,10,11,.9);
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--borderSubtle);
+  display:flex;align-items:center;justify-content:space-between;
+  height:var(--headerH);padding:0 24px;
 }
-.logo{font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:28px;}
+
+.logo{
+  font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:28px;
+  text-decoration:none;
+}
 .logo:link,.logo:visited,.logo:hover,.logo:active{color:#fff;}
+
 .site-nav{display:flex;gap:24px;}
-.site-nav a:link,.site-nav a:visited{color:rgba(255,255,255,.9);font-weight:500;}
+.site-nav a:link,.site-nav a:visited{color:rgba(255,255,255,.9);text-decoration:none;font-weight:500;}
 .site-nav a:hover{color:#fff;}
 .site-nav a.active{color:#fff;text-decoration:underline;text-underline-offset:3px;}
 
-/* Footer */
+/* -------- 3) Footer -------- */
 .site-footer{border-top:1px solid var(--borderSubtle);color:#a3a3ad;padding:20px 0;margin-top:40px;}
 
-/* Homepage CTAs (used on index only; harmless elsewhere) */
-.cta-row{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 28px;}
-.cta-row .btn{display:inline-block;padding:10px 16px;border-radius:var(--radius-pill);background:#fff;color:#000;border:1px solid transparent;line-height:1.2;cursor:pointer;}
+/* -------- 4) Homepage CTAs (index only) -------- */
+.cta-row{
+  display:flex;justify-content:center;align-items:center;
+  gap:12px;flex-wrap:wrap;margin:12px 0 28px;
+}
+.cta-row .btn{
+  display:inline-block;padding:10px 16px;border-radius:var(--radius-pill);
+  background:#fff;color:#000;border:1px solid transparent;line-height:1.2;cursor:pointer;
+}
 .cta-row .btn.outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7);}
 #contact{padding-top:28px;}
+
 @media(max-width:480px){
   .cta-row{flex-direction:column;align-items:center;gap:10px;margin:10px 0 24px;}
   .cta-row .btn,.cta-row .btn.outline{width:min(92%,360px);padding:12px 14px;font-size:15px;}
 }
 
-/* Page heading block (used by beats page too) */
-.page-head{padding:24px 0 10px;}
-.page-head h2{margin:0 0 6px;color:#fff;font-size:28px;}
-.page-head p{margin:0;color:var(--muted);}
+/* -------- 5) Generic page heading block (only if you use it) -------- */
+/* If your homepage has its own heading styles, this won't interfere. */
+.section-head{padding:24px 0 10px;}
+.section-head h2{margin:0 0 6px;color:#fff;font-size:28px;}
+.section-head p{margin:0;color:var(--muted);}
 
 /* =================================================================
-   2) BEATS PAGE — All styles scoped under .page-beats to avoid bleed
+   6) BEATS PAGE — Everything scoped under .page-beats
+   (requires <body class="page-beats"> on beats.html)
    ================================================================= */
+.page-beats .page-head{padding:24px 0 10px;}
+.page-beats .page-head h2{margin:0 0 6px;color:#fff;font-size:28px;}
+.page-beats .page-head p{margin:0;color:var(--muted);}
+
 .page-beats .tracks{
   display:flex;flex-direction:column;gap:14px;margin:20px 0 60px;
 }
 
 /* Grid: [play] [art] [title] [wave grows] [actions] */
 .page-beats .track{
-  background:var(--panel);border:1px solid var(--panelBorder);border-radius:var(--radius-lg);
-  padding:12px;display:grid;align-items:center;gap:14px;
+  background:var(--panel);
+  border:1px solid var(--panelBorder);
+  border-radius:var(--radius-lg);
+  padding:12px;
+  display:grid;align-items:center;gap:14px;
   grid-template-columns:48px 56px auto minmax(320px,1.6fr) auto;
   grid-template-areas:"ctrl art title wave actions";
 }
@@ -70,8 +102,10 @@ a{color:inherit;text-decoration:none;}
 /* Left play/pause control */
 .page-beats .t-ctrl{grid-area:ctrl;display:grid;place-items:center;}
 .page-beats .t-ctrl button{
-  width:38px;height:38px;border-radius:50%;background:var(--accent);border:0;color:#fff;
-  display:grid;place-items:center;box-shadow:0 0 0 2px rgba(125,95,255,.25);cursor:pointer;transition:transform .12s ease-in-out;
+  width:38px;height:38px;border-radius:50%;
+  background:var(--accent);border:0;color:#fff;
+  display:grid;place-items:center;box-shadow:0 0 0 2px rgba(125,95,255,.25);
+  cursor:pointer;transition:transform .12s ease-in-out;
 }
 .page-beats .t-ctrl button:hover{transform:scale(1.05);}
 .page-beats .t-ctrl svg{display:block;}
@@ -117,12 +151,13 @@ a{color:inherit;text-decoration:none;}
 }
 .page-beats .buy-menu.open{display:block;}
 .page-beats .buy-menu a{
-  display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;text-decoration:none;color:#eaeaf2;border:1px solid transparent;
+  display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;
+  text-decoration:none;color:#eaeaf2;border:1px solid transparent;
 }
 .page-beats .buy-menu a:hover{background:#1b1b20;border-color:#292930;}
 .page-beats .buy-menu small{color:#bdbdd0;}
 
-/* Responsive collapse (keeps order) */
+/* Responsive collapse for Beats */
 @media(max-width:900px){
   .page-beats .track{
     grid-template-columns:48px 56px 1fr;
