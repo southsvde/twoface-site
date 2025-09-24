@@ -1,325 +1,135 @@
 /* ============================================================
    TWOFACE — Global Stylesheet (styles.css)
-   One file to rule them all: header/nav, buttons, forms,
-   homepage CTAs, Beats player, footer, and responsive tweaks.
+   - Minimal globals to preserve your homepage look
+   - Beats-specific styles are SCOPED under .page-beats
    ============================================================ */
 
-/* ---------- 1) Design Tokens / Theme ---------- */
-:root {
-  /* colors */
-  --bg: #0b0b0c;
-  --panel: #151517;
-  --panelBorder: #1d1d22;
-  --muted: #a0a0a7;
-  --text: #f5f5f7;
-  --textDim: #cfcfd6;
-  --accent: #7d5fff;            /* play button + focus ring (Beats) */
-  --chip: #1f1f22;
-  --chipText: #e6e6eb;
-  --chipBorder: #26262b;
-  --btnBg: #222227;
-  --btnHover: #2c2c33;
-  --borderSubtle: #1c1c1f;
-
-  /* layout */
-  --containerMax: 1100px;
-  --headerHeight: 64px;
-
-  /* rhythm */
-  --radius-lg: 12px;
-  --radius-pill: 999px;
+/* -------- 1) Minimal Globals (preserve your existing vibe) -------- */
+:root{
+  --bg:#0b0b0c; --text:#f5f5f7; --muted:#a0a0a7;
+  --panel:#151517; --panelBorder:#1d1d22; --borderSubtle:#1c1c1f;
+  --accent:#7d5fff; --chip:#1f1f22; --chipText:#e6e6eb; --chipBorder:#26262b;
+  --btnBg:#222227; --btnHover:#2c2c33;
+  --containerMax:1100px; --headerH:64px; --radius-lg:12px; --radius-pill:999px;
 }
 
-/* ---------- 2) Baseline / Resets ---------- */
-*,
-*::before,
-*::after { box-sizing: border-box; }
+/* Keep font as whatever you had — no global font-family change */
+html,body{height:100%;}
+body{margin:0;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
 
-html, body { height: 100%; }
+.container{max-width:var(--containerMax);margin:0 auto;padding:0 20px;}
 
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Header/Nav (same structure you’ve been using) */
+.site-header{
+  position:sticky;top:0;z-index:50;background:rgba(10,10,11,.9);
+  backdrop-filter:blur(6px);border-bottom:1px solid var(--borderSubtle);
+  display:flex;align-items:center;justify-content:space-between;height:var(--headerH);padding:0 24px;
+}
+.logo{font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:28px;}
+.logo:link,.logo:visited,.logo:hover,.logo:active{color:#fff;}
+.site-nav{display:flex;gap:24px;}
+.site-nav a:link,.site-nav a:visited{color:rgba(255,255,255,.9);font-weight:500;}
+.site-nav a:hover{color:#fff;}
+.site-nav a.active{color:#fff;text-decoration:underline;text-underline-offset:3px;}
+
+/* Footer */
+.site-footer{border-top:1px solid var(--borderSubtle);color:#a3a3ad;padding:20px 0;margin-top:40px;}
+
+/* Homepage CTAs (used on index only; harmless elsewhere) */
+.cta-row{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 28px;}
+.cta-row .btn{display:inline-block;padding:10px 16px;border-radius:var(--radius-pill);background:#fff;color:#000;border:1px solid transparent;line-height:1.2;cursor:pointer;}
+.cta-row .btn.outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.7);}
+#contact{padding-top:28px;}
+@media(max-width:480px){
+  .cta-row{flex-direction:column;align-items:center;gap:10px;margin:10px 0 24px;}
+  .cta-row .btn,.cta-row .btn.outline{width:min(92%,360px);padding:12px 14px;font-size:15px;}
 }
 
-img { max-width: 100%; display: block; }
-a { color: inherit; }
+/* Page heading block (used by beats page too) */
+.page-head{padding:24px 0 10px;}
+.page-head h2{margin:0 0 6px;color:#fff;font-size:28px;}
+.page-head p{margin:0;color:var(--muted);}
 
-/* Content wrapper (used across pages) */
-.container {
-  max-width: var(--containerMax);
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-/* ---------- 3) Header / Nav ---------- */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(10,10,11,0.9);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid var(--borderSubtle);
-  display: flex;
-  align-items: center;
-  padding: 0 24px;
-  height: var(--headerHeight);
+/* =================================================================
+   2) BEATS PAGE — All styles scoped under .page-beats to avoid bleed
+   ================================================================= */
+.page-beats .tracks{
+  display:flex;flex-direction:column;gap:14px;margin:20px 0 60px;
 }
 
-/* LOGO styles (force white even for visited links) */
-.logo {
-  margin-right: auto;                 /* pushes nav to the right */
-  text-decoration: none;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-size: 28px;
-}
-.logo:link,
-.logo:visited,
-.logo:hover,
-.logo:active { color: #fff; }
-
-/* Right-aligned nav */
-.site-nav {
-  display: flex;
-  gap: 24px;
-}
-.site-nav a:link,
-.site-nav a:visited {
-  color: rgba(255,255,255,0.9);
-  text-decoration: none;
-  font-weight: 500;
-}
-.site-nav a:hover { color: #fff; }
-.site-nav a.active {
-  color: #fff;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+/* Grid: [play] [art] [title] [wave grows] [actions] */
+.page-beats .track{
+  background:var(--panel);border:1px solid var(--panelBorder);border-radius:var(--radius-lg);
+  padding:12px;display:grid;align-items:center;gap:14px;
+  grid-template-columns:48px 56px auto minmax(320px,1.6fr) auto;
+  grid-template-areas:"ctrl art title wave actions";
 }
 
-/* ---------- 4) Buttons (shared) ---------- */
-.btn {
-  display: inline-block;
-  padding: 10px 16px;
-  border-radius: var(--radius-pill);
-  background: #fff;
-  color: #000;
-  text-decoration: none;
-  border: 1px solid transparent;
-  line-height: 1.2;
-  cursor: pointer;
+/* Left play/pause control */
+.page-beats .t-ctrl{grid-area:ctrl;display:grid;place-items:center;}
+.page-beats .t-ctrl button{
+  width:38px;height:38px;border-radius:50%;background:var(--accent);border:0;color:#fff;
+  display:grid;place-items:center;box-shadow:0 0 0 2px rgba(125,95,255,.25);cursor:pointer;transition:transform .12s ease-in-out;
 }
-.btn:hover { opacity: 0.95; }
-
-.btn.outline {
-  background: transparent;
-  color: #fff;
-  border: 1px solid rgba(255,255,255,0.7);
-}
-
-/* ---------- 5) Forms (email capture on homepage) ---------- */
-input[type="email"],
-input[type="text"] {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
-  color: #fff;
-  outline: none;
-}
-input::placeholder { color: rgba(255,255,255,0.45); }
-
-/* ---------- 6) Homepage CTA row (Spotify / Apple) ---------- */
-/* Wrapper for the two buttons under the music embed */
-.cta-row {
-  display: flex;
-  justify-content: center;         /* center on desktop */
-  align-items: center;
-  gap: 12px;                       /* space between buttons */
-  flex-wrap: wrap;
-  margin: 12px 0 28px;             /* breathing room below the pair */
-}
-
-/* Buttons should NOT stretch full width on desktop */
-.cta-row .btn,
-.cta-row .btn.outline {
-  flex: 0 0 auto;                  /* key: prevents “super-long bar” */
-  padding: 10px 16px;
-  line-height: 1.2;
-  border-radius: var(--radius-pill);
-}
-
-/* Contact section never hugs the CTAs */
-#contact { padding-top: 28px; }
-
-/* Mobile tweaks for homepage CTAs */
-@media (max-width: 480px) {
-  .cta-row {
-    flex-direction: column;        /* stack vertically */
-    align-items: center;
-    gap: 10px;
-    margin: 10px 0 24px;
-  }
-  .cta-row .btn,
-  .cta-row .btn.outline {
-    width: min(92%, 360px);        /* not edge-to-edge; nice tap size */
-    padding: 12px 14px;
-    font-size: 15px;
-  }
-  #contact { padding-top: 28px; }
-}
-
-/* Optional: slightly larger gaps on tablets/desktops */
-@media (min-width: 768px) {
-  .cta-row { gap: 16px; }
-}
-
-/* ---------- 7) Page Headings / Copy ---------- */
-.page-head { padding: 24px 0 10px; }
-.page-head h2 {
-  margin: 0 0 6px;
-  color: #fff;
-  font-size: 28px;
-}
-.page-head p {
-  margin: 0;
-  color: var(--muted);
-}
-
-/* ---------- 8) Beats — Carded Player Row ---------- */
-/* Overall list container (your JS injects rows into #tracks) */
-.tracks {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin: 20px 0 60px;
-}
-
-/* Row grid:
-   [play] [art] [title] [wave grows] [actions] */
-.track {
-  background: var(--panel);
-  border: 1px solid var(--panelBorder);
-  border-radius: var(--radius-lg);
-  padding: 12px;
-  display: grid;
-  grid-template-columns: 48px 56px auto minmax(320px, 1.6fr) auto;
-  grid-template-areas: "ctrl art title wave actions";
-  align-items: center;
-  gap: 14px;
-}
-
-/* Left play/pause control (separate from the cover) */
-.t-ctrl { grid-area: ctrl; display: grid; place-items: center; }
-.t-ctrl button {
-  width: 38px; height: 38px; border-radius: 50%;
-  background: var(--accent);
-  border: 0; color: #fff; display: grid; place-items: center;
-  box-shadow: 0 0 0 2px rgba(125,95,255,.25);
-  cursor: pointer;
-  transition: transform .12s ease-in-out;
-}
-.t-ctrl button:hover { transform: scale(1.05); }
-.t-ctrl svg { display:block; }
+.page-beats .t-ctrl button:hover{transform:scale(1.05);}
+.page-beats .t-ctrl svg{display:block;}
 
 /* Cover art */
-.t-art { grid-area: art; position: relative; width:56px; height:56px; border-radius:10px; overflow:hidden; background:#0b0b0c; border:1px solid #222; }
-.t-art img { width:100%; height:100%; object-fit:cover; display:block; }
+.page-beats .t-art{grid-area:art;position:relative;width:56px;height:56px;border-radius:10px;overflow:hidden;background:#0b0b0c;border:1px solid #222;}
+.page-beats .t-art img{width:100%;height:100%;object-fit:cover;display:block;}
 
-/* Title + tags */
-.t-title { grid-area: title; min-width: 220px; }
-.t-title h4 { margin:0 0 2px; color:#fff; font-weight:700; letter-spacing:.02em; }
-.meta { display:flex; gap:10px; align-items:center; color:var(--muted); font-size:13px; }
-.meta .chip { background:var(--chip); color:var(--chipText); padding:2px 8px; border-radius:var(--radius-pill); border:1px solid var(--chipBorder); }
-.meta .sep { opacity:.5; }
+/* Title/meta */
+.page-beats .t-title{grid-area:title;min-width:220px;}
+.page-beats .t-title h4{margin:0 0 2px;color:#fff;font-weight:700;letter-spacing:.02em;}
+.page-beats .meta{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:13px;}
+.page-beats .meta .chip{background:var(--chip);color:var(--chipText);padding:2px 8px;border-radius:var(--radius-pill);border:1px solid var(--chipBorder);}
 
-/* Wave / progress — longer horizontally, modest height, clickable */
-.t-wave {
-  grid-area: wave;
-  height: 44px;
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-  border: 1px solid #222;
-  background: #101013;
-  cursor: pointer; /* indicates seekable */
+/* Wave / progress (longer horizontally; clickable) */
+.page-beats .t-wave{
+  grid-area:wave;height:44px;border-radius:8px;overflow:hidden;position:relative;
+  border:1px solid #222;background:#101013;cursor:pointer;
 }
-.wave-bars {
-  position: absolute; inset: 0;
-  background:
-    repeating-linear-gradient(to right, #1f1f24 0 2px, transparent 2px 7px);
-  opacity: .9;
+.page-beats .wave-bars{
+  position:absolute;inset:0;background:repeating-linear-gradient(to right,#1f1f24 0 2px,transparent 2px 7px);opacity:.9;
 }
-.wave-progress {
-  position: absolute; top: 0; left: 0;
-  height: 100%; width: 0%;
-  background: linear-gradient(90deg, rgba(125,95,255,.28), rgba(125,95,255,.12));
-  border-right: 2px solid rgba(125,95,255,.9);
-  transition: width .06s linear;
-  pointer-events: none;
+.page-beats .wave-progress{
+  position:absolute;top:0;left:0;height:100%;width:0%;
+  background:linear-gradient(90deg,rgba(125,95,255,.28),rgba(125,95,255,.12));
+  border-right:2px solid rgba(125,95,255,.9);transition:width .06s linear;pointer-events:none;
 }
-.t-time {
-  position: absolute; right: 8px; bottom: 6px;
-  font-size: 12px; color: #c9c9d2; opacity: .9;
-  background: rgba(14,14,18,.55); padding: 2px 6px;
-  border-radius: 6px; border: 1px solid #24242a;
+.page-beats .t-time{
+  position:absolute;right:8px;bottom:6px;font-size:12px;color:#c9c9d2;opacity:.9;
+  background:rgba(14,14,18,.55);padding:2px 6px;border-radius:6px;border:1px solid #24242a;
 }
 
-/* Actions — a single BUY button with compact dropdown menu */
-.t-actions { grid-area: actions; display:flex; align-items:center; position: relative; }
-.buy-btn {
-  appearance: none; border: none; cursor: pointer; font: inherit;
-  background: var(--btnBg); color: #eaeaf2; padding: 10px 14px;
-  border-radius: var(--radius-pill); border: 1px solid #2e2e34;
-  white-space: nowrap; transition: background .15s ease;
+/* Actions — BUY with dropdown */
+.page-beats .t-actions{grid-area:actions;display:flex;align-items:center;position:relative;}
+.page-beats .buy-btn{
+  appearance:none;border:none;cursor:pointer;font:inherit;background:var(--btnBg);color:#eaeaf2;
+  padding:10px 14px;border-radius:var(--radius-pill);border:1px solid #2e2e34;white-space:nowrap;transition:background .15s ease;
 }
-.buy-btn:hover { background: var(--btnHover); }
+.page-beats .buy-btn:hover{background:var(--btnHover);}
+.page-beats .buy-menu{
+  position:absolute;right:0;top:100%;margin-top:8px;min-width:260px;background:#121216;border:1px solid #26262b;border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);padding:8px;display:none;z-index:10;
+}
+.page-beats .buy-menu.open{display:block;}
+.page-beats .buy-menu a{
+  display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;text-decoration:none;color:#eaeaf2;border:1px solid transparent;
+}
+.page-beats .buy-menu a:hover{background:#1b1b20;border-color:#292930;}
+.page-beats .buy-menu small{color:#bdbdd0;}
 
-/* Dropdown list for tiers */
-.buy-menu {
-  position: absolute; right: 0; top: 100%;
-  margin-top: 8px; min-width: 260px;
-  background: #121216; border: 1px solid #26262b; border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.35);
-  padding: 8px; display: none; z-index: 10;
-}
-.buy-menu.open { display: block; }
-.buy-menu a {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 12px; border-radius: 8px; text-decoration: none; color: #eaeaf2;
-  border: 1px solid transparent;
-}
-.buy-menu a:hover { background: #1b1b20; border-color: #292930; }
-.buy-menu small { color: #bdbdd0; }
-
-/* Beats responsive: stack gracefully under ~900px */
-@media (max-width: 900px) {
-  .track {
-    grid-template-columns: 48px 56px 1fr;
+/* Responsive collapse (keeps order) */
+@media(max-width:900px){
+  .page-beats .track{
+    grid-template-columns:48px 56px 1fr;
     grid-template-areas:
       "ctrl art title"
       "wave wave wave"
       "actions actions actions";
-    gap: 10px;
+    gap:10px;
   }
 }
-
-/* ---------- 9) Footer ---------- */
-.site-footer {
-  border-top: 1px solid var(--borderSubtle);
-  color: #a3a3ad;
-  padding: 20px 0;
-  margin-top: 40px;
-}
-
-/* ---------- 10) Utilities ---------- */
-.muted { color: var(--muted); }
-.hidden { display: none !important; }
-.center { text-align: center; }
-
-/* End of styles.css */
