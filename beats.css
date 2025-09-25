@@ -4,12 +4,29 @@
   --panel:#151517; --panelBorder:#1d1d22; --borderSubtle:#1c1c1f;
   --accentBeats:#7d5fff; --chip:#1f1f22; --chipText:#e6e6eb; --chipBorder:#26262b;
   --btnBg:#222227; --btnHover:#2c2c33;
+
+  --modalBg:#0f1014; --modalBorder:#24252c; --backdrop:rgba(0,0,0,.55);
 }
 
 /* Page head */
 .page-head{padding:24px 0 10px;}
 .page-head h2{margin:0 0 6px;color:#fff;font-size:28px;}
 .page-head p{margin:0;color:#a0a0a7;}
+
+/* Info row (question mark + text) */
+.info-row{margin:10px 0 6px;}
+.info-link{
+  display:inline-flex; align-items:center; gap:8px;
+  background:transparent; border:0; color:#dfe0e6; cursor:pointer;
+  font:inherit; padding:6px 8px; border-radius:8px;
+}
+.info-link:hover{background:#111217}
+.info-link:focus-visible{outline:2px solid #3a3a44; outline-offset:2px}
+.qmark{
+  width:18px; height:18px; display:grid; place-items:center;
+  border-radius:50%; background:#1b1c22; border:1px solid #2b2c34;
+  font-weight:700; font-size:12px; color:#eaeaf2; line-height:1;
+}
 
 /* ---------- Controls ---------- */
 .beats-controls{margin:10px 0 18px;border-bottom:1px solid var(--borderSubtle);padding-bottom:10px;}
@@ -106,3 +123,24 @@
     gap:10px
   }
 }
+
+/* ---------- Modal ---------- */
+.modal{position:fixed;inset:0;display:none;}
+.modal.open{display:block;}
+.modal-backdrop{position:absolute;inset:0;background:var(--backdrop);backdrop-filter:saturate(1) blur(2px);}
+.modal-panel{
+  position:relative; z-index:1; width:min(680px, 92vw); max-height:85vh; overflow:auto;
+  margin:8vh auto 0; background:var(--modalBg); border:1px solid var(--modalBorder);
+  border-radius:14px; padding:18px 18px 14px; box-shadow:0 20px 80px rgba(0,0,0,.55);
+}
+.modal-close{
+  position:absolute; top:10px; right:10px; width:32px; height:32px; border-radius:50%;
+  border:1px solid #2a2b33; background:#181920; color:#eaeaf2; cursor:pointer;
+}
+.modal-close:hover{background:#1f2028}
+.modal-content ul{margin:0 0 8px 18px}
+.modal-content li{margin:6px 0}
+.modal-cta{margin:10px 0 0; color:#d9d9e3}
+.modal-actions{display:flex;justify-content:flex-end;margin-top:12px}
+.modal-actions .btn{height:auto;padding:8px 14px;border-radius:10px;border:1px solid #2a2a30;background:#1a1b20;color:#fff}
+.modal-actions .btn:hover{background:#22232a}
