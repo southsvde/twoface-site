@@ -1,7 +1,7 @@
 // /js/beats.js — TWOFACE Beats page
-// Adds filters + inline player + MP3/WAV modal + JSON-driven Buy menu
-// NEW in Step 3: "Add to cart" menu (local only) that mirrors the Buy menu.
-// - Uses window.TWFCart.add(...) if cart.js is present (graceful fallback otherwise)
+// Filters + inline player + MP3/WAV modal + JSON-driven Buy/Add menus
+// Step 4: Allow "Add to cart" even when a tier has no Stripe priceId yet.
+//          (Checkout remains blocked by cart.js until priceIds exist.)
 
 (() => {
   const listEl   = document.querySelector('#tracks');
@@ -169,10 +169,10 @@
           </a>
         `;
       } else {
-        // ADD mode: styled like <a>, but acts as button; disabled if no priceId
-        const disabled = t.priceId ? '' : 'aria-disabled="true" tabindex="-1"';
+        // ADD mode: now ALWAYS allowed (even without priceId).
+        // Items without priceId can be added, but cart.js will block checkout until priceIds exist.
         return `
-          <a role="button" ${disabled}
+          <a role="button"
              class="item ${recClass}"
              data-action="add"
              data-tier="${key}"
@@ -287,11 +287,6 @@
     addMenu.addEventListener('click', (e) => {
       const item = e.target.closest('[data-action="add"]');
       if (!item) return;
-
-      if (item.getAttribute('aria-disabled') === 'true') {
-        e.preventDefault();
-        return;
-      }
       e.preventDefault();
 
       const priceId = item.getAttribute('data-priceid') || '';
@@ -312,13 +307,12 @@
         tierKey,
         tierLabel: label,
         price,
-        priceId,
+        priceId, // may be empty for now; checkout will block until added
         url
       });
 
       closeMenus();
-      // Open drawer right away? Uncomment next line if desired:
-      // window.TWFCart.open();
+      // window.TWFCart.open(); // uncomment if you want the drawer to auto-open
     });
 
     // --- Player wiring ----------------------------------------------------
@@ -478,7 +472,7 @@
     const modal   = document.getElementById('mp3wav-modal');
     if (!trigger || !modal) return;
 
-    const closeBtns = modal.querySelectorAll('[data-close="modal"], .modal-close');
+    const closeBtns = modal.querySelectorAll('[data-close="modal"], .modal-close']);
     const backdrop  = modal.querySelector('.modal-backdrop');
     const panel     = modal.querySelector('.modal-panel');
 
@@ -513,7 +507,7 @@
 
     trigger.addEventListener('click', open);
     backdrop?.addEventListener('click', close);
-    closeBtns.forEach(b => b.addEventListener('click', close));
+    panel.querySelectorAll('[data-close="modal"], .modal-close').forEach(b => b.addEventListener('click', close));
   })();
 
   // Init
