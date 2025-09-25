@@ -108,15 +108,14 @@
     row.dataset.src = beat.audio || '';
 
     const artSrc = beat.art ? beat.art : 'img/hero.jpg';
-
     const primaryMood = beat._moods && beat._moods.length ? beat._moods[0] : '';
 
-    // Chips in the order: (Genre)(Mood)(Key)
+    // Chips in the order: (Genre)(Mood)(Key)(BPM) — BPM now uses a chip too
     const chips = `
       ${beat._genre ? `<span class="chip">${beat._genre}</span>` : ''}
       ${primaryMood ? `<span class="chip">${primaryMood}</span>` : ''}
       ${beat.key ? `<span class="chip">${beat.key}</span>` : ''}
-      ${beat.bpm ? `<span>${beat.bpm} BPM</span>` : ''}
+      ${Number(beat.bpm) ? `<span class="chip">${beat.bpm} BPM</span>` : ''}
     `;
 
     row.innerHTML = `
