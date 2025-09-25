@@ -225,9 +225,7 @@
 .modal-actions .btn:hover{background:#22232a}
 
 /* ===== Beats hero banner ===== */
-.beats-hero {
-  margin: 12px 0 18px;
-}
+.beats-hero { margin: 12px 0 18px; }
 
 .beats-hero .img-wrap {
   position: relative;
@@ -238,40 +236,39 @@
   border: 1px solid #1d1d22;
 }
 
-/* The source image is ~2048x652 (≈ 3.141:1). Use its native aspect on desktop.
-   On small screens we'll allow taller cropping so text stays legible. */
+/* Desktop: keep the native ultra-wide aspect with cover (unchanged) */
 .beats-hero img {
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 2048 / 652;
+  aspect-ratio: 2048 / 652;   /* ≈3.14:1 */
   object-fit: cover;
 }
 
-/* Mobile: still full-width, allow more height for readability */
+/* Mobile-only override: show the FULL banner (no cropping). */
 @media (max-width: 768px) {
   .beats-hero .img-wrap { border-radius: 12px; }
   .beats-hero img {
-    aspect-ratio: 16 / 9;   /* a bit taller on phones so copy doesn't get too tiny */
+    aspect-ratio: auto;       /* cancel the fixed ratio */
+    height: auto;             /* let the image determine its natural height */
+    object-fit: contain;      /* ensure the entire banner is visible */
   }
 }
 
-/* Super small phones: give it even more height */
+/* Super small phones: keep the same “contain” behavior */
 @media (max-width: 420px) {
   .beats-hero img {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: auto;
+    height: auto;
+    object-fit: contain;
   }
 }
 
 /* Hide the title/strapline block above the banner on Beats only */
-.page-head { 
-  display: none; 
-}
+.page-head { display: none; }
 
 /* Nudge the banner up a touch now that the header is gone */
-.beats-hero { 
-  margin-top: 8px; 
-}
+.beats-hero { margin-top: 8px; }
 
 /* Row-scoped accent defaults (fallback to your global gold). */
 #tracks .track { --row-accent: var(--accent); --row-glyph: #000; }
