@@ -1,19 +1,19 @@
-// TWOFACE — Beats page with filters and inline player
-
+// TWOFACE — Beats page with filters (Genre, Mood, Key, BPM) + inline player
 (() => {
   const listEl   = document.querySelector('#tracks');
   const statusEl = document.querySelector('#beats-status');
 
   // Controls
-  const qEl     = document.querySelector('#q');
-  const genreEl = document.querySelector('#genre');
-  const keyEl   = document.querySelector('#key');
-  const bpmMinEl= document.querySelector('#bpmMin');
-  const bpmMaxEl= document.querySelector('#bpmMax');
-  const sortEl  = document.querySelector('#sort');
-  const resetEl = document.querySelector('#reset');
-  const countEl = document.querySelector('#count');
-  const countSEl= document.querySelector('#count-s');
+  const qEl      = document.querySelector('#q');
+  const genreEl  = document.querySelector('#genre');
+  const moodEl   = document.querySelector('#mood');
+  const keyEl    = document.querySelector('#key');
+  const bpmMinEl = document.querySelector('#bpmMin');
+  const bpmMaxEl = document.querySelector('#bpmMax');
+  const sortEl   = document.querySelector('#sort');
+  const resetEl  = document.querySelector('#reset');
+  const countEl  = document.querySelector('#count');
+  const countSEl = document.querySelector('#count-s');
 
   if (!listEl) return;
 
@@ -54,10 +54,9 @@
       if (!player.duration || currentRow !== row) return;
       player.currentTime = pctFromEvent(e, wave) * player.duration;
     });
-    wave.addEventListener('mousedown', (e) => {
+    wave.addEventListener('mousedown', () => {
       if (!player.duration || currentRow !== row) return;
       isDragging = true;
-      player.currentTime = pctFromEvent(e, wave) * player.duration;
     });
     window.addEventListener('mousemove', (e) => {
       if (!isDragging || currentRow !== row || !player.duration) return;
@@ -66,13 +65,59 @@
     window.addEventListener('mouseup', () => { isDragging = false; });
   }
 
+  // --- Normalization: derive _genre and _moods for each beat (back-compat) ---
+  const KNOWN_GENRES = [
+    'Trap','Drill','Boom Bap','Boom-Bap','Boombap',
+    'Lo-fi','Lofi','LoFi','Lo-Fi',
+    'Hip-Hop','Hip Hop','HipHop',
+    'R&B','Pop','House','EDM','Afrobeats','Afrobeat','Dancehall','Reggaeton'
+  ];
+
+  function normalizeBeat(b) {
+    // moods as array of strings
+    let moods = [];
+    if (Array.isArray(b.mood)) moods = b.mood.map(String);
+    else if (b.mood) moods = [String(b.mood)];
+
+    // genre: explicit or inferred from moods
+    let genre = b.genre ? String(b.genre) : (moods.find(m => KNOWN_GENRES.includes(m)) || '');
+
+    // remove genre token from moods if it was inferred from there
+    const moodsNoGenre = genre ? moods.filter(m => m !== genre) : moods;
+
+    return {
+      ...b,
+      _genre: genre,
+      _moods: moodsNoGenre
+    };
+  }
+
+  function uniqueValues(list, extractor) {
+    const set = new Set();
+    list.forEach(item => {
+      const v = extractor(item);
+      if (Array.isArray(v)) v.forEach(x => set.add(String(x)));
+      else if (v) set.add(String(v));
+    });
+    return Array.from(set).sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
+  }
+
   function buildRow(beat) {
     const row = document.createElement('article');
     row.className = 'track';
     row.dataset.src = beat.audio || '';
 
     const artSrc = beat.art ? beat.art : 'img/hero.jpg';
-    const moodChips = Array.isArray(beat.mood) ? beat.mood : [];
+
+    const primaryMood = beat._moods && beat._moods.length ? beat._moods[0] : '';
+
+    // Chips in the order: (Genre)(Mood)(Key)
+    const chips = `
+      ${beat._genre ? `<span class="chip">${beat._genre}</span>` : ''}
+      ${primaryMood ? `<span class="chip">${primaryMood}</span>` : ''}
+      ${beat.key ? `<span class="chip">${beat.key}</span>` : ''}
+      ${beat.bpm ? `<span>${beat.bpm} BPM</span>` : ''}
+    `;
 
     row.innerHTML = `
       <div class="t-ctrl">
@@ -85,11 +130,7 @@
 
       <div class="t-title">
         <h4>${beat.title}</h4>
-        <div class="meta">
-          ${moodChips.length ? `<span class="chip">${moodChips.join(' • ')}</span>` : ''}
-          ${beat.key ? `<span class="chip">${beat.key}</span>` : ''}
-          ${beat.bpm ? `<span>${beat.bpm} BPM</span>` : ''}
-        </div>
+        <div class="meta">${chips}</div>
       </div>
 
       <div class="t-wave" role="progressbar" aria-valuemin="0" aria-valuenow="0" aria-valuemax="100">
@@ -178,35 +219,27 @@
 
   /* ---------- Data + Filters ---------- */
   let allBeats = [];
-
-  function uniqueValues(list, extractor) {
-    const set = new Set();
-    list.forEach(item => {
-      const v = extractor(item);
-      if (Array.isArray(v)) v.forEach(x => set.add(String(x)));
-      else if (v) set.add(String(v));
-    });
-    return Array.from(set).sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
-  }
+  let beatsNorm = []; // normalized beats with _genre and _moods
 
   function applyFilters() {
-    const q = (qEl.value || '').trim().toLowerCase();
-    const g = genreEl.value;
-    const k = keyEl.value;
-    const min = Number(bpmMinEl.value) || -Infinity;
-    const max = Number(bpmMaxEl.value) || Infinity;
+    const q   = (qEl?.value || '').trim().toLowerCase();
+    const g   = genreEl?.value || '';
+    const m   = moodEl?.value || '';
+    const k   = keyEl?.value || '';
+    const min = Number(bpmMinEl?.value) || -Infinity;
+    const max = Number(bpmMaxEl?.value) || Infinity;
 
-    let filtered = allBeats.filter(b => {
+    let filtered = beatsNorm.filter(b => {
       const titleOk = !q || (b.title || '').toLowerCase().includes(q);
-      const genreOk = !g || (Array.isArray(b.mood) && b.mood.map(String).includes(g));
+      const genreOk = !g || b._genre === g;
+      const moodOk  = !m || (Array.isArray(b._moods) && b._moods.includes(m));
       const keyOk   = !k || String(b.key) === k;
       const bpm     = Number(b.bpm);
       const bpmOk   = isFinite(bpm) ? (bpm >= min && bpm <= max) : true;
-      return titleOk && genreOk && keyOk && bpmOk;
+      return titleOk && genreOk && moodOk && keyOk && bpmOk;
     });
 
-    // sort
-    switch (sortEl.value) {
+    switch (sortEl?.value) {
       case 'bpm-asc':  filtered.sort((a,b)=> (a.bpm||0)-(b.bpm||0)); break;
       case 'bpm-desc': filtered.sort((a,b)=> (b.bpm||0)-(a.bpm||0)); break;
       case 'title-asc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')); break;
@@ -214,80 +247,73 @@
       default: /* keep original order */ break;
     }
 
-    // render
     renderList(filtered);
   }
 
   function renderList(items) {
-    // stop current playback when re-rendering
     if (!player.paused) player.pause();
     currentRow = null;
 
     listEl.innerHTML = '';
-    items.forEach(beat => {
-      const row = buildRow(beat);
-      listEl.appendChild(row);
-    });
+    items.forEach(beat => listEl.appendChild(buildRow(beat)));
 
-    // Update count
     const n = items.length;
-    countEl.textContent = String(n);
-    countSEl.style.display = n === 1 ? 'none' : 'inline';
-    statusEl.textContent = n ? '' : 'No results with those filters.';
+    if (countEl)  countEl.textContent = String(n);
+    if (countSEl) countSEl.style.display = n === 1 ? 'none' : 'inline';
+    if (statusEl) statusEl.textContent = n ? '' : 'No results with those filters.';
   }
 
   function populateControls(beats) {
-    // Genre (from mood array)
-    const genres = uniqueValues(beats, b => b.mood || []);
-    genreEl.innerHTML = `<option value="">All</option>` + genres.map(g => `<option value="${g}">${g}</option>`).join('');
+    // Using normalized fields for Genre/Mood
+    const genres = uniqueValues(beats, b => b._genre);
+    const moods  = uniqueValues(beats, b => b._moods || []);
+    const keys   = uniqueValues(beats, b => b.key);
 
-    // Keys
-    const keys = uniqueValues(beats, b => b.key);
-    keyEl.innerHTML = `<option value="">All</option>` + keys.map(k => `<option value="${k}">${k}</option>`).join('');
+    if (genreEl) genreEl.innerHTML = `<option value="">All</option>` + genres.map(v => `<option value="${v}">${v}</option>`).join('');
+    if (moodEl)  moodEl.innerHTML  = `<option value="">All</option>` + moods.map(v => `<option value="${v}">${v}</option>`).join('');
+    if (keyEl)   keyEl.innerHTML   = `<option value="">All</option>` + keys.map(v => `<option value="${v}">${v}</option>`).join('');
   }
 
   function resetFilters() {
-    qEl.value = '';
-    genreEl.value = '';
-    keyEl.value = '';
-    bpmMinEl.value = '';
-    bpmMaxEl.value = '';
-    sortEl.value = 'default';
+    if (qEl) qEl.value = '';
+    if (genreEl) genreEl.value = '';
+    if (moodEl) moodEl.value = '';
+    if (keyEl) keyEl.value = '';
+    if (bpmMinEl) bpmMinEl.value = '';
+    if (bpmMaxEl) bpmMaxEl.value = '';
+    if (sortEl) sortEl.value = 'default';
     applyFilters();
   }
 
   async function init() {
     try {
-      statusEl.textContent = 'Loading beats…';
+      if (statusEl) statusEl.textContent = 'Loading beats…';
       const res = await fetch('/beats.json', { cache: 'no-store' }); // root
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const beats = await res.json();
+      allBeats = await res.json();
 
-      if (!Array.isArray(beats) || beats.length === 0) {
-        statusEl.textContent = 'No beats found in beats.json.';
+      if (!Array.isArray(allBeats) || allBeats.length === 0) {
+        if (statusEl) statusEl.textContent = 'No beats found in beats.json.';
         return;
       }
 
-      allBeats = beats.slice(); // keep original order
-      populateControls(allBeats);
-      statusEl.textContent = '';
+      beatsNorm = allBeats.map(normalizeBeat);
+      populateControls(beatsNorm);
+      if (statusEl) statusEl.textContent = '';
       applyFilters();
     } catch (err) {
       console.error('[Beats] load error:', err);
-      statusEl.textContent = 'Couldn’t load beats. Check beats.json (valid JSON, no comments) and that /beats.json is accessible.';
+      if (statusEl) statusEl.textContent = 'Couldn’t load beats. Check beats.json (no comments) and that /beats.json is accessible.';
     }
   }
 
   // Wire events
-  [qEl, genreEl, keyEl, bpmMinEl, bpmMaxEl, sortEl].forEach(ctrl => {
+  [qEl, genreEl, moodEl, keyEl, bpmMinEl, bpmMaxEl, sortEl].forEach(ctrl => {
     ctrl && ctrl.addEventListener('input', applyFilters);
     ctrl && ctrl.addEventListener('change', applyFilters);
   });
   resetEl && resetEl.addEventListener('click', resetFilters);
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
