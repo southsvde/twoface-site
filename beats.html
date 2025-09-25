@@ -271,6 +271,65 @@
   #tracks .t-play[aria-label^="Pause"] .dot::after { left: calc(50% + 2px);  }
 </style>
 
+<style id="accent-gold-glyphs-final">
+  /* Make sure we’re drawing on the button itself */
+  #tracks .track button[aria-label^="Play"],
+  #tracks .track button[aria-label^="Pause"]{
+    position: relative;
+    background-image: none !important;   /* kill the built-in white icon */
+    -webkit-mask-image: none !important; /* if it was using a mask */
+            mask-image: none !important;
+    overflow: visible;                    /* give our glyph room */
+  }
+
+  /* Also remove any icon bg on the inner “dot”, if present */
+  #tracks .track button[aria-label^="Play"] .dot,
+  #tracks .track button[aria-label^="Pause"] .dot{
+    background-image: none !important;
+    -webkit-mask-image: none !important;
+            mask-image: none !important;
+    position: relative;
+  }
+
+  /* ------- PLAY (triangle) ------- */
+  #tracks .track button[aria-label^="Play"]::after{
+    content:"";
+    position:absolute;
+    left:50%; top:50%;
+    transform: translate(-40%, -50%);    /* slight optical centering */
+    width:0; height:0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 11px solid #000;        /* black triangle */
+    pointer-events:none;
+    z-index:2;
+  }
+
+  /* ------- PAUSE (two bars) ------- */
+  #tracks .track button[aria-label^="Pause"]::before,
+  #tracks .track button[aria-label^="Pause"]::after{
+    content:"";
+    position:absolute;
+    top:50%; transform:translateY(-50%);
+    width:3px; height:14px;
+    background:#000; border-radius:1px;
+    pointer-events:none; z-index:2;
+  }
+  #tracks .track button[aria-label^="Pause"]::before{ left:calc(50% - 5px); }
+  #tracks .track button[aria-label^="Pause"]::after { left:calc(50% + 2px);  }
+
+  /* Fallback: if your code uses a class instead of aria-label, support it too */
+  #tracks .track button.is-playing::before,
+  #tracks .track button.is-playing::after{
+    /* same as pause bars (duplicate to cover class-based state) */
+    content:"";
+    position:absolute; top:50%; transform:translateY(-50%);
+    width:3px; height:14px; background:#000; border-radius:1px;
+    pointer-events:none; z-index:2;
+  }
+  #tracks .track button.is-playing::before{ left:calc(50% - 5px); }
+  #tracks .track button.is-playing::after { left:calc(50% + 2px);  }
+</style>
 
   
 </body>
