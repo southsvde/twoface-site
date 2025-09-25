@@ -121,13 +121,23 @@
         box-shadow: 0 10px 28px rgba(0,0,0,.45);
       }
 
-      /* --- Mobile header compaction --- */
+      /* --- Mobile header compaction for BEATS page (≤640px) --- */
       @media (max-width: 640px) {
+        /* ensure header is positioning context */
         .site-header { position: relative; min-height: 56px; }
-        .site-header .site-nav {
+
+        /* show only Music + Beats links (hide Shows/Merch) */
+        .site-header .site-nav a[href*="shows"],
+        .site-header .site-nav a[href*="merch"] { display: none !important; }
+
+        /* keep logo hugging left; push nav to the right */
+        .site-header .site-nav { 
           gap: 14px;
-          padding-right: 96px; /* reserve space for Cart pill */
+          margin-left: auto;
+          padding-right: 96px;  /* reserve space for Cart pill */
         }
+
+        /* pin Cart pill at right, vertically centered */
         .cart-btn {
           position: absolute;
           right: 12px;
