@@ -26,6 +26,18 @@
       <p class="muted">Preview &amp; license directly — secure delivery after purchase.</p>
     </div>
 
+    <!-- MP3 vs WAV info link -->
+    <div class="info-row">
+      <button id="mp3wav-trigger"
+              class="info-link"
+              type="button"
+              aria-haspopup="dialog"
+              aria-controls="mp3wav-modal">
+        <span class="qmark" aria-hidden="true">?</span>
+        <span>MP3 vs WAV — The Difference &amp; Why It Matters</span>
+      </button>
+    </div>
+
     <!-- Filters / Sorting -->
     <section class="beats-controls" aria-label="Filters">
       <div class="row">
@@ -94,6 +106,36 @@
   <footer class="site-footer">
     <div class="container">© 2025 TWOFACE</div>
   </footer>
+
+  <!-- Modal (stays on page) -->
+  <div id="mp3wav-modal"
+       class="modal"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="mp3wav-title"
+       aria-describedby="mp3wav-body"
+       tabindex="-1">
+    <div class="modal-backdrop" data-close="modal"></div>
+
+    <div class="modal-panel" role="document">
+      <button class="modal-close" type="button" aria-label="Close">×</button>
+
+      <h3 id="mp3wav-title">MP3 vs WAV — The Difference &amp; Why It Matters</h3>
+      <div id="mp3wav-body" class="modal-content">
+        <ul>
+          <li><strong>WAV = studio master.</strong> Uncompressed, full detail (16/24-bit). Clean vocals, clean mix, loud master.</li>
+          <li><strong>MP3 = listening copy.</strong> It removes info to shrink the file; artifacts get louder when you process it.</li>
+          <li><strong>No double-compression.</strong> Start with WAV so streaming platforms don’t re-encode an MP3 again.</li>
+          <li><strong>Future-proof.</strong> Engineers, distributors, and sync libraries expect WAV. You can always make an MP3 later.</li>
+        </ul>
+        <p class="modal-cta"><strong>Recommended:</strong> <em>MP3 + WAV</em> — quick reference + full-quality for recording and release.</p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn modal-ok" type="button" data-close="modal">Got it</button>
+      </div>
+    </div>
+  </div>
 
   <script src="js/beats.js" defer></script>
 </body>
