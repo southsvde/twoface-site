@@ -223,3 +223,42 @@
 .modal-actions{display:flex;justify-content:flex-end;margin-top:12px}
 .modal-actions .btn{height:auto;padding:8px 14px;border-radius:10px;border:1px solid #2a2a30;background:#1a1b20;color:#fff}
 .modal-actions .btn:hover{background:#22232a}
+
+/* ===== Beats hero banner ===== */
+.beats-hero {
+  margin: 12px 0 18px;
+}
+
+.beats-hero .img-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0b0b0c;
+  border: 1px solid #1d1d22;
+}
+
+/* The source image is ~2048x652 (≈ 3.141:1). Use its native aspect on desktop.
+   On small screens we'll allow taller cropping so text stays legible. */
+.beats-hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2048 / 652;
+  object-fit: cover;
+}
+
+/* Mobile: still full-width, allow more height for readability */
+@media (max-width: 768px) {
+  .beats-hero .img-wrap { border-radius: 12px; }
+  .beats-hero img {
+    aspect-ratio: 16 / 9;   /* a bit taller on phones so copy doesn't get too tiny */
+  }
+}
+
+/* Super small phones: give it even more height */
+@media (max-width: 420px) {
+  .beats-hero img {
+    aspect-ratio: 4 / 3;
+  }
+}
