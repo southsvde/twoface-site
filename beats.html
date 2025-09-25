@@ -128,5 +128,43 @@
         <script src="js/cart.js"></script>
         <script src="js/beats.js"></script>
         <script src="js/player-scrub-wave.js"></script>
+
+<!-- Accent override: switch purple to gold (placed last so it wins) -->
+<style id="accent-gold">
+  :root{
+    --accent: #f5c048 !important;            /* gold */
+    --accent-rgb: 245,192,72 !important;
+  }
+
+  /* Mini-player play dot + glow */
+  #tracks .t-play .dot{
+    background: var(--accent) !important;
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), .25) !important;
+  }
+
+  /* Mini-player progress fill & edge */
+  #tracks .wave-progress{
+    background: linear-gradient(
+      90deg,
+      rgba(var(--accent-rgb), .28),
+      rgba(var(--accent-rgb), .12)
+    ) !important;
+    border-right: 2px solid rgba(var(--accent-rgb), .9) !important;
+  }
+
+  /* Cart badge pill */
+  .cart-btn .cart-badge{
+    background: var(--accent) !important;
+    color: #000 !important;
+  }
+
+  /* (Optional) highlight the Buy CTA to match */
+  .tier, .buy-btn, .btn-checkout{
+    /* comment these in if you want more gold touch points */
+    /* background: var(--accent) !important; color:#000 !important; border-color: var(--accent) !important; */
+  }
+</style>
+
+  
 </body>
 </html>
