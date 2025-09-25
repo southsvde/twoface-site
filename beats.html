@@ -5,9 +5,7 @@
   <title>TWOFACE — Beats</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Preview and license TWOFACE beats directly." />
-  <!-- Keep your global styles -->
   <link rel="stylesheet" href="styles.css" />
-  <!-- Load a page-specific stylesheet that ONLY Beats uses -->
   <link rel="stylesheet" href="beats.css" />
 </head>
 
@@ -28,6 +26,59 @@
       <p class="muted">Preview &amp; license directly — secure delivery after purchase.</p>
     </div>
 
+    <!-- Filters / Sorting -->
+    <section class="beats-controls" aria-label="Filters">
+      <div class="row">
+        <label class="ctrl">
+          <span>Search</span>
+          <input id="q" type="search" placeholder="Title…" autocomplete="off" />
+        </label>
+
+        <label class="ctrl">
+          <span>Genre</span>
+          <select id="genre">
+            <option value="">All</option>
+            <!-- options injected -->
+          </select>
+        </label>
+
+        <label class="ctrl">
+          <span>Key</span>
+          <select id="key">
+            <option value="">All</option>
+            <!-- options injected -->
+          </select>
+        </label>
+
+        <label class="ctrl bpm">
+          <span>BPM</span>
+          <div class="bpm-range">
+            <input id="bpmMin" type="number" inputmode="numeric" placeholder="Min" />
+            <span class="sep">–</span>
+            <input id="bpmMax" type="number" inputmode="numeric" placeholder="Max" />
+          </div>
+        </label>
+
+        <label class="ctrl">
+          <span>Sort</span>
+          <select id="sort">
+            <option value="default">Default</option>
+            <option value="bpm-asc">BPM ↑</option>
+            <option value="bpm-desc">BPM ↓</option>
+            <option value="title-asc">Title A–Z</option>
+            <option value="title-desc">Title Z–A</option>
+          </select>
+        </label>
+
+        <button id="reset" class="btn-reset" type="button" aria-label="Reset filters">Reset</button>
+      </div>
+
+      <div class="results-bar">
+        <span id="count">0</span> result<span id="count-s">s</span>
+      </div>
+    </section>
+
+    <!-- List -->
     <section id="tracks" class="tracks" aria-live="polite"></section>
     <p id="beats-status" class="muted"></p>
   </main>
