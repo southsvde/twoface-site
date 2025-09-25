@@ -1,4 +1,4 @@
-// TWOFACE — Beats page with filters + inline player + MP3/WAV modal + enriched Buy menu
+// TWOFACE — Beats page with filters + inline player + MP3/WAV modal + JSON-driven Buy menu
 (() => {
   const listEl   = document.querySelector('#tracks');
   const statusEl = document.querySelector('#beats-status');
@@ -77,6 +77,7 @@
     let moods = [];
     if (Array.isArray(b.mood)) moods = b.mood.map(String);
     else if (b.mood) moods = [String(b.mood)];
+
     let genre = b.genre ? String(b.genre) : (moods.find(m => KNOWN_GENRES.includes(m)) || '');
     const moodsNoGenre = genre ? moods.filter(m => m !== genre) : moods;
     return { ...b, _genre: genre, _moods: moodsNoGenre };
@@ -92,50 +93,63 @@
     return Array.from(set).sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
   }
 
-  function buildBuyMenu(beat) {
-    // Requested titles + fixed prices
-    const TIERS = [
-      {
-        key: 'mp3',
-        title: 'MP3',
-        desc: 'Great for quick demos & writing; not ideal for mixing/mastering.',
-        price: '$29'
-      },
-      {
-        key: 'mp3wav',
-        title: 'MP3 + WAV (Recommended)',
-        desc: 'Full-quality WAV for recording & release + MP3 for reference.',
-        price: '$49'
-      },
-      {
-        key: 'excl_nowav',
-        title: 'Exclusive License',
-        desc: 'Your exclusive rights; beat removed from store after purchase.',
-        price: '$99'
-      },
-      {
-        key: 'excl_stems',
-        title: 'Exclusive License + Stems',
-        desc: 'Exclusive + individual track stems for full mix control.',
-        price: '$249'
-      }
-    ];
+  /* ---------- Buy menu: read from JSON with safe fallbacks ---------- */
+  const DEFAULT_TIERS = {
+    mp3:        { label: 'MP3',                      price: 29,  desc: 'Great for quick demos & writing; not ideal for mixing/mastering.' },
+    mp3wav:     { label: 'MP3 + WAV',                price: 49,  desc: 'Full-quality WAV for recording & release + MP3 for reference.', recommended: true },
+    excl_nowav: { label: 'Exclusive License',        price: 99,  desc: 'Your exclusive rights; beat removed from store after purchase.' },
+    excl_stems: { label: 'Exclusive License + Stems',price: 249, desc: 'Exclusive + individual track stems for full mix control.' }
+  };
+  const TIER_ORDER = ['mp3','mp3wav','excl_nowav','excl_stems'];
 
-    return TIERS.map(tier => {
-      const href = beat.tiers?.[tier.key];
-      const disabledAttrs = href ? `href="${href}" target="_blank" rel="noopener"` : 'aria-disabled="true" tabindex="-1"';
+  const asMoney = (v) => {
+    if (typeof v === 'number') return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
+    if (typeof v === 'string') return v.trim().startsWith('$') ? v : `$${v}`;
+    return '';
+  };
+
+  function tierInfo(beat, key) {
+    const defaults = DEFAULT_TIERS[key] || {};
+    const raw = beat?.tiers?.[key];
+
+    // legacy: string URL
+    if (typeof raw === 'string') {
+      return { url: raw, label: defaults.label, price: defaults.price, desc: defaults.desc, recommended: !!defaults.recommended };
+    }
+
+    // new schema: object
+    if (raw && typeof raw === 'object') {
+      return {
+        url: raw.url || '',
+        label: raw.label || defaults.label,
+        price: (raw.price ?? defaults.price),
+        desc: raw.desc || defaults.desc,
+        recommended: !!(raw.recommended ?? defaults.recommended)
+      };
+    }
+
+    // tier absent: disabled, but still show label/price for consistency
+    return { url: '', label: defaults.label, price: defaults.price, desc: defaults.desc, recommended: !!defaults.recommended };
+  }
+
+  function buildBuyMenu(beat) {
+    return TIER_ORDER.map(key => {
+      const t = tierInfo(beat, key);
+      const hrefAttrs = t.url ? `href="${t.url}" target="_blank" rel="noopener"` : 'aria-disabled="true" tabindex="-1"';
+      const recBadge = t.recommended ? `<span class="badge">Recommended</span>` : '';
       return `
-        <a ${disabledAttrs} class="item">
+        <a ${hrefAttrs} class="item">
           <div class="text">
-            <div class="title">${tier.title}</div>
-            <div class="sub">${tier.desc}</div>
+            <div class="title">${t.label}${recBadge}</div>
+            <div class="sub">${t.desc}</div>
           </div>
-          <div class="price">${tier.price}</div>
+          <div class="price">${asMoney(t.price)}</div>
         </a>
       `;
     }).join('');
   }
 
+  /* ---------- Row builder ---------- */
   function buildRow(beat) {
     const row = document.createElement('article');
     row.className = 'track';
@@ -180,6 +194,7 @@
       </div>
     `;
 
+    // wiring
     const ctrlBtn = row.querySelector('.t-ctrl button');
     const wave    = row.querySelector('.t-wave');
     const bar     = row.querySelector('.wave-progress');
