@@ -1,6 +1,5 @@
 // /js/beats.js — TWOFACE Beats page
 // Filters + inline player + MP3/WAV modal + JSON-driven Buy/Add menus
-// Includes fix for modal selector typo and improved loading/error handling.
 
 (() => {
   const listEl   = document.querySelector('#tracks');
@@ -20,7 +19,7 @@
 
   if (!listEl) return;
 
-  // Allow overriding beats.json path from <meta name="beats-json" content="...">
+  // Allow overriding beats.json via a meta tag if you ever need to
   const BEATS_URL = document.querySelector('meta[name="beats-json"]')?.content || 'beats.json';
 
   // Shared audio element (single player for all rows)
@@ -171,7 +170,7 @@
           </a>
         `;
       } else {
-        // ADD mode: allow adding even without priceId; checkout blocks later if needed.
+        // ADD mode: allow adding even without priceId; checkout can block until IDs exist.
         return `
           <a role="button"
              class="item ${recClass}"
@@ -249,7 +248,7 @@
           ${buildMenuItems(beat, 'add')}
         </div>
       </div>
-    ";
+    `;
 
     // --- Menu wiring (Buy & Add) -----------------------------------------
     const buyBtn = row.querySelector('button[data-toggle="buy"]');
@@ -304,7 +303,7 @@
         tierKey,
         tierLabel: label,
         price,
-        priceId, // may be empty for now; checkout will block until added
+        priceId, // can be empty for now; checkout should enforce later
         url
       });
 
@@ -425,8 +424,8 @@
   function resetFilters() {
     if (qEl) qEl.value = '';
     if (genreEl) genreEl.value = '';
-    if (moodEl) moodEl.value = '';
-    if (keyEl) keyEl.value = '';
+    if (moodEl)  moodEl.value = '';
+    if (keyEl)   keyEl.value = '';
     if (bpmMinEl) bpmMinEl.value = '';
     if (bpmMaxEl) bpmMaxEl.value = '';
     if (sortEl) sortEl.value = 'default';
