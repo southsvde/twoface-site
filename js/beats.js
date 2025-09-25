@@ -1,4 +1,8 @@
-// TWOFACE — Beats page with filters + inline player + MP3/WAV modal + JSON-driven Buy menu
+// /js/beats.js — TWOFACE Beats page
+// Adds filters + inline player + MP3/WAV modal + JSON-driven Buy menu
+// NEW in Step 3: "Add to cart" menu (local only) that mirrors the Buy menu.
+// - Uses window.TWFCart.add(...) if cart.js is present (graceful fallback otherwise)
+
 (() => {
   const listEl   = document.querySelector('#tracks');
   const statusEl = document.querySelector('#beats-status');
@@ -17,7 +21,7 @@
 
   if (!listEl) return;
 
-  // Shared audio element
+  // Shared audio element (single player for all rows)
   const player = new Audio();
   player.preload = 'metadata';
   let currentRow = null;
@@ -65,7 +69,7 @@
     window.addEventListener('mouseup', () => { isDragging = false; });
   }
 
-  // --- Normalization: derive _genre and _moods for each beat (back-compat) ---
+  // --- Normalize genre/moods (back-compat with earlier schema) ------------
   const KNOWN_GENRES = [
     'Trap','Drill','Boom Bap','Boom-Bap','Boombap',
     'Lo-fi','Lofi','LoFi','Lo-Fi',
@@ -93,7 +97,7 @@
     return Array.from(set).sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
   }
 
-  /* ---------- Buy menu: read from JSON with safe fallbacks ---------- */
+  /* ---------- Buy/Add menu: read from JSON with safe fallbacks ---------- */
   const DEFAULT_TIERS = {
     mp3:        { label: 'MP3',                      price: 29,  desc: 'Great for quick demos & writing; not ideal for mixing/mastering.' },
     mp3wav:     { label: 'MP3 + WAV',                price: 49,  desc: 'Full-quality WAV for recording & release + MP3 for reference.', recommended: true },
@@ -114,7 +118,14 @@
 
     // legacy: string URL
     if (typeof raw === 'string') {
-      return { url: raw, label: defaults.label, price: defaults.price, desc: defaults.desc, recommended: !!defaults.recommended };
+      return {
+        url: raw,
+        label: defaults.label,
+        price: defaults.price,
+        desc: defaults.desc,
+        recommended: !!defaults.recommended,
+        priceId: '' // not available in legacy shape
+      };
     }
 
     // new schema: object
@@ -124,30 +135,68 @@
         label: raw.label || defaults.label,
         price: (raw.price ?? defaults.price),
         desc: raw.desc || defaults.desc,
-        recommended: !!(raw.recommended ?? defaults.recommended)
+        recommended: !!(raw.recommended ?? defaults.recommended),
+        priceId: raw.priceId || ''
       };
     }
 
-    // tier absent: disabled, but still show label/price for consistency
-    return { url: '', label: defaults.label, price: defaults.price, desc: defaults.desc, recommended: !!defaults.recommended };
+    // tier absent: disabled (no url/priceId), still show label/price
+    return {
+      url: '',
+      label: defaults.label,
+      price: defaults.price,
+      desc: defaults.desc,
+      recommended: !!defaults.recommended,
+      priceId: ''
+    };
   }
 
-  function buildBuyMenu(beat) {
+  function buildMenuItems(beat, mode /* 'buy' | 'add' */) {
     return TIER_ORDER.map(key => {
       const t = tierInfo(beat, key);
-      const hrefAttrs = t.url ? `href="${t.url}" target="_blank" rel="noopener"` : 'aria-disabled="true" tabindex="-1"';
       const recBadge = t.recommended ? `<span class="badge">Recommended</span>` : '';
       const recClass = t.recommended ? 'recommended' : '';
-      return `
-        <a ${hrefAttrs} class="item ${recClass}">
-          <div class="text">
-            <div class="title">${t.label}${recBadge}</div>
-            <div class="sub">${t.desc}</div>
-          </div>
-          <div class="price">${asMoney(t.price)}</div>
-        </a>
-      `;
+
+      if (mode === 'buy') {
+        const hrefAttrs = t.url ? `href="${t.url}" target="_blank" rel="noopener"` : 'aria-disabled="true" tabindex="-1"';
+        return `
+          <a ${hrefAttrs} class="item ${recClass}">
+            <div class="text">
+              <div class="title">${t.label}${recBadge}</div>
+              <div class="sub">${t.desc}</div>
+            </div>
+            <div class="price">${asMoney(t.price)}</div>
+          </a>
+        `;
+      } else {
+        // ADD mode: styled like <a>, but acts as button; disabled if no priceId
+        const disabled = t.priceId ? '' : 'aria-disabled="true" tabindex="-1"';
+        return `
+          <a role="button" ${disabled}
+             class="item ${recClass}"
+             data-action="add"
+             data-tier="${key}"
+             data-label="${escapeHtmlAttr(t.label)}"
+             data-price="${String(t.price)}"
+             data-priceid="${escapeHtmlAttr(t.priceId)}"
+             data-url="${escapeHtmlAttr(t.url)}">
+            <div class="text">
+              <div class="title">${t.label}${recBadge}</div>
+              <div class="sub">${t.desc}</div>
+            </div>
+            <div class="price">${asMoney(t.price)}</div>
+          </a>
+        `;
+      }
     }).join('');
+  }
+
+  function escapeHtmlAttr(s) {
+    return String(s || '')
+      .replace(/&/g,'&amp;')
+      .replace(/"/g,'&quot;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;');
   }
 
   /* ---------- Row builder ---------- */
@@ -188,26 +237,95 @@
       </div>
 
       <div class="t-actions">
-        <button type="button" class="buy-btn">Buy</button>
-        <div class="buy-menu" aria-label="License options">
-          ${buildBuyMenu(beat)}
+        <button type="button" class="buy-btn" data-toggle="buy" aria-expanded="false">Buy</button>
+        <button type="button" class="buy-btn add-btn" data-toggle="add" aria-expanded="false">Add to cart</button>
+
+        <div class="buy-menu" data-mode="buy" aria-label="License options">
+          ${buildMenuItems(beat, 'buy')}
+        </div>
+
+        <div class="buy-menu" data-mode="add" aria-label="Add to cart options">
+          ${buildMenuItems(beat, 'add')}
         </div>
       </div>
     `;
 
-    // wiring
+    // --- Menu wiring (Buy & Add) -----------------------------------------
+    const buyBtn = row.querySelector('button[data-toggle="buy"]');
+    const addBtn = row.querySelector('button[data-toggle="add"]');
+    const buyMenu = row.querySelector('.buy-menu[data-mode="buy"]');
+    const addMenu = row.querySelector('.buy-menu[data-mode="add"]');
+
+    function closeMenus() {
+      [buyMenu, addMenu].forEach(m => m.classList.remove('open'));
+      [buyBtn, addBtn].forEach(b => b.setAttribute('aria-expanded','false'));
+    }
+    function toggleMenu(which) {
+      // close other rows' menus first
+      document.querySelectorAll('.buy-menu.open').forEach(m => m.classList.remove('open'));
+      document.querySelectorAll('.t-actions [aria-expanded="true"]').forEach(b => b.setAttribute('aria-expanded','false'));
+
+      const btn  = which === 'buy' ? buyBtn  : addBtn;
+      const menu = which === 'buy' ? buyMenu : addMenu;
+      const wasOpen = menu.classList.contains('open');
+      if (wasOpen) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded','false');
+      } else {
+        menu.classList.add('open');
+        btn.setAttribute('aria-expanded','true');
+      }
+    }
+
+    buyBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu('buy'); });
+    addBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu('add'); });
+    buyMenu.addEventListener('click', (e) => e.stopPropagation());
+    addMenu.addEventListener('click', (e) => e.stopPropagation());
+    document.addEventListener('click', closeMenus);
+
+    // Add-to-cart action (event delegation on the addMenu)
+    addMenu.addEventListener('click', (e) => {
+      const item = e.target.closest('[data-action="add"]');
+      if (!item) return;
+
+      if (item.getAttribute('aria-disabled') === 'true') {
+        e.preventDefault();
+        return;
+      }
+      e.preventDefault();
+
+      const priceId = item.getAttribute('data-priceid') || '';
+      const price   = Number(item.getAttribute('data-price')) || 0;
+      const label   = item.getAttribute('data-label') || 'License';
+      const tierKey = item.getAttribute('data-tier') || '';
+      const url     = item.getAttribute('data-url') || '';
+
+      if (!window.TWFCart || typeof window.TWFCart.add !== 'function') {
+        // Graceful fallback if cart.js isn't loaded yet
+        alert('Cart is not available yet. Please use Buy for now.');
+        return;
+      }
+
+      window.TWFCart.add({
+        beatId: beat.id || beat.title || 'beat',
+        title: beat.title || 'Untitled',
+        tierKey,
+        tierLabel: label,
+        price,
+        priceId,
+        url
+      });
+
+      closeMenus();
+      // Open drawer right away? Uncomment next line if desired:
+      // window.TWFCart.open();
+    });
+
+    // --- Player wiring ----------------------------------------------------
     const ctrlBtn = row.querySelector('.t-ctrl button');
     const wave    = row.querySelector('.t-wave');
     const bar     = row.querySelector('.wave-progress');
     const ttime   = row.querySelector('.t-time');
-    const buyBtn  = row.querySelector('.buy-btn');
-    const menu    = row.querySelector('.buy-menu');
-
-    buyBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      menu.classList.toggle('open');
-    });
-    document.addEventListener('click', () => menu.classList.remove('open'));
 
     ctrlBtn.addEventListener('click', () => {
       const src = row.dataset.src;
