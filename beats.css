@@ -298,3 +298,26 @@ input::placeholder { color: #8e8e94; }
 /* ---------- Small polish ---------- */
 .tracks .track:hover { border-color: #26262c; background: #141417; }
 .meta .chip.bpm { font-weight: 600; }
+
+/* === Beats hero banner (append only) === */
+.beats-hero{
+  margin: 10px 0 20px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0f0f11;
+  box-shadow: 0 8px 32px rgba(0,0,0,.35);
+}
+.beats-hero img{
+  display:block;
+  width:100%;
+  height:auto;           /* mobile: no crop */
+  object-fit: cover;
+}
+@media (min-width:900px){
+  .beats-hero{ max-height:420px; }
+  .beats-hero img{ height:100%; }   /* desktop: tasteful crop */
+}
+.info-row{ margin-top:12px; }
+@media (max-width:640px){
+  .beats-controls{ margin-top:8px; }
+}
