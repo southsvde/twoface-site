@@ -1,4 +1,4 @@
-// TWOFACE — Beats page with filters (Genre, Mood, Key, BPM) + inline player
+// TWOFACE — Beats page with filters (Genre, Mood, Key, BPM) + inline player + MP3/WAV modal
 (() => {
   const listEl   = document.querySelector('#tracks');
   const statusEl = document.querySelector('#beats-status');
@@ -74,22 +74,14 @@
   ];
 
   function normalizeBeat(b) {
-    // moods as array of strings
     let moods = [];
     if (Array.isArray(b.mood)) moods = b.mood.map(String);
     else if (b.mood) moods = [String(b.mood)];
 
-    // genre: explicit or inferred from moods
     let genre = b.genre ? String(b.genre) : (moods.find(m => KNOWN_GENRES.includes(m)) || '');
-
-    // remove genre token from moods if it was inferred from there
     const moodsNoGenre = genre ? moods.filter(m => m !== genre) : moods;
 
-    return {
-      ...b,
-      _genre: genre,
-      _moods: moodsNoGenre
-    };
+    return { ...b, _genre: genre, _moods: moodsNoGenre };
   }
 
   function uniqueValues(list, extractor) {
@@ -110,7 +102,7 @@
     const artSrc = beat.art ? beat.art : 'img/hero.jpg';
     const primaryMood = beat._moods && beat._moods.length ? beat._moods[0] : '';
 
-    // Chips in the order: (Genre)(Mood)(Key)(BPM) — BPM now uses a chip too
+    // Chips in the order: (Genre)(Mood)(Key)(BPM) — all chips
     const chips = `
       ${beat._genre ? `<span class="chip">${beat._genre}</span>` : ''}
       ${primaryMood ? `<span class="chip">${primaryMood}</span>` : ''}
@@ -167,13 +159,8 @@
       if (!src) return;
 
       if (currentRow === row) {
-        if (player.paused) {
-          player.play().catch(() => {});
-          setCtrlIcon(row, true);
-        } else {
-          player.pause();
-          setCtrlIcon(row, false);
-        }
+        if (player.paused) { player.play().catch(() => {}); setCtrlIcon(row, true); }
+        else { player.pause(); setCtrlIcon(row, false); }
         return;
       }
 
@@ -218,7 +205,7 @@
 
   /* ---------- Data + Filters ---------- */
   let allBeats = [];
-  let beatsNorm = []; // normalized beats with _genre and _moods
+  let beatsNorm = [];
 
   function applyFilters() {
     const q   = (qEl?.value || '').trim().toLowerCase();
@@ -243,7 +230,7 @@
       case 'bpm-desc': filtered.sort((a,b)=> (b.bpm||0)-(a.bpm||0)); break;
       case 'title-asc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')); break;
       case 'title-desc': filtered.sort((a,b)=> (b.title||'').localeCompare(a.title||'')).reverse(); break;
-      default: /* keep original order */ break;
+      default: break;
     }
 
     renderList(filtered);
@@ -263,7 +250,6 @@
   }
 
   function populateControls(beats) {
-    // Using normalized fields for Genre/Mood
     const genres = uniqueValues(beats, b => b._genre);
     const moods  = uniqueValues(beats, b => b._moods || []);
     const keys   = uniqueValues(beats, b => b.key);
@@ -287,7 +273,7 @@
   async function init() {
     try {
       if (statusEl) statusEl.textContent = 'Loading beats…';
-      const res = await fetch('/beats.json', { cache: 'no-store' }); // root
+      const res = await fetch('/beats.json', { cache: 'no-store' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       allBeats = await res.json();
 
@@ -306,13 +292,58 @@
     }
   }
 
-  // Wire events
+  // Wire filter events
   [qEl, genreEl, moodEl, keyEl, bpmMinEl, bpmMaxEl, sortEl].forEach(ctrl => {
     ctrl && ctrl.addEventListener('input', applyFilters);
     ctrl && ctrl.addEventListener('change', applyFilters);
   });
   resetEl && resetEl.addEventListener('click', resetFilters);
 
+  /* ---------- Modal wiring (MP3 vs WAV) ---------- */
+  (function setupInfoModal(){
+    const trigger = document.getElementById('mp3wav-trigger');
+    const modal   = document.getElementById('mp3wav-modal');
+    if (!trigger || !modal) return;
+
+    const closeBtns = modal.querySelectorAll('[data-close="modal"], .modal-close');
+    const backdrop  = modal.querySelector('.modal-backdrop');
+    const panel     = modal.querySelector('.modal-panel');
+
+    let lastFocus = null;
+
+    function focusables() {
+      return panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    }
+
+    function open() {
+      lastFocus = document.activeElement;
+      modal.classList.add('open');
+      const f = focusables();
+      (f[0] || panel).focus();
+      document.addEventListener('keydown', onKey);
+    }
+    function close() {
+      modal.classList.remove('open');
+      document.removeEventListener('keydown', onKey);
+      if (lastFocus) lastFocus.focus();
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') { e.preventDefault(); close(); }
+      if (e.key === 'Tab') {
+        const f = focusables();
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+
+    trigger.addEventListener('click', open);
+    backdrop?.addEventListener('click', close);
+    closeBtns.forEach(b => b.addEventListener('click', close));
+  })();
+
+  // Init
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
