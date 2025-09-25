@@ -8,18 +8,18 @@
   --modalBg:#0f1014; --modalBorder:#24252c; --backdrop:rgba(0,0,0,.55);
 
   /* Recommended (gold) glow tones */
-  --recGlowBg: rgba(255, 215, 64, .08);   /* soft golden wash */
-  --recGlow:   rgba(255, 215, 64, .22);   /* outer glow */
-  --recRing1:  rgba(255, 215, 64, .18);   /* inner ring 1 */
-  --recRing2:  rgba(255, 215, 64, .08);   /* inner ring 2 */
-  --recBorder: #4a4120;                   /* border on hover */
-  --recBadgeBg:#2a260f;                   /* badge background */
-  --recBadgeBd:#4d4217;                   /* badge border */
-  --recBadgeTx:#ffe58b;                   /* badge text */
+  --recGlowBg: rgba(255, 215, 64, .08);
+  --recGlow:   rgba(255, 215, 64, .22);
+  --recRing1:  rgba(255, 215, 64, .18);
+  --recRing2:  rgba(255, 215, 64, .08);
+  --recBorder: #4a4120;
+  --recBadgeBg:#2a260f;
+  --recBadgeBd:#4d4217;
+  --recBadgeTx:#ffe58b;
 }
 
-/* Page head */
-.page-head{padding:24px 0 10px;}
+/* ---- Page head ---- */
+.page-head{padding:24px 0 6px;}
 .page-head h2{margin:0 0 6px;color:#fff;font-size:28px;}
 .page-head p{margin:0;color:#a0a0a7;}
 
@@ -38,16 +38,16 @@
   font-weight:700; font-size:12px; color:#eaeaf2; line-height:1;
 }
 
-/* ---------- Controls ---------- */
+/* ---------- Filters / Controls ---------- */
 .beats-controls{margin:10px 0 18px;border-bottom:1px solid var(--borderSubtle);padding-bottom:10px;}
-.beats-controls .row{display:flex;gap:12px;align-items:end;flex-wrap:wrap;}
+.beats-controls .row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
 .ctrl{display:flex;flex-direction:column;gap:6px;min-width:140px}
 .ctrl > span{font-size:12px;color:#b6b6be}
 .ctrl input[type="search"],
 .ctrl input[type="number"],
 .ctrl select{
   background:#101013;border:1px solid #24242a;color:#e8e8ee;
-  border-radius:10px;padding:8px 10px;min-height:38px;
+  border-radius:10px;padding:8px 10px;min-height:38px
 }
 .ctrl select{cursor:pointer}
 .ctrl.bpm .bpm-range{display:flex;align-items:center;gap:8px}
@@ -62,7 +62,7 @@
 .results-bar{margin-top:8px;color:#a0a0a7;font-size:14px}
 
 /* ---------- List / Row ---------- */
-.tracks{display:flex;flex-direction:column;gap:14px;margin:18px 0 60px;}
+.tracks{display:flex;flex-direction:column;gap:14px;margin:18px 0 60px}
 
 .track{
   background:var(--panel);border:1px solid var(--panelBorder);border-radius:12px;
@@ -71,7 +71,7 @@
   grid-template-areas:"ctrl art title wave actions";
 }
 
-/* Control */
+/* Control (play/pause) */
 .t-ctrl{grid-area:ctrl;display:grid;place-items:center}
 .t-ctrl button{
   width:38px;height:38px;border-radius:50%;background:var(--accentBeats);
@@ -91,7 +91,7 @@
 .meta{display:flex;gap:10px;align-items:center;color:#a0a0a7;font-size:13px}
 .meta .chip{background:var(--chip);color:var(--chipText);padding:2px 8px;border-radius:999px;border:1px solid var(--chipBorder)}
 
-/* Wave */
+/* Wave (taller, easier to scrub) */
 .t-wave{
   grid-area:wave;height:44px;border-radius:8px;overflow:hidden;position:relative;border:1px solid #222;background:#101013;cursor:pointer
 }
@@ -105,22 +105,43 @@
   padding:2px 6px;border-radius:6px;border:1px solid #24242a
 }
 
-/* Actions / Buy menu */
-.t-actions{grid-area:actions;display:flex;align-items:center;position:relative}
+/* ---------- Actions (Buy / Add) ---------- */
+.t-actions{
+  grid-area:actions;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  position:relative; /* anchor for menus */
+}
+
 .buy-btn{
-  appearance:none;border:none;cursor:pointer;font:inherit;background:var(--btnBg);color:#eaeaf2;padding:10px 14px;border-radius:999px;border:1px solid #2e2e34;white-space:nowrap;transition:background .15s ease
+  appearance:none;border:1px solid #2e2e34;cursor:pointer;font:inherit;
+  background:var(--btnBg);color:#eaeaf2;padding:10px 14px;border-radius:999px;
+  white-space:nowrap;transition:background .15s ease, border-color .15s ease
 }
 .buy-btn:hover{background:var(--btnHover)}
+.buy-btn:focus-visible{outline:2px solid rgba(125,95,255,.35); outline-offset:2px}
+
+/* Slightly different visual for Add to cart (subtle outline) */
+.add-btn{
+  background:transparent;border-color:#34343a;color:#eaeaf2
+}
+.add-btn:hover{background:#1a1a1f;border-color:#3a3a40}
+
+/* Menus (placed under buttons, responsive-fit) */
 .buy-menu{
-  position:absolute;right:0;top:100%;margin-top:8px;min-width:320px;background:#121216;border:1px solid #26262b;border-radius:12px;
-  box-shadow:0 8px 24px rgba(0,0,0,.35);padding:8px;display:none;z-index:10
+  position:absolute;top:calc(100% + 8px);right:0; /* default align to the rightmost button */
+  min-width:360px;max-width:min(420px, 92vw);
+  background:#121216;border:1px solid #26262b;border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);padding:8px;display:none;z-index:10;
+  transform: translateY(6px); opacity:0; transition:opacity .15s ease, transform .15s ease;
 }
-.buy-menu.open{display:block}
-.buy-menu a{
+.buy-menu.open{display:block; transform: translateY(0); opacity:1}
+.buy-menu a,
+.buy-menu a[role="button"]{
   display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
-  padding:10px 12px;border-radius:8px;color:#eaeaf2;text-decoration:none;border:1px solid transparent
+  padding:10px 12px;border-radius:8px;color:#eaeaf2;text-decoration:none;border:1px solid transparent;
+  cursor:pointer;
 }
-.buy-menu a:hover{background:#1b1b20;border-color:#292930}
+.buy-menu a:hover,
+.buy-menu a[role="button"]:hover{background:#1b1b20;border-color:#292930}
 .buy-menu a[aria-disabled="true"]{opacity:.45;pointer-events:none}
 .buy-menu .text{display:flex;flex-direction:column;gap:4px;min-width:0}
 .buy-menu .title{font-weight:700;letter-spacing:.02em;white-space:normal}
@@ -129,14 +150,14 @@
   background:var(--chip);color:var(--chipText);border:1px solid var(--chipBorder);
   border-radius:999px;padding:4px 8px;white-space:nowrap;align-self:center
 }
-/* tiny badge */
 .buy-menu .badge{
   display:inline-block;margin-left:8px;padding:2px 6px;border-radius:999px;
   font-size:11px;line-height:1.2;background:#1f2230;border:1px solid #2c3150;color:#cfd3ff
 }
 
-/* === Recommended item glow (gold) === */
-.buy-menu a.recommended{
+/* Recommended item glow (gold) */
+.buy-menu a.recommended,
+.buy-menu a[role="button"].recommended{
   background: var(--recGlowBg);
   box-shadow:
     0 8px 24px var(--recGlow),
@@ -144,21 +165,33 @@
     0 0 0 2px var(--recRing2) inset;
   border-color: #3a341c;
 }
-.buy-menu a.recommended:hover{
-  background: rgba(255, 215, 64, .12);
+.buy-menu a.recommended:hover,
+.buy-menu a[role="button"].recommended:hover{
+  background: rgba(255,215,64,.12);
   box-shadow:
     0 10px 28px var(--recGlow),
     0 0 0 1px var(--recRing1) inset,
     0 0 0 2px var(--recRing2) inset;
   border-color: var(--recBorder);
 }
-.buy-menu a.recommended .badge{
+.buy-menu a.recommended .badge,
+.buy-menu a[role="button"].recommended .badge{
   background: var(--recBadgeBg);
   border-color: var(--recBadgeBd);
   color: var(--recBadgeTx);
 }
 
-/* Responsive */
+/* Small screens: keep menus inside the viewport and align under the triggering row */
+@media (max-width: 560px){
+  .t-actions{overflow:visible}
+  .buy-menu{
+    right:auto; left:0;            /* anchor to left so it doesn’t overflow */
+    min-width:min(92vw, 380px);
+    max-width:92vw;
+  }
+}
+
+/* ---------- Responsive row layout ---------- */
 @media (max-width:900px){
   .track{
     grid-template-columns:48px 56px 1fr;
@@ -171,17 +204,17 @@
 }
 
 /* ---------- Modal ---------- */
-.modal{position:fixed;inset:0;display:none;}
-.modal.open{display:block;}
-.modal-backdrop{position:absolute;inset:0;background:var(--backdrop);backdrop-filter:saturate(1) blur(2px);}
+.modal{position:fixed;inset:0;display:none}
+.modal.open{display:block}
+.modal-backdrop{position:absolute;inset:0;background:var(--backdrop);backdrop-filter:saturate(1) blur(2px)}
 .modal-panel{
   position:relative; z-index:1; width:min(680px, 92vw); max-height:85vh; overflow:auto;
   margin:8vh auto 0; background:var(--modalBg); border:1px solid var(--modalBorder);
-  border-radius:14px; padding:18px 18px 14px; box-shadow:0 20px 80px rgba(0,0,0,.55);
+  border-radius:14px; padding:18px 18px 14px; box-shadow:0 20px 80px rgba(0,0,0,.55)
 }
 .modal-close{
   position:absolute; top:10px; right:10px; width:32px; height:32px; border-radius:50%;
-  border:1px solid #2a2b33; background:#181920; color:#eaeaf2; cursor:pointer;
+  border:1px solid #2a2b33; background:#181920; color:#eaeaf2; cursor:pointer
 }
 .modal-close:hover{background:#1f2028}
 .modal-content ul{margin:0 0 8px 18px}
