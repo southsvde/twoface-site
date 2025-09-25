@@ -9,10 +9,10 @@
     "art": "img/IMG_2884.jpg",
     "audio": "audio/brampton.mp3",
     "tiers": {
-      "mp3": "#",
-      "mp3wav": "#",
-      "excl_nowav": "#",
-      "excl_stems": "#"
+      "mp3":        { "url": "https://buy.stripe.com/...", "price": 29,  "label": "MP3" },
+      "mp3wav":     { "url": "https://buy.stripe.com/...", "price": 49,  "label": "MP3 + WAV", "recommended": true },
+      "excl_nowav": { "url": "https://buy.stripe.com/...", "price": 99,  "label": "Exclusive License" },
+      "excl_stems": { "url": "https://buy.stripe.com/...", "price": 249, "label": "Exclusive License + Stems" }
     }
   }
 ]
