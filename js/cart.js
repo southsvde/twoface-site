@@ -1,6 +1,6 @@
 // /js/cart.js  —  TWOFACE local cart (UI + API call to /api/checkout)
-// Self-contained: injects styles, adds header button and a drawer.
-// Depends on: your page having a .site-header .site-nav (adds Cart button there).
+// Self-contained: injects styles, adds header Cart button & drawer,
+// stores items in localStorage, and exposes window.TWFCart.
 
 (() => {
   const STORAGE_KEY = 'twf_cart_v1';
@@ -41,7 +41,7 @@
       else items.push({ key, qty: 1, ...item });
       save(items);
       toast(`Added “${item.title} — ${item.tierLabel}”`);
-      openDrawer(); // show feedback
+      openDrawer();
     },
     remove(key) {
       const items = load().filter(i => i.key !== key);
@@ -50,13 +50,13 @@
     clear() {
       save([]);
     },
-    list() { return snapshot().items; },
-    count() { return snapshot().count; },
-    total() { return snapshot().total; },
-    // Allow success page to clear without loading this module:
+    list()  { return snapshot().items;  },
+    count() { return snapshot().count;  },
+    total() { return snapshot().total;  },
+    // allow success page to clear without loading full module
     _clearStorageOnly() { localStorage.removeItem(STORAGE_KEY); }
   };
-  window.TWFCart = API; // expose
+  window.TWFCart = API;
 
   // ---------- Styles (injected) ----------
   (function injectStyles(){
@@ -120,6 +120,28 @@
         background:#191a22; color:#eaeaf2; border:1px solid #2a2a30; border-radius:10px; padding:8px 12px; z-index:1200;
         box-shadow: 0 10px 28px rgba(0,0,0,.45);
       }
+
+      /* --- Mobile header compaction --- */
+      @media (max-width: 640px) {
+        .site-header { position: relative; min-height: 56px; }
+        .site-header .site-nav {
+          gap: 14px;
+          padding-right: 96px; /* reserve space for Cart pill */
+        }
+        .cart-btn {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          padding: 6px 10px;
+        }
+        .cart-badge {
+          min-width: 16px;
+          height: 16px;
+          font-size: 11px;
+          padding: 0 6px;
+        }
+      }
     `;
     const tag = document.createElement('style');
     tag.setAttribute('data-cart', 'true');
@@ -129,7 +151,7 @@
 
   // ---------- UI Mount ----------
   function mountUI() {
-    // 1) Header Cart button (right side of your nav)
+    // 1) Header Cart button (append to right of nav)
     const nav = $('.site-header .site-nav');
     if (nav && !$('.cart-btn', nav)) {
       const btn = document.createElement('button');
@@ -238,8 +260,7 @@
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.url) throw new Error(data.error || 'Checkout failed');
 
-      // Hand off to Stripe Checkout:
-      window.location.href = data.url;
+      window.location.href = data.url; // Stripe Checkout
     } catch (err) {
       console.error('[cart] checkout error:', err);
       alert('Couldn’t start checkout. Please try again in a moment.');
