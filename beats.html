@@ -375,6 +375,17 @@
   }
 </style>
 
+<style id="row-accent-wave-progress">
+  /* Wave progress uses per-row color (falls back to site accent) */
+  #tracks .track .wave-progress{
+    background: linear-gradient(
+      90deg,
+      rgba(var(--row-accent-rgb, var(--accent-rgb)), .28),
+      rgba(var(--row-accent-rgb, var(--accent-rgb)), .12)
+    ) !important;
+    border-right: 2px solid rgba(var(--row-accent-rgb, var(--accent-rgb)), .9) !important;
+  }
+</style>
 
   
 </body>
