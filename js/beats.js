@@ -1,15 +1,25 @@
-// TWOFACE - Beats page player (external)
-// Shows clear status messages if anything goes wrong.
+// TWOFACE — Beats page with filters and inline player
 
 (() => {
   const listEl   = document.querySelector('#tracks');
   const statusEl = document.querySelector('#beats-status');
 
+  // Controls
+  const qEl     = document.querySelector('#q');
+  const genreEl = document.querySelector('#genre');
+  const keyEl   = document.querySelector('#key');
+  const bpmMinEl= document.querySelector('#bpmMin');
+  const bpmMaxEl= document.querySelector('#bpmMax');
+  const sortEl  = document.querySelector('#sort');
+  const resetEl = document.querySelector('#reset');
+  const countEl = document.querySelector('#count');
+  const countSEl= document.querySelector('#count-s');
+
   if (!listEl) return;
 
+  // Shared audio element
   const player = new Audio();
   player.preload = 'metadata';
-
   let currentRow = null;
   let isDragging = false;
 
@@ -62,6 +72,7 @@
     row.dataset.src = beat.audio || '';
 
     const artSrc = beat.art ? beat.art : 'img/hero.jpg';
+    const moodChips = Array.isArray(beat.mood) ? beat.mood : [];
 
     row.innerHTML = `
       <div class="t-ctrl">
@@ -75,7 +86,7 @@
       <div class="t-title">
         <h4>${beat.title}</h4>
         <div class="meta">
-          ${beat.mood?.length ? `<span class="chip">${beat.mood.join(' • ')}</span>` : ''}
+          ${moodChips.length ? `<span class="chip">${moodChips.join(' • ')}</span>` : ''}
           ${beat.key ? `<span class="chip">${beat.key}</span>` : ''}
           ${beat.bpm ? `<span>${beat.bpm} BPM</span>` : ''}
         </div>
@@ -162,7 +173,87 @@
     player.addEventListener('ended', onEnded);
 
     bindSeek(row, wave, bar, ttime);
-    listEl.appendChild(row);
+    return row;
+  }
+
+  /* ---------- Data + Filters ---------- */
+  let allBeats = [];
+
+  function uniqueValues(list, extractor) {
+    const set = new Set();
+    list.forEach(item => {
+      const v = extractor(item);
+      if (Array.isArray(v)) v.forEach(x => set.add(String(x)));
+      else if (v) set.add(String(v));
+    });
+    return Array.from(set).sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
+  }
+
+  function applyFilters() {
+    const q = (qEl.value || '').trim().toLowerCase();
+    const g = genreEl.value;
+    const k = keyEl.value;
+    const min = Number(bpmMinEl.value) || -Infinity;
+    const max = Number(bpmMaxEl.value) || Infinity;
+
+    let filtered = allBeats.filter(b => {
+      const titleOk = !q || (b.title || '').toLowerCase().includes(q);
+      const genreOk = !g || (Array.isArray(b.mood) && b.mood.map(String).includes(g));
+      const keyOk   = !k || String(b.key) === k;
+      const bpm     = Number(b.bpm);
+      const bpmOk   = isFinite(bpm) ? (bpm >= min && bpm <= max) : true;
+      return titleOk && genreOk && keyOk && bpmOk;
+    });
+
+    // sort
+    switch (sortEl.value) {
+      case 'bpm-asc':  filtered.sort((a,b)=> (a.bpm||0)-(b.bpm||0)); break;
+      case 'bpm-desc': filtered.sort((a,b)=> (b.bpm||0)-(a.bpm||0)); break;
+      case 'title-asc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')); break;
+      case 'title-desc': filtered.sort((a,b)=> (b.title||'').localeCompare(a.title||'')).reverse(); break;
+      default: /* keep original order */ break;
+    }
+
+    // render
+    renderList(filtered);
+  }
+
+  function renderList(items) {
+    // stop current playback when re-rendering
+    if (!player.paused) player.pause();
+    currentRow = null;
+
+    listEl.innerHTML = '';
+    items.forEach(beat => {
+      const row = buildRow(beat);
+      listEl.appendChild(row);
+    });
+
+    // Update count
+    const n = items.length;
+    countEl.textContent = String(n);
+    countSEl.style.display = n === 1 ? 'none' : 'inline';
+    statusEl.textContent = n ? '' : 'No results with those filters.';
+  }
+
+  function populateControls(beats) {
+    // Genre (from mood array)
+    const genres = uniqueValues(beats, b => b.mood || []);
+    genreEl.innerHTML = `<option value="">All</option>` + genres.map(g => `<option value="${g}">${g}</option>`).join('');
+
+    // Keys
+    const keys = uniqueValues(beats, b => b.key);
+    keyEl.innerHTML = `<option value="">All</option>` + keys.map(k => `<option value="${k}">${k}</option>`).join('');
+  }
+
+  function resetFilters() {
+    qEl.value = '';
+    genreEl.value = '';
+    keyEl.value = '';
+    bpmMinEl.value = '';
+    bpmMaxEl.value = '';
+    sortEl.value = 'default';
+    applyFilters();
   }
 
   async function init() {
@@ -177,15 +268,23 @@
         return;
       }
 
-      beats.forEach(buildRow);
+      allBeats = beats.slice(); // keep original order
+      populateControls(allBeats);
       statusEl.textContent = '';
+      applyFilters();
     } catch (err) {
       console.error('[Beats] load error:', err);
       statusEl.textContent = 'Couldn’t load beats. Check beats.json (valid JSON, no comments) and that /beats.json is accessible.';
     }
   }
 
-  // Defer until DOM is ready
+  // Wire events
+  [qEl, genreEl, keyEl, bpmMinEl, bpmMaxEl, sortEl].forEach(ctrl => {
+    ctrl && ctrl.addEventListener('input', applyFilters);
+    ctrl && ctrl.addEventListener('change', applyFilters);
+  });
+  resetEl && resetEl.addEventListener('click', resetFilters);
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
