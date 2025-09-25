@@ -209,6 +209,26 @@
   }
 </style>
 
+<style id="accent-gold-icon-force">
+  /* Force the glyph inside the round play/pause button to black */
+  #tracks .t-play svg,
+  #tracks .t-play svg *,
+  #tracks .t-play .dot svg,
+  #tracks .t-play .dot svg *,
+  #tracks .track .t-play svg path,
+  #tracks .track .t-play svg polygon,
+  #tracks .track .t-play svg use {
+    fill: #000 !important;
+    stroke: #000 !important;
+  }
+
+  /* Fallback for stubborn inline fills/masks: turn the whole SVG black */
+  #tracks .t-play svg {
+    filter: brightness(0) saturate(100%) !important;
+  }
+</style>
+
+
 
   
 </body>
