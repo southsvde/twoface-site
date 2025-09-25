@@ -1,323 +1,300 @@
-/* =========================================================
-   TWOFACE — beats.css (page-scoped)
-   - Filters & results list
-   - Track row (mini player + waveform)
-   - Buy modal / MP3 vs WAV modal
-   - Gold accent + dynamic color hook
-   - Hero banner (desktop crop, mobile full image)
-   ========================================================= */
+/* TWOFACE — Beats page-only stylesheet (only beats.html loads this) */
 
-/* ---------- Theme hooks (inherits base from styles.css) ---------- */
-:root {
-  /* Accent (gold). JS can override this per-row by setting --accent on .track */
-  --accent: #f5c048;
-  --accent-rgb: 245, 192, 72;
+:root{
+  --panel:#151517; --panelBorder:#1d1d22; --borderSubtle:#1c1c1f;
+  --accentBeats:#7d5fff; --chip:#1f1f22; --chipText:#e6e6eb; --chipBorder:#26262b;
+  --btnBg:#222227; --btnHover:#2c2c33;
 
-  --panel: #151517;
-  --panelBorder: #1d1d22;
-  --chip: #1f1f22;
-  --chipText: #e6e6eb;
-  --chipBorder: #26262b;
+  --modalBg:#0f1014; --modalBorder:#24252c; --backdrop:rgba(0,0,0,.55);
 
-  --muted: #a0a0a7;
-  --text: #f5f5f7;
-  --bgDeep: #0b0b0c;
+  /* Recommended (gold) glow tones */
+  --recGlowBg: rgba(255, 215, 64, .08);
+  --recGlow:   rgba(255, 215, 64, .22);
+  --recRing1:  rgba(255, 215, 64, .18);
+  --recRing2:  rgba(255, 215, 64, .08);
+  --recBorder: #4a4120;
+  --recBadgeBg:#2a260f;
+  --recBadgeBd:#4d4217;
+  --recBadgeTx:#ffe58b;
 }
 
-/* Hide the old page title/description block on beats page */
-.page-head { display: none !important; }
+/* ---- Page head ---- */
+.page-head{padding:24px 0 6px;}
+.page-head h2{margin:0 0 6px;color:#fff;font-size:28px;}
+.page-head p{margin:0;color:#a0a0a7;}
 
-/* ---------- Hero banner ---------- */
+/* Info row (question mark + text) */
+.info-row{margin:10px 0 6px;}
+.info-link{
+  display:inline-flex; align-items:center; gap:8px;
+  background:transparent; border:0; color:#dfe0e6; cursor:pointer;
+  font:inherit; padding:6px 8px; border-radius:8px;
+}
+.info-link:hover{background:#111217}
+.info-link:focus-visible{outline:2px solid #3a3a44; outline-offset:2px}
+.qmark{
+  width:18px; height:18px; display:grid; place-items:center;
+  border-radius:50%; background:#1b1c22; border:1px solid #2b2c34;
+  font-weight:700; font-size:12px; color:#eaeaf2; line-height:1;
+}
+
+/* ---------- Filters / Controls ---------- */
+.beats-controls{margin:10px 0 18px;border-bottom:1px solid var(--borderSubtle);padding-bottom:10px;}
+.beats-controls .row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.ctrl{display:flex;flex-direction:column;gap:6px;min-width:140px}
+.ctrl > span{font-size:12px;color:#b6b6be}
+.ctrl input[type="search"],
+.ctrl input[type="number"],
+.ctrl select{
+  background:#101013;border:1px solid #24242a;color:#e8e8ee;
+  border-radius:10px;padding:8px 10px;min-height:38px
+}
+.ctrl select{cursor:pointer}
+.ctrl.bpm .bpm-range{display:flex;align-items:center;gap:8px}
+.ctrl .sep{opacity:.6}
+
+.btn-reset{
+  background:transparent;color:#d0d0da;border:1px solid #2a2a30;border-radius:999px;
+  padding:8px 12px;cursor:pointer;min-height:38px
+}
+.btn-reset:hover{background:#19191e}
+
+.results-bar{margin-top:8px;color:#a0a0a7;font-size:14px}
+
+/* ---------- List / Row ---------- */
+.tracks{display:flex;flex-direction:column;gap:14px;margin:18px 0 60px}
+
+.track{
+  background:var(--panel);border:1px solid var(--panelBorder);border-radius:12px;
+  padding:12px;display:grid;align-items:center;gap:14px;
+  grid-template-columns:48px 56px auto minmax(320px,1.6fr) auto;
+  grid-template-areas:"ctrl art title wave actions";
+}
+
+/* Control (play/pause) */
+.t-ctrl{grid-area:ctrl;display:grid;place-items:center}
+.t-ctrl button{
+  width:38px;height:38px;border-radius:50%;background:var(--accentBeats);
+  border:0;color:#fff;display:grid;place-items:center;box-shadow:0 0 0 2px rgba(125,95,255,.25);
+  cursor:pointer;transition:transform .12s ease-in-out
+}
+.t-ctrl button:hover{transform:scale(1.05)}
+.t-ctrl svg{display:block}
+
+/* Art */
+.t-art{grid-area:art;position:relative;width:56px;height:56px;border-radius:10px;overflow:hidden;background:#0b0b0c;border:1px solid #222}
+.t-art img{width:100%;height:100%;object-fit:cover}
+
+/* Title / meta */
+.t-title{grid-area:title;min-width:220px}
+.t-title h4{margin:0 0 2px;color:#fff;font-weight:700;letter-spacing:.02em}
+.meta{display:flex;gap:10px;align-items:center;color:#a0a0a7;font-size:13px}
+.meta .chip{background:var(--chip);color:var(--chipText);padding:2px 8px;border-radius:999px;border:1px solid var(--chipBorder)}
+
+/* Wave (taller, easier to scrub) */
+.t-wave{
+  grid-area:wave;height:44px;border-radius:8px;overflow:hidden;position:relative;border:1px solid #222;background:#101013;cursor:pointer
+}
+.wave-bars{position:absolute;inset:0;background:repeating-linear-gradient(to right,#1f1f24 0 2px,transparent 2px 7px);opacity:.9}
+.wave-progress{
+  position:absolute;top:0;left:0;height:100%;width:0%;background:linear-gradient(90deg,rgba(125,95,255,.28),rgba(125,95,255,.12));
+  border-right:2px solid rgba(125,95,255,.9);transition:width .06s linear;pointer-events:none
+}
+.t-time{
+  position:absolute;right:8px;bottom:6px;font-size:12px;color:#c9c9d2;opacity:.9;background:rgba(14,14,18,.55);
+  padding:2px 6px;border-radius:6px;border:1px solid #24242a
+}
+
+/* ---------- Actions (Buy / Add) ---------- */
+.t-actions{
+  grid-area:actions;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  position:relative; /* anchor for menus */
+}
+
+.buy-btn{
+  appearance:none;border:1px solid #2e2e34;cursor:pointer;font:inherit;
+  background:var(--btnBg);color:#eaeaf2;padding:10px 14px;border-radius:999px;
+  white-space:nowrap;transition:background .15s ease, border-color .15s ease
+}
+.buy-btn:hover{background:var(--btnHover)}
+.buy-btn:focus-visible{outline:2px solid rgba(125,95,255,.35); outline-offset:2px}
+
+/* Slightly different visual for Add to cart (subtle outline) */
+.add-btn{
+  background:transparent;border-color:#34343a;color:#eaeaf2
+}
+.add-btn:hover{background:#1a1a1f;border-color:#3a3a40}
+
+/* Menus (placed under buttons, responsive-fit) */
+.buy-menu{
+  position:absolute;top:calc(100% + 8px);right:0; /* default align to the rightmost button */
+  min-width:360px;max-width:min(420px, 92vw);
+  background:#121216;border:1px solid #26262b;border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);padding:8px;display:none;z-index:10;
+  transform: translateY(6px); opacity:0; transition:opacity .15s ease, transform .15s ease;
+}
+.buy-menu.open{display:block; transform: translateY(0); opacity:1}
+.buy-menu a,
+.buy-menu a[role="button"]{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+  padding:10px 12px;border-radius:8px;color:#eaeaf2;text-decoration:none;border:1px solid transparent;
+  cursor:pointer;
+}
+.buy-menu a:hover,
+.buy-menu a[role="button"]:hover{background:#1b1b20;border-color:#292930}
+.buy-menu a[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.buy-menu .text{display:flex;flex-direction:column;gap:4px;min-width:0}
+.buy-menu .title{font-weight:700;letter-spacing:.02em;white-space:normal}
+.buy-menu .sub{color:#bdbdd0;font-size:12.5px;line-height:1.35}
+.buy-menu .price{
+  background:var(--chip);color:var(--chipText);border:1px solid var(--chipBorder);
+  border-radius:999px;padding:4px 8px;white-space:nowrap;align-self:center
+}
+.buy-menu .badge{
+  display:inline-block;margin-left:8px;padding:2px 6px;border-radius:999px;
+  font-size:11px;line-height:1.2;background:#1f2230;border:1px solid #2c3150;color:#cfd3ff
+}
+
+/* Recommended item glow (gold) */
+.buy-menu a.recommended,
+.buy-menu a[role="button"].recommended{
+  background: var(--recGlowBg);
+  box-shadow:
+    0 8px 24px var(--recGlow),
+    0 0 0 1px var(--recRing1) inset,
+    0 0 0 2px var(--recRing2) inset;
+  border-color: #3a341c;
+}
+.buy-menu a.recommended:hover,
+.buy-menu a[role="button"].recommended:hover{
+  background: rgba(255,215,64,.12);
+  box-shadow:
+    0 10px 28px var(--recGlow),
+    0 0 0 1px var(--recRing1) inset,
+    0 0 0 2px var(--recRing2) inset;
+  border-color: var(--recBorder);
+}
+.buy-menu a.recommended .badge,
+.buy-menu a[role="button"].recommended .badge{
+  background: var(--recBadgeBg);
+  border-color: var(--recBadgeBd);
+  color: var(--recBadgeTx);
+}
+
+/* Small screens: keep menus inside the viewport and align under the triggering row */
+@media (max-width: 560px){
+  .t-actions{overflow:visible}
+  .buy-menu{
+    right:auto; left:0;            /* anchor to left so it doesn’t overflow */
+    min-width:min(92vw, 380px);
+    max-width:92vw;
+  }
+}
+
+/* ---------- Responsive row layout ---------- */
+@media (max-width:900px){
+  .track{
+    grid-template-columns:48px 56px 1fr;
+    grid-template-areas:
+      "ctrl art title"
+      "wave wave wave"
+      "actions actions actions";
+    gap:10px
+  }
+}
+
+/* ---------- Modal ---------- */
+.modal{position:fixed;inset:0;display:none}
+.modal.open{display:block}
+.modal-backdrop{position:absolute;inset:0;background:var(--backdrop);backdrop-filter:saturate(1) blur(2px)}
+.modal-panel{
+  position:relative; z-index:1; width:min(680px, 92vw); max-height:85vh; overflow:auto;
+  margin:8vh auto 0; background:var(--modalBg); border:1px solid var(--modalBorder);
+  border-radius:14px; padding:18px 18px 14px; box-shadow:0 20px 80px rgba(0,0,0,.55)
+}
+.modal-close{
+  position:absolute; top:10px; right:10px; width:32px; height:32px; border-radius:50%;
+  border:1px solid #2a2b33; background:#181920; color:#eaeaf2; cursor:pointer
+}
+.modal-close:hover{background:#1f2028}
+.modal-content ul{margin:0 0 8px 18px}
+.modal-content li{margin:6px 0}
+.modal-cta{margin:10px 0 0; color:#d9d9e3}
+.modal-actions{display:flex;justify-content:flex-end;margin-top:12px}
+.modal-actions .btn{height:auto;padding:8px 14px;border-radius:10px;border:1px solid #2a2a30;background:#1a1b20;color:#fff}
+.modal-actions .btn:hover{background:#22232a}
+
+/* ===== Beats hero banner ===== */
 .beats-hero {
+  margin: 12px 0 18px;
+}
+
+.beats-hero .img-wrap {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0b0b0c;
+  border: 1px solid #1d1d22;
+}
+
+/* The source image is ~2048x652 (≈ 3.141:1). Use its native aspect on desktop.
+   On small screens we'll allow taller cropping so text stays legible. */
+.beats-hero img {
   display: block;
   width: 100%;
-  aspect-ratio: 21 / 9;          /* cinematic on desktop/tablet */
-  object-fit: cover;             /* allow crop on large screens */
-  border-radius: 16px;
-  background: #0b0b0c;           /* behind any transparent pixels */
-  margin: 14px 0 18px;
-  box-shadow: 0 8px 24px rgba(0,0,0,.35);
-}
-
-/* Mobile: show entire image (no crop) and keep it full width */
-@media (max-width: 768px) {
-  .beats-hero {
-    aspect-ratio: auto;
-    height: auto;
-    object-fit: contain;         /* keep whole image visible */
-    max-height: 80vh;            /* prevents it from getting too tall */
-    border-radius: 14px;
-    margin: 10px 0 14px;
-  }
-}
-
-/* ---------- Inline info link ("MP3 vs WAV…") ---------- */
-.info-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 6px 0 14px;
-}
-.info-link {
-  display: inline-flex;
-  gap: 10px;
-  align-items: center;
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: transparent;
-  border: 1px solid var(--panelBorder);
-  color: var(--text);
-  text-decoration: none;
-  cursor: pointer;
-}
-.info-link:hover { background: #121214; }
-.qmark {
-  width: 22px; height: 22px;
-  border-radius: 999px;
-  display: grid; place-items: center;
-  background: var(--chip);
-  border: 1px solid var(--chipBorder);
-  color: var(--chipText);
-  font-weight: 700;
-  font-size: 13px;
-}
-
-/* ---------- Filters / controls ---------- */
-.beats-controls { margin-top: 12px; }
-.beats-controls .row {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 12px;
-}
-.ctrl { display: flex; flex-direction: column; gap: 6px; }
-.ctrl > span { color: var(--muted); font-size: 13px; }
-
-#q { grid-column: span 6; }
-#genre, #mood, #key { grid-column: span 3; }
-.bpm { grid-column: span 6; }
-#sort { grid-column: span 3; }
-#reset.btn-reset { grid-column: span 3; }
-
-@media (max-width: 900px) {
-  #q, #genre, #mood, #key, .bpm, #sort, #reset.btn-reset { grid-column: 1 / -1; }
-}
-
-input[type="search"],
-input[type="number"],
-select {
-  appearance: none;
-  background: #0f0f11;
-  color: var(--text);
-  border: 1px solid var(--panelBorder);
-  padding: 12px 12px;
-  border-radius: 12px;
-  outline: none;
-}
-input::placeholder { color: #8e8e94; }
-
-.bpm-range {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 10px;
-}
-.bpm .sep { color: var(--muted); }
-
-.btn-reset {
-  background: #0f0f11;
-  color: var(--text);
-  border: 1px solid var(--panelBorder);
-  padding: 12px 14px;
-  border-radius: 12px;
-  cursor: pointer;
-}
-.btn-reset:hover { background: #131317; }
-
-.results-bar {
-  display: flex; justify-content: space-between; align-items: center;
-  color: var(--muted); font-size: 14px;
-  margin: 8px 0 10px;
-}
-
-/* ---------- Tracks list ---------- */
-.tracks { display: flex; flex-direction: column; gap: 14px; }
-
-/* One track row */
-.track {
-  background: var(--panel);
-  border: 1px solid var(--panelBorder);
-  border-radius: 16px;
-  padding: 14px;
-  display: grid;
-  grid-template-columns: 56px 64px 1fr auto auto;
-  grid-template-areas:
-    "play art title title title"
-    "play art chips chips chips"
-    "wave wave wave actions actions";
-  gap: 12px 14px;
-  align-items: center;
-}
-
-/* compact on wide screens */
-@media (min-width: 1100px) {
-  .track {
-    grid-template-columns: 56px 64px minmax(260px, 1.2fr) 1.6fr auto auto;
-    grid-template-areas:
-      "play art title wave actions actions"
-      "play art chips wave actions actions";
-  }
-}
-
-/* Play button (round) */
-.t-play {
-  grid-area: play;
-  width: 56px; height: 56px;
-  border-radius: 999px;
-  display: grid; place-items: center;
-  border: 2px solid rgba(0,0,0,.35);
-  background: var(--accent);
-  color: #000;                     /* icon color */
-  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), .20) inset;
-  cursor: pointer;
-}
-.t-play:hover { filter: brightness(.98); }
-.t-play svg, .t-play svg * { fill: #000; stroke: #000; }
-
-/* Cover art */
-.t-art {
-  grid-area: art;
-  width: 64px; height: 64px; border-radius: 12px;
-  overflow: hidden; border: 1px solid #222;
-}
-.t-art img { width:100%; height:100%; object-fit: cover; display:block; }
-
-/* Title & chips */
-.t-title { grid-area: title; }
-.t-title h4 { margin: 0; color: #fff; font-weight: 800; letter-spacing: .02em; }
-.meta { grid-area: chips; display:flex; flex-wrap: wrap; gap: 8px; align-items:center; }
-.meta .chip {
-  background: var(--chip);
-  color: var(--chipText);
-  border: 1px solid var(--chipBorder);
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 13px;
-}
-
-/* Waveform */
-.t-wave {
-  grid-area: wave;
-  height: 40px;
-  border-radius: 10px;
-  overflow: hidden;
-  position: relative;
-  border: 1px solid #222;
-  background: #101013;
-}
-.wave-bars {
-  position:absolute; inset:0;
-  background:
-    repeating-linear-gradient(
-      to right,
-      #1f1f24 0 2px,
-      transparent 2px 7px
-    );
-  opacity:.9;
-  pointer-events: none;
-}
-.wave-progress {
-  position:absolute; top:0; left:0; height:100%; width:0%;
-  background: linear-gradient(90deg,
-    rgba(var(--accent-rgb), .28),
-    rgba(var(--accent-rgb), .12));
-  border-right: 2px solid rgba(var(--accent-rgb), .9);
-  transition: width .06s linear;
-  pointer-events: none;
-}
-.t-time {
-  position:absolute; right:8px; bottom:6px;
-  font-size:12px; color:#c9c9d2; opacity:.9;
-  background: rgba(14,14,18,.55);
-  padding:2px 6px; border-radius:6px; border:1px solid #24242a;
-}
-
-/* Actions (Buy / Add to cart) */
-.t-actions { grid-area: actions; display:flex; gap:10px; align-items:center; }
-.buy-btn, .add-btn, .tier, .btn {
-  appearance: none; border:1px solid #2e2e34; background:#222227; color:#eaeaf2;
-  padding: 12px 16px; border-radius: 999px; font: inherit; cursor: pointer;
-  text-decoration: none; display:inline-flex; align-items:center; gap:8px;
-}
-.buy-btn:hover, .add-btn:hover, .tier:hover, .btn:hover { background:#2c2c33; }
-
-/* Checkout button in the cart drawer should be accent */
-.btn-checkout { background: var(--accent); border-color: var(--accent); color:#000; }
-.btn-checkout:hover { filter: brightness(.95); }
-
-/* ---------- Modal (MP3 vs WAV & Buy menu share this shell) ---------- */
-.modal[aria-hidden="true"] { display:none !important; }
-.modal {
-  position: fixed; inset: 0; z-index: 70;
-  display: grid; place-items: center;
-}
-.modal-backdrop {
-  position: absolute; inset: 0;
-  background: rgba(0,0,0,.6); backdrop-filter: blur(2px);
-}
-.modal-panel {
-  position: relative; z-index: 1;
-  width: min(720px, 92vw);
-  background: #17171a;
-  border: 1px solid #232329;
-  border-radius: 16px;
-  padding: 18px 18px 14px;
-  box-shadow: 0 30px 80px rgba(0,0,0,.5);
-}
-.modal-close {
-  position:absolute; top:10px; right:10px;
-  width:36px; height:36px; border-radius:999px;
-  border:1px solid #2a2a31; background:#111115; color:#ddd; cursor:pointer;
-}
-.modal-content { color:#e8e8ee; }
-.modal-content p, .modal-content li { color:#c8c8d1; }
-.modal-cta {
-  background: rgba(var(--accent-rgb), .08);
-  border:1px solid rgba(var(--accent-rgb), .25);
-  color:#fff; padding:10px 12px; border-radius: 10px;
-}
-
-/* ---------- Accent override when a row sets --accent ---------- */
-/* The round play/pause button uses the row's accent if present */
-.track { --accent: var(--accent); --accent-rgb: var(--accent-rgb); }
-.track .t-play { background: var(--accent); box-shadow: 0 0 0 2px rgba(var(--accent-rgb), .20) inset; }
-.track .wave-progress { border-right: 2px solid rgba(var(--accent-rgb), .9); background: linear-gradient(90deg, rgba(var(--accent-rgb), .28), rgba(var(--accent-rgb), .12)); }
-
-/* Ensure the icon stays black against gold (or any light accent) */
-.track .t-play svg, .track .t-play svg * { fill:#000; stroke:#000; }
-
-/* ---------- Small polish ---------- */
-.tracks .track:hover { border-color: #26262c; background: #141417; }
-.meta .chip.bpm { font-weight: 600; }
-
-/* === Beats hero banner (append only) === */
-.beats-hero{
-  margin: 10px 0 20px;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #0f0f11;
-  box-shadow: 0 8px 32px rgba(0,0,0,.35);
-}
-.beats-hero img{
-  display:block;
-  width:100%;
-  height:auto;           /* mobile: no crop */
+  height: auto;
+  aspect-ratio: 2048 / 652;
   object-fit: cover;
 }
-@media (min-width:900px){
-  .beats-hero{ max-height:420px; }
-  .beats-hero img{ height:100%; }   /* desktop: tasteful crop */
+
+/* Mobile: still full-width, allow more height for readability */
+@media (max-width: 768px) {
+  .beats-hero .img-wrap { border-radius: 12px; }
+  .beats-hero img {
+    aspect-ratio: 16 / 9;   /* a bit taller on phones so copy doesn't get too tiny */
+  }
 }
-.info-row{ margin-top:12px; }
-@media (max-width:640px){
-  .beats-controls{ margin-top:8px; }
+
+/* Super small phones: give it even more height */
+@media (max-width: 420px) {
+  .beats-hero img {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* Hide the title/strapline block above the banner on Beats only */
+.page-head { 
+  display: none; 
+}
+
+/* Nudge the banner up a touch now that the header is gone */
+.beats-hero { 
+  margin-top: 8px; 
+}
+
+/* Row-scoped accent defaults (fallback to your global gold). */
+#tracks .track { --row-accent: var(--accent); --row-glyph: #000; }
+
+/* Paint the round play/pause button with the per-row accent. */
+#tracks .track .t-play,
+#tracks .track .play-btn,
+#tracks .track button[aria-label^="Play"],
+#tracks .track button[aria-label^="Pause"]{
+  background: var(--row-accent) !important;
+  border-color: var(--row-accent) !important;
+}
+
+/* Use the per-row glyph color for the CSS-drawn triangle/bars */
+#tracks .track button[aria-label^="Play"]::after{
+  border-left-color: var(--row-glyph, #000) !important;
+}
+#tracks .track button[aria-label^="Pause"]::before,
+#tracks .track button[aria-label^="Pause"]::after{
+  background: var(--row-glyph, #000) !important;
+}
+
+/* Glow ring matches row accent (optional, looks nice) */
+#tracks .track .t-play .dot{
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--row-accent), transparent 75%) !important;
 }
