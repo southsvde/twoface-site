@@ -4,9 +4,10 @@
     "title": "BRAMPTON",
     "bpm": 122,
     "key": "Dm",
-    "mood": ["Dark", "Trap"],
+    "genre": "Trap",
+    "mood": ["Dark"],
     "art": "img/IMG_2884.jpg",
-    "audio": "/audio/brampton.mp3",
+    "audio": "audio/brampton.mp3",
     "tiers": {
       "mp3": "#",
       "mp3wav": "#",
