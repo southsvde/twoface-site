@@ -345,6 +345,37 @@
   #tracks .track button.is-playing::after { left:calc(50% + 2px);  }
 </style>
 
+  <style id="row-accent-final-override">
+  /* Use the per-row accent (falls back to site accent if none found). */
+  #tracks .track .t-play,
+  #tracks .track .play-btn,
+  #tracks .track button[aria-label^="Play"],
+  #tracks .track button[aria-label^="Pause"]{
+    background: var(--row-accent, var(--accent)) !important;
+    border-color: var(--row-accent, var(--accent)) !important;
+  }
+
+  /* Make the glyph inside the round button use the per-row glyph color. */
+  #tracks .track .t-play svg,
+  #tracks .track .t-play svg *,
+  #tracks .track .t-play .dot svg,
+  #tracks .track .t-play .dot svg *{
+    fill: var(--row-glyph, #000) !important;
+    stroke: var(--row-glyph, #000) !important;
+    filter: none !important; /* neutralize previous “force black/white” tricks */
+  }
+
+  /* Pseudo-drawn triangle/bars also match the per-row glyph color */
+  #tracks .track button[aria-label^="Play"]::after{
+    border-left-color: var(--row-glyph, #000) !important;
+  }
+  #tracks .track button[aria-label^="Pause"]::before,
+  #tracks .track button[aria-label^="Pause"]::after{
+    background: var(--row-glyph, #000) !important;
+  }
+</style>
+
+
   
 </body>
 </html>
