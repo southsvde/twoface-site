@@ -24,6 +24,7 @@
 
   // Shared audio element (single player for all rows)
   const player = new Audio();
+  window.__twfPlayer = player; // expose shared player so add-ons can seek it
   player.preload = 'metadata';
   let currentRow = null;
   let isDragging = false;
