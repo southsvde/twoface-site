@@ -1,4 +1,4 @@
-// TWOFACE — Beats page with filters (Genre, Mood, Key, BPM) + inline player + MP3/WAV modal
+// TWOFACE — Beats page with filters + inline player + MP3/WAV modal + enriched Buy menu
 (() => {
   const listEl   = document.querySelector('#tracks');
   const statusEl = document.querySelector('#beats-status');
@@ -49,7 +49,7 @@
     return rect.width ? (x / rect.width) : 0;
   }
 
-  function bindSeek(row, wave, bar, ttime) {
+  function bindSeek(row, wave) {
     wave.addEventListener('click', (e) => {
       if (!player.duration || currentRow !== row) return;
       player.currentTime = pctFromEvent(e, wave) * player.duration;
@@ -77,10 +77,8 @@
     let moods = [];
     if (Array.isArray(b.mood)) moods = b.mood.map(String);
     else if (b.mood) moods = [String(b.mood)];
-
     let genre = b.genre ? String(b.genre) : (moods.find(m => KNOWN_GENRES.includes(m)) || '');
     const moodsNoGenre = genre ? moods.filter(m => m !== genre) : moods;
-
     return { ...b, _genre: genre, _moods: moodsNoGenre };
   }
 
@@ -94,6 +92,50 @@
     return Array.from(set).sort((a,b) => a.localeCompare(b, undefined, {numeric:true}));
   }
 
+  function buildBuyMenu(beat) {
+    // Requested titles + fixed prices
+    const TIERS = [
+      {
+        key: 'mp3',
+        title: 'MP3',
+        desc: 'Great for quick demos & writing; not ideal for mixing/mastering.',
+        price: '$29'
+      },
+      {
+        key: 'mp3wav',
+        title: 'MP3 + WAV (Recommended)',
+        desc: 'Full-quality WAV for recording & release + MP3 for reference.',
+        price: '$49'
+      },
+      {
+        key: 'excl_nowav',
+        title: 'Exclusive License',
+        desc: 'Your exclusive rights; beat removed from store after purchase.',
+        price: '$99'
+      },
+      {
+        key: 'excl_stems',
+        title: 'Exclusive License + Stems',
+        desc: 'Exclusive + individual track stems for full mix control.',
+        price: '$249'
+      }
+    ];
+
+    return TIERS.map(tier => {
+      const href = beat.tiers?.[tier.key];
+      const disabledAttrs = href ? `href="${href}" target="_blank" rel="noopener"` : 'aria-disabled="true" tabindex="-1"';
+      return `
+        <a ${disabledAttrs} class="item">
+          <div class="text">
+            <div class="title">${tier.title}</div>
+            <div class="sub">${tier.desc}</div>
+          </div>
+          <div class="price">${tier.price}</div>
+        </a>
+      `;
+    }).join('');
+  }
+
   function buildRow(beat) {
     const row = document.createElement('article');
     row.className = 'track';
@@ -102,7 +144,7 @@
     const artSrc = beat.art ? beat.art : 'img/hero.jpg';
     const primaryMood = beat._moods && beat._moods.length ? beat._moods[0] : '';
 
-    // Chips in the order: (Genre)(Mood)(Key)(BPM) — all chips
+    // Chips: (Genre)(Mood)(Key)(BPM)
     const chips = `
       ${beat._genre ? `<span class="chip">${beat._genre}</span>` : ''}
       ${primaryMood ? `<span class="chip">${primaryMood}</span>` : ''}
@@ -133,10 +175,7 @@
       <div class="t-actions">
         <button type="button" class="buy-btn">Buy</button>
         <div class="buy-menu" aria-label="License options">
-          <a ${beat.tiers?.mp3 ? `href="${beat.tiers.mp3}" target="_blank" rel="noopener"` : 'aria-disabled="true" tabindex="-1"'}><span>MP3 (Non-Exclusive)</span><small>$15</small></a>
-          <a ${beat.tiers?.mp3wav ? `href="${beat.tiers.mp3wav}" target="_blank" rel="noopener"` : 'aria-disabled="true" tabindex="-1"'}><span>MP3 + WAV (Non-Exclusive)</span><small>$20</small></a>
-          <a ${beat.tiers?.excl_nowav ? `href="${beat.tiers.excl_nowav}" target="_blank" rel="noopener"` : 'aria-disabled="true" tabindex="-1"'}><span>Exclusive (No Stems)</span><small>$60</small></a>
-          <a ${beat.tiers?.excl_stems ? `href="${beat.tiers.excl_stems}" target="_blank" rel="noopener"` : 'aria-disabled="true" tabindex="-1"'}><span>Exclusive + Stems</span><small>$100</small></a>
+          ${buildBuyMenu(beat)}
         </div>
       </div>
     `;
@@ -199,7 +238,7 @@
     player.addEventListener('timeupdate', onTime);
     player.addEventListener('ended', onEnded);
 
-    bindSeek(row, wave, bar, ttime);
+    bindSeek(row, wave);
     return row;
   }
 
