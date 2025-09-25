@@ -119,6 +119,11 @@
   background:var(--chip);color:var(--chipText);border:1px solid var(--chipBorder);
   border-radius:999px;padding:4px 8px;white-space:nowrap;align-self:center
 }
+/* tiny badge for Recommended */
+.buy-menu .badge{
+  display:inline-block;margin-left:8px;padding:2px 6px;border-radius:999px;
+  font-size:11px;line-height:1.2;background:#1f2230;border:1px solid #2c3150;color:#cfd3ff
+}
 
 /* Responsive */
 @media (max-width:900px){
