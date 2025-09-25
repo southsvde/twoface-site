@@ -9,10 +9,31 @@
     "art": "img/IMG_2884.jpg",
     "audio": "audio/brampton.mp3",
     "tiers": {
-      "mp3":        { "url": "https://buy.stripe.com/...", "price": 29,  "label": "MP3" },
-      "mp3wav":     { "url": "https://buy.stripe.com/...", "price": 49,  "label": "MP3 + WAV", "recommended": true },
-      "excl_nowav": { "url": "https://buy.stripe.com/...", "price": 99,  "label": "Exclusive License" },
-      "excl_stems": { "url": "https://buy.stripe.com/...", "price": 249, "label": "Exclusive License + Stems" }
+      "mp3": {
+        "label": "MP3",
+        "price": 29,
+        "url": "https://buy.stripe.com/...",
+        "priceId": ""
+      },
+      "mp3wav": {
+        "label": "MP3 + WAV",
+        "price": 49,
+        "url": "https://buy.stripe.com/...",
+        "recommended": true,
+        "priceId": ""
+      },
+      "excl_nowav": {
+        "label": "Exclusive License",
+        "price": 99,
+        "url": "https://buy.stripe.com/...",
+        "priceId": ""
+      },
+      "excl_stems": {
+        "label": "Exclusive License + Stems",
+        "price": 249,
+        "url": "https://buy.stripe.com/...",
+        "priceId": ""
+      }
     }
   }
 ]
