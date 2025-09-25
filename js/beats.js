@@ -1,7 +1,6 @@
 // /js/beats.js — TWOFACE Beats page
 // Filters + inline player + MP3/WAV modal + JSON-driven Buy/Add menus
-// Step 4: Allow "Add to cart" even when a tier has no Stripe priceId yet.
-//          (Checkout remains blocked by cart.js until priceIds exist.)
+// Includes fix for modal selector typo and improved loading/error handling.
 
 (() => {
   const listEl   = document.querySelector('#tracks');
@@ -20,6 +19,9 @@
   const countSEl = document.querySelector('#count-s');
 
   if (!listEl) return;
+
+  // Allow overriding beats.json path from <meta name="beats-json" content="...">
+  const BEATS_URL = document.querySelector('meta[name="beats-json"]')?.content || 'beats.json';
 
   // Shared audio element (single player for all rows)
   const player = new Audio();
@@ -124,7 +126,7 @@
         price: defaults.price,
         desc: defaults.desc,
         recommended: !!defaults.recommended,
-        priceId: '' // not available in legacy shape
+        priceId: ''
       };
     }
 
@@ -140,7 +142,7 @@
       };
     }
 
-    // tier absent: disabled (no url/priceId), still show label/price
+    // tier absent: disabled entry (still shows label/price)
     return {
       url: '',
       label: defaults.label,
@@ -169,8 +171,7 @@
           </a>
         `;
       } else {
-        // ADD mode: now ALWAYS allowed (even without priceId).
-        // Items without priceId can be added, but cart.js will block checkout until priceIds exist.
+        // ADD mode: allow adding even without priceId; checkout blocks later if needed.
         return `
           <a role="button"
              class="item ${recClass}"
@@ -248,7 +249,7 @@
           ${buildMenuItems(beat, 'add')}
         </div>
       </div>
-    `;
+    ";
 
     // --- Menu wiring (Buy & Add) -----------------------------------------
     const buyBtn = row.querySelector('button[data-toggle="buy"]');
@@ -257,14 +258,11 @@
     const addMenu = row.querySelector('.buy-menu[data-mode="add"]');
 
     function closeMenus() {
-      [buyMenu, addMenu].forEach(m => m.classList.remove('open'));
-      [buyBtn, addBtn].forEach(b => b.setAttribute('aria-expanded','false'));
-    }
-    function toggleMenu(which) {
-      // close other rows' menus first
       document.querySelectorAll('.buy-menu.open').forEach(m => m.classList.remove('open'));
       document.querySelectorAll('.t-actions [aria-expanded="true"]').forEach(b => b.setAttribute('aria-expanded','false'));
-
+    }
+    function toggleMenu(which) {
+      closeMenus();
       const btn  = which === 'buy' ? buyBtn  : addBtn;
       const menu = which === 'buy' ? buyMenu : addMenu;
       const wasOpen = menu.classList.contains('open');
@@ -283,7 +281,7 @@
     addMenu.addEventListener('click', (e) => e.stopPropagation());
     document.addEventListener('click', closeMenus);
 
-    // Add-to-cart action (event delegation on the addMenu)
+    // Add-to-cart action
     addMenu.addEventListener('click', (e) => {
       const item = e.target.closest('[data-action="add"]');
       if (!item) return;
@@ -296,7 +294,6 @@
       const url     = item.getAttribute('data-url') || '';
 
       if (!window.TWFCart || typeof window.TWFCart.add !== 'function') {
-        // Graceful fallback if cart.js isn't loaded yet
         alert('Cart is not available yet. Please use Buy for now.');
         return;
       }
@@ -312,7 +309,6 @@
       });
 
       closeMenus();
-      // window.TWFCart.open(); // uncomment if you want the drawer to auto-open
     });
 
     // --- Player wiring ----------------------------------------------------
@@ -396,7 +392,7 @@
       case 'bpm-asc':  filtered.sort((a,b)=> (a.bpm||0)-(b.bpm||0)); break;
       case 'bpm-desc': filtered.sort((a,b)=> (b.bpm||0)-(a.bpm||0)); break;
       case 'title-asc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')); break;
-      case 'title-desc': filtered.sort((a,b)=> (b.title||'').localeCompare(a.title||'')).reverse(); break;
+      case 'title-desc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')).reverse(); break;
       default: break;
     }
 
@@ -440,7 +436,7 @@
   async function init() {
     try {
       if (statusEl) statusEl.textContent = 'Loading beats…';
-      const res = await fetch('/beats.json', { cache: 'no-store' });
+      const res = await fetch(BEATS_URL, { cache: 'no-store' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       allBeats = await res.json();
 
@@ -455,7 +451,7 @@
       applyFilters();
     } catch (err) {
       console.error('[Beats] load error:', err);
-      if (statusEl) statusEl.textContent = 'Couldn’t load beats. Check beats.json (no comments) and that /beats.json is accessible.';
+      if (statusEl) statusEl.textContent = 'Couldn’t load beats. Make sure /beats.json exists, is valid JSON (no comments), and is publicly accessible.';
     }
   }
 
@@ -472,7 +468,6 @@
     const modal   = document.getElementById('mp3wav-modal');
     if (!trigger || !modal) return;
 
-    const closeBtns = modal.querySelectorAll('[data-close="modal"], .modal-close']);
     const backdrop  = modal.querySelector('.modal-backdrop');
     const panel     = modal.querySelector('.modal-panel');
 
