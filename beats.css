@@ -102,15 +102,23 @@
 }
 .buy-btn:hover{background:var(--btnHover)}
 .buy-menu{
-  position:absolute;right:0;top:100%;margin-top:8px;min-width:260px;background:#121216;border:1px solid #26262b;border-radius:12px;
+  position:absolute;right:0;top:100%;margin-top:8px;min-width:320px;background:#121216;border:1px solid #26262b;border-radius:12px;
   box-shadow:0 8px 24px rgba(0,0,0,.35);padding:8px;display:none;z-index:10
 }
 .buy-menu.open{display:block}
 .buy-menu a{
-  display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:8px;color:#eaeaf2;text-decoration:none;border:1px solid transparent
+  display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+  padding:10px 12px;border-radius:8px;color:#eaeaf2;text-decoration:none;border:1px solid transparent
 }
 .buy-menu a:hover{background:#1b1b20;border-color:#292930}
-.buy-menu small{color:#bdbdd0}
+.buy-menu a[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.buy-menu .text{display:flex;flex-direction:column;gap:4px;min-width:0}
+.buy-menu .title{font-weight:700;letter-spacing:.02em;white-space:normal}
+.buy-menu .sub{color:#bdbdd0;font-size:12.5px;line-height:1.35}
+.buy-menu .price{
+  background:var(--chip);color:var(--chipText);border:1px solid var(--chipBorder);
+  border-radius:999px;padding:4px 8px;white-space:nowrap;align-self:center
+}
 
 /* Responsive */
 @media (max-width:900px){
