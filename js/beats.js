@@ -137,8 +137,9 @@
       const t = tierInfo(beat, key);
       const hrefAttrs = t.url ? `href="${t.url}" target="_blank" rel="noopener"` : 'aria-disabled="true" tabindex="-1"';
       const recBadge = t.recommended ? `<span class="badge">Recommended</span>` : '';
+      const recClass = t.recommended ? 'recommended' : '';
       return `
-        <a ${hrefAttrs} class="item">
+        <a ${hrefAttrs} class="item ${recClass}">
           <div class="text">
             <div class="title">${t.label}${recBadge}</div>
             <div class="sub">${t.desc}</div>
