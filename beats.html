@@ -124,8 +124,8 @@
     </div>
   </div>
 
-  <!-- Scripts: beats first (renders rows/menus), then cart (drawer & checkout) -->
-  <script src="js/beats.js"></script>
-  <script src="js/cart.js"></script>
+  <!-- Cart first (injects header button + drawer), then Beats (renders rows & hooks into cart) -->
+        <script src="js/cart.js"></script>
+        <script src="js/beats.js"></script>
 </body>
 </html>
