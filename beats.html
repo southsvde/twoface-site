@@ -228,6 +228,48 @@
   }
 </style>
 
+<style id="accent-gold-glyphs">
+  /* Always draw our own black play/pause icon, regardless of inner markup */
+
+  /* Ensure the dot can host pseudo-elements */
+  #tracks .t-play .dot{
+    position: relative;
+  }
+
+  /* Hide whatever icon the template inserted (SVG, <use>, etc.) */
+  #tracks .t-play .dot > *{
+    opacity: 0 !important;
+  }
+
+  /* --- PLAY state (triangle) ------------------------------------------ */
+  /* We key off the accessible label; this is present in your markup */
+  #tracks .t-play[aria-label^="Play"] .dot::after{
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-40%, -50%); /* slight optical centering */
+    width: 0; height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 11px solid #000;      /* black triangle */
+  }
+
+  /* --- PAUSE state (two bars) ----------------------------------------- */
+  #tracks .t-play[aria-label^="Pause"] .dot::before,
+  #tracks .t-play[aria-label^="Pause"] .dot::after{
+    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;                        /* bar width */
+    height: 14px;                      /* bar height */
+    background: #000;                  /* black bars */
+    border-radius: 1px;
+  }
+  #tracks .t-play[aria-label^="Pause"] .dot::before{ left: calc(50% - 5px); }
+  #tracks .t-play[aria-label^="Pause"] .dot::after { left: calc(50% + 2px);  }
+</style>
 
 
   
