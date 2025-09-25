@@ -262,3 +262,13 @@
     aspect-ratio: 4 / 3;
   }
 }
+
+/* Hide the title/strapline block above the banner on Beats only */
+.page-head { 
+  display: none; 
+}
+
+/* Nudge the banner up a touch now that the header is gone */
+.beats-hero { 
+  margin-top: 8px; 
+}
