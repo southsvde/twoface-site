@@ -4,73 +4,76 @@
   <meta charset="utf-8" />
   <title>TWOFACE — Beats</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Preview and license TWOFACE beats directly." />
+  <meta name="description" content="Preview & license TWOFACE beats directly." />
+  <meta property="og:title" content="TWOFACE — Beats" />
+  <meta property="og:description" content="Preview, sort, and license TWOFACE beats directly." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="img/hero.jpg" />
+  <!-- Global site styles -->
   <link rel="stylesheet" href="styles.css" />
+  <!-- Page-scoped beats styles (only affects this page) -->
   <link rel="stylesheet" href="beats.css" />
 </head>
-
 <body>
+
+  <!-- Site header uses your existing classes so it matches the homepage -->
   <header class="site-header">
     <a class="logo" href="index.html">TWOFACE</a>
     <nav class="site-nav">
-      <a href="index.html">Music</a>
+      <a href="index.html#music">Music</a>
       <a href="beats.html" class="active">Beats</a>
       <a href="shows.html">Shows</a>
       <a href="merch.html">Merch</a>
     </nav>
   </header>
 
-  <main class="container">
+  <main class="container content">
     <div class="page-head">
       <h2>Beats</h2>
-      <p class="muted">Preview &amp; license directly — secure delivery after purchase.</p>
+      <p>Preview &amp; license directly — secure delivery after purchase.</p>
     </div>
 
-    <!-- MP3 vs WAV info link -->
+    <!-- Inline help: MP3 vs WAV -->
     <div class="info-row">
-      <button id="mp3wav-trigger"
-              class="info-link"
-              type="button"
-              aria-haspopup="dialog"
-              aria-controls="mp3wav-modal">
-        <span class="qmark" aria-hidden="true">?</span>
+      <button id="mp3wav-trigger" class="info-link" type="button" aria-haspopup="dialog" aria-controls="mp3wav-modal">
+        <span class="qmark">?</span>
         <span>MP3 vs WAV — The Difference &amp; Why It Matters</span>
       </button>
     </div>
 
-    <!-- Filters / Sorting -->
+    <!-- Filters / search -->
     <section class="beats-controls" aria-label="Filters">
       <div class="row">
-        <label class="ctrl">
+        <label class="ctrl" for="q">
           <span>Search</span>
-          <input id="q" type="search" placeholder="Title…" autocomplete="off" />
+          <input id="q" type="search" placeholder="Search titles…" autocomplete="off" />
         </label>
 
-        <label class="ctrl">
+        <label class="ctrl" for="genre">
           <span>Genre</span>
-          <select id="genre"><option value="">All</option></select>
+          <select id="genre"></select>
         </label>
 
-        <label class="ctrl">
+        <label class="ctrl" for="mood">
           <span>Mood</span>
-          <select id="mood"><option value="">All</option></select>
+          <select id="mood"></select>
         </label>
 
-        <label class="ctrl">
+        <label class="ctrl" for="key">
           <span>Key</span>
-          <select id="key"><option value="">All</option></select>
+          <select id="key"></select>
         </label>
 
-        <label class="ctrl bpm">
+        <div class="ctrl bpm">
           <span>BPM</span>
           <div class="bpm-range">
             <input id="bpmMin" type="number" inputmode="numeric" placeholder="Min" />
             <span class="sep">–</span>
             <input id="bpmMax" type="number" inputmode="numeric" placeholder="Max" />
           </div>
-        </label>
+        </div>
 
-        <label class="ctrl">
+        <label class="ctrl" for="sort">
           <span>Sort</span>
           <select id="sort">
             <option value="default">Default</option>
@@ -81,56 +84,48 @@
           </select>
         </label>
 
-        <button id="reset" class="btn-reset" type="button" aria-label="Reset filters">Reset</button>
+        <button id="reset" class="btn-reset" type="button">Reset</button>
       </div>
 
       <div class="results-bar">
-        <span id="count">0</span> result<span id="count-s">s</span>
+        <span id="beats-status" aria-live="polite"></span>
+        <span><strong id="count">0</strong> result<span id="count-s">s</span></span>
       </div>
     </section>
 
-    <!-- List -->
+    <!-- List populated by js/beats.js -->
     <section id="tracks" class="tracks" aria-live="polite"></section>
-    <p id="beats-status" class="muted"></p>
   </main>
 
   <footer class="site-footer">
-    <div class="container">© 2025 TWOFACE</div>
+    <div class="container">
+      <span>© 2025 TWOFACE</span>
+      <a href="#top" class="to-top">Back to top ↑</a>
+    </div>
   </footer>
 
-  <!-- Modal (stays on page) -->
-  <div id="mp3wav-modal"
-       class="modal"
-       role="dialog"
-       aria-modal="true"
-       aria-labelledby="mp3wav-title"
-       aria-describedby="mp3wav-body"
-       tabindex="-1">
-    <div class="modal-backdrop" data-close="modal"></div>
-
-    <div class="modal-panel" role="document">
-      <button class="modal-close" type="button" aria-label="Close">×</button>
-
-      <h3 id="mp3wav-title">MP3 vs WAV — The Difference &amp; Why It Matters</h3>
-      <div id="mp3wav-body" class="modal-content">
+  <!-- MP3 vs WAV Modal -->
+  <div id="mp3wav-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="mp3wav-title" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-panel">
+      <button class="modal-close" type="button" aria-label="Close">✕</button>
+      <div class="modal-content">
+        <h3 id="mp3wav-title" style="margin-top:0;color:#fff">MP3 vs WAV — Why upgrade?</h3>
         <ul>
-          <li><strong>WAV = studio master.</strong> Uncompressed, full detail (16/24-bit). Clean vocals, clean mix, loud master.</li>
-          <li><strong>MP3 = listening copy.</strong> It removes info to shrink the file; artifacts get louder when you process it.</li>
-          <li><strong>No double-compression.</strong> Start with WAV so streaming platforms don’t re-encode an MP3 again.</li>
-          <li><strong>Future-proof.</strong> Engineers, distributors, and sync libraries expect WAV. You can always make an MP3 later.</li>
+          <li><strong>WAV = full quality</strong> (lossless). MP3 is compressed and removes detail you’ll hear when stacking vocals or mixing.</li>
+          <li><strong>Headroom for mixing/mastering.</strong> WAV preserves transients and low-end accuracy for cleaner processing.</li>
+          <li><strong>Distribution-ready.</strong> Labels and engineers prefer WAV to avoid generational loss.</li>
         </ul>
-        <p class="modal-cta"><strong>Recommended:</strong> <em>MP3 + WAV</em> — quick reference + full-quality for recording and release.</p>
+        <p class="modal-cta">Recommendation: choose <strong>MP3 + WAV</strong> to write with the MP3 and record/release with the WAV.</p>
       </div>
-
       <div class="modal-actions">
-        <button class="btn modal-ok" type="button" data-close="modal">Got it</button>
+        <button type="button" class="btn" data-close="modal">Got it</button>
       </div>
     </div>
   </div>
 
-  <script src="js/beats.js" defer></script>
+  <!-- Scripts: beats first (renders rows/menus), then cart (drawer & checkout) -->
   <script src="js/beats.js"></script>
   <script src="js/cart.js"></script>
-  
 </body>
 </html>
