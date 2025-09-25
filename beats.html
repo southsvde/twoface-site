@@ -165,6 +165,42 @@
   }
 </style>
 
+<style id="accent-gold-fixes">
+  :root{ --accent:#f5c048; --accent-rgb:245,192,72; }
+
+  /* 1) Left round play/pause button (covers multiple markups) */
+  #tracks .track .t-play,
+  #tracks .track .play-btn,
+  #tracks .track button[aria-label^="Play"],
+  #tracks .track button[aria-label^="Pause"]{
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color:#000 !important;
+  }
+  /* ensure the icon inside flips to dark */
+  #tracks .track .t-play svg,
+  #tracks .track .play-btn svg{
+    fill:#000 !important;
+    color:#000 !important;
+  }
+
+  /* keep the small inner dot in sync (if present) */
+  #tracks .t-play .dot{
+    background: var(--accent) !important;
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), .25) !important;
+  }
+
+  /* 2) Cart drawer checkout button */
+  .cart-drawer .cart-foot .btn-checkout,
+  .cart-drawer .btn-checkout{
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    color:#000 !important;
+  }
+  .cart-drawer .btn-checkout:hover{ filter:brightness(.95) !important; }
+</style>
+
+
   
 </body>
 </html>
