@@ -321,11 +321,11 @@
 
 /* Extra space under the MP3 vs WAV pill */
 .info-row{
-  margin-bottom: 20px;   /* was 6px via shorthand; gives the pill room to breathe */
+  margin-bottom: 36px;   /* was 6px via shorthand; gives the pill room to breathe */
 }
 
 /* Tiny bump on phones if you want a touch more space */
 @media (max-width: 560px){
-  .info-row{ margin-bottom: 22px; }
+  .info-row{ margin-bottom: 24px; }
 }
 
