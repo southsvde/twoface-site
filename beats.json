@@ -6,7 +6,7 @@
     "key": "C#m",
     "genre": "Hip-Hop",
     "mood": ["Dark", "Storytelling"],
-    "art": "img/birds_eye_cover.jpeg",
+    "art": "img/birds_eye_cover.png",
     "audio": "audio/birds_eye_mp3.mp3",
     "tiers": {
       "mp3": {
