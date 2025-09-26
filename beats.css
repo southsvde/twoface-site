@@ -295,3 +295,29 @@
 #tracks .track .t-play .dot{
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--row-accent), transparent 75%) !important;
 }
+
+/* Wrap chips when there's no room */
+.t-title .meta{
+  display: flex;
+  flex-wrap: wrap;            /* allow multiple lines */
+  gap: 8px;                   /* space between chips */
+  row-gap: 6px;
+  max-width: min(52vw, 560px);/* keep the cluster from stretching too far */
+}
+
+.t-title .meta .chip{
+  white-space: nowrap;        /* keep each chip nice and pill-shaped */
+}
+
+/* Mobile: keep one line and allow swipe instead of growing row height */
+@media (max-width: 640px){
+  .t-title .meta{
+    flex-wrap: nowrap;        /* single line */
+    overflow-x: auto;         /* swipe to reveal more chips */
+    scrollbar-width: none;    /* hide scrollbar (Firefox) */
+    -ms-overflow-style: none; /* IE/Edge legacy */
+    max-width: 100%;
+  }
+  .t-title .meta::-webkit-scrollbar{ display: none; } /* hide scrollbar (WebKit) */
+}
+
