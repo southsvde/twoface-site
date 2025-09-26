@@ -448,6 +448,16 @@
   .beats-controls .row > .ctrl,
   .beats-controls .row > .btn-reset { min-width: 0; }
 
+  /* Compact Sort dropdown (desktop) */
+@media (min-width: 1200px){
+  .beats-controls .row label.ctrl[for="sort"] > select{
+    width: 120px;       /* tweak to taste: 110–140px usually looks right */
+    min-width: 110px;
+    max-width: 140px;
+  }
+}
+
+
   /* Map to columns */
   label.ctrl[for="q"]     { grid-column: 1; }
   label.ctrl[for="genre"] { grid-column: 2; }
