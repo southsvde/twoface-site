@@ -293,6 +293,26 @@
   margin-top: 8px; 
 }
 
+/* Gold ring + subtle glow to match MP3+WAV “recommended” styling */
+.beats-hero .img-wrap {
+  border: 1px solid var(--recBorder); /* #4a4120 */
+  box-shadow:
+    0 0 0 1px var(--recRing2) inset,   /* inner faint ring */
+    0 0 0 2px var(--recRing1) inset,   /* inner stronger ring */
+    0 10px 28px var(--recGlow);        /* soft outer glow */
+}
+
+/* (Optional) a tiny lift on hover, desktop only */
+@media (hover:hover) {
+  .beats-hero .img-wrap:hover {
+    box-shadow:
+      0 0 0 1px var(--recRing2) inset,
+      0 0 0 2px var(--recRing1) inset,
+      0 12px 36px var(--recGlow);
+  }
+}
+
+
 /* Row-scoped accent defaults (fallback to your global gold). */
 #tracks .track { --row-accent: var(--accent); --row-glyph: #000; }
 
