@@ -437,7 +437,7 @@
       minmax(120px, 12%)   /* Genre  */
       minmax(120px, 12%)   /* Mood   */
       minmax(120px, 12%)   /* Key    */
-      minmax(220px, 20%)   /* BPM (Min – Max) */
+      minmax(220px, 15%)   /* BPM (Min – Max) */
       minmax(120px, 1%)   /* Sort   */
       auto;                /* Reset  */
     column-gap: 14px;
