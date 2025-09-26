@@ -393,3 +393,36 @@
   }
 }
 
+/* ==== Desktop: fit the entire first filter row neatly within content ==== */
+@media (min-width: 1200px){
+  /* Use a grid so widths are predictable and Reset stays on the line */
+  .beats-controls .row{
+    display: grid;
+    grid-template-columns:
+      32%   /* Search (compressed) */
+      13%   /* Genre */
+      13%   /* Mood  */
+      13%   /* Key   */
+      14%   /* BPM (Min – Max) */
+      11%   /* Sort  */
+      auto; /* Reset (just enough for the pill) */
+    column-gap: 12px;
+    align-items: end;
+  }
+
+  /* Map items to columns */
+  label.ctrl[for="q"]     { grid-column: 1; min-width: 280px; }  /* Search */
+  label.ctrl[for="genre"] { grid-column: 2; }
+  label.ctrl[for="mood"]  { grid-column: 3; }
+  label.ctrl[for="key"]   { grid-column: 4; }
+  .ctrl.bpm               { grid-column: 5; }                    /* BPM */
+  label.ctrl[for="sort"]  { grid-column: 6; }                    /* Sort */
+  .btn-reset              { grid-column: 7; justify-self: start; }
+
+  /* Keep BPM inputs tight (3 digits max) */
+  .ctrl.bpm .bpm-range input {
+    width: 86px;           /* adjust if you want a touch wider/narrower */
+    max-width: 100px;
+  }
+  .ctrl.bpm .sep { margin: 0 6px; }
+}
