@@ -1,5 +1,7 @@
 [
+  
   {
+    "_comment": "BIRDS EYE BEAT",
     "id": "birds-eye-beat",
     "title": "BIRDS EYE",
     "bpm": 78,
@@ -36,4 +38,46 @@
       }
     }
   }
+
+    {
+    "_comment": "SOUTHDOWNS BEAT",
+    "id": "southdowns-beat",
+    "title": "SOUTHDOWNS",
+    "bpm": 151,
+    "key": "A#m",
+    "genre": "Trap",
+    "mood": ["Dark"],
+    "art": "img/southdowns_cover.png",
+    "audio": "audio/southdowns_mp3.mp3",
+    "tiers": {
+      "mp3": {
+        "label": "MP3",
+        "price": 29,
+        "url": "https://buy.stripe.com/...",
+        "priceId": ""
+      },
+      "mp3wav": {
+        "label": "MP3 + WAV",
+        "price": 49,
+        "url": "https://buy.stripe.com/...",
+        "recommended": true,
+        "priceId": ""
+      },
+      "excl_nowav": {
+        "label": "Exclusive License",
+        "price": 99,
+        "url": "https://buy.stripe.com/...",
+        "priceId": ""
+      },
+      "excl_stems": {
+        "label": "Exclusive License + Stems",
+        "price": 249,
+        "url": "https://buy.stripe.com/...",
+        "priceId": ""
+      }
+    }
+  }
+
+
+  
 ]
