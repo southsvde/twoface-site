@@ -290,18 +290,23 @@
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--row-accent), transparent 75%) !important;
 }
 
-/* Uppercase the inline action buttons on each track row */
+/* Track row action buttons: uppercase but compact */
 .tracks .track .t-actions > .buy-btn,
 .tracks .track .t-actions > .add-btn{
   text-transform: uppercase;
-  letter-spacing: .04em;   /* optional: a little breathing room */
-  font-weight: 600;        /* optional: a touch bolder */
+  font-size: 13px;        /* ↓ was inheriting larger size */
+  letter-spacing: .03em;  /* subtle spacing for caps */
+  padding: 8px 12px;      /* tighter pill */
+  line-height: 1;         /* keeps height tidy */
+  min-height: 34px;       /* smaller overall button */
 }
 
-/* Keep the menu item titles normal case (optional safety) */
+/* Keep the dropdown menu item titles normal-case & unchanged size */
 .tracks .track .t-actions .buy-menu .title{
   text-transform: none;
+  font-size: 14px;
 }
+
 
 
 /* Extra space under the MP3 vs WAV pill */
