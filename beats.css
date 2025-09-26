@@ -290,6 +290,20 @@
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--row-accent), transparent 75%) !important;
 }
 
+/* Uppercase the inline action buttons on each track row */
+.tracks .track .t-actions > .buy-btn,
+.tracks .track .t-actions > .add-btn{
+  text-transform: uppercase;
+  letter-spacing: .04em;   /* optional: a little breathing room */
+  font-weight: 600;        /* optional: a touch bolder */
+}
+
+/* Keep the menu item titles normal case (optional safety) */
+.tracks .track .t-actions .buy-menu .title{
+  text-transform: none;
+}
+
+
 /* Extra space under the MP3 vs WAV pill */
 .info-row{ margin-bottom:70px; }
 @media (max-width:560px){ .info-row{ margin-bottom:24px; } }
@@ -342,3 +356,5 @@
 /* final: ensure inputs/selects fill their grid cell unless overridden above */
 .beats-controls .row .ctrl > input,
 .beats-controls .row .ctrl > select{ width:100%; }
+
+
