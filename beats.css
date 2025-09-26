@@ -293,24 +293,28 @@
   margin-top: 8px; 
 }
 
-/* Gold ring + subtle glow to match MP3+WAV “recommended” styling */
-.beats-hero .img-wrap {
-  border: 1px solid var(--recBorder); /* #4a4120 */
-  box-shadow:
-    0 0 0 1px var(--recRing2) inset,   /* inner faint ring */
-    0 0 0 2px var(--recRing1) inset,   /* inner stronger ring */
-    0 10px 28px var(--recGlow);        /* soft outer glow */
+/* === Hero outline color (dark neutral) === */
+:root{
+  /* tweak this hex if you want it a touch lighter/darker */
+  --hero-ring: #2a2a30;
 }
 
-/* (Optional) a tiny lift on hover, desktop only */
-@media (hover:hover) {
-  .beats-hero .img-wrap:hover {
+.beats-hero .img-wrap{
+  border: 1px solid var(--hero-ring);
+  /* subtle inner lift so the border reads on dark backgrounds */
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--hero-ring), transparent 65%) inset;
+}
+
+/* Optional hover lift on desktop, same color */
+@media (hover:hover){
+  .beats-hero .img-wrap:hover{
     box-shadow:
-      0 0 0 1px var(--recRing2) inset,
-      0 0 0 2px var(--recRing1) inset,
-      0 12px 36px var(--recGlow);
+      0 0 0 1px color-mix(in srgb, var(--hero-ring), transparent 55%) inset,
+      0 10px 22px rgba(0,0,0,.35);
   }
 }
+
 
 
 /* Row-scoped accent defaults (fallback to your global gold). */
