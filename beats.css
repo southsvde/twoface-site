@@ -353,3 +353,43 @@
   .info-row{ margin-bottom: 24px; }
 }
 
+/* ==== Compact BPM inputs + keep all controls on one line (desktop) ==== */
+
+/* Always keep BPM inputs small */
+.ctrl.bpm { flex: 0 0 auto; }
+.ctrl.bpm .bpm-range input {
+  width: 86px;          /* <— adjust if you want a tad wider/narrower */
+  max-width: 100px;
+}
+.ctrl.bpm .sep { margin: 0 6px; }
+
+/* Desktop layout: prevent wrapping & size the Search nicely */
+@media (min-width: 1100px){
+  .beats-controls .row{
+    flex-wrap: nowrap;        /* keep everything in a single row */
+    align-items: end;
+  }
+
+  /* Let Search grow; others stay compact */
+  label.ctrl[for="q"]{
+    flex: 1 1 360px;          /* grows to fill spare space */
+    min-width: 320px;
+  }
+
+  /* Genre / Mood / Key / Sort stay their natural size */
+  label.ctrl[for="genre"],
+  label.ctrl[for="mood"],
+  label.ctrl[for="key"],
+  label.ctrl[for="sort"]{
+    flex: 0 0 auto;
+  }
+
+  /* Reset button sits on the same line, end-aligned */
+  .btn-reset{
+    flex: 0 0 auto;
+    align-self: end;
+    white-space: nowrap;
+    margin-left: 10px;
+  }
+}
+
