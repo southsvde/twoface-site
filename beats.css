@@ -433,12 +433,12 @@
     display: grid;
     /* Wider Search and BPM; totals <= 100% */
     grid-template-columns:
-      minmax(260px, 20%)   /* Search */
+      minmax(260px, 14%)   /* Search */
       minmax(120px, 12%)   /* Genre  */
       minmax(120px, 12%)   /* Mood   */
       minmax(120px, 12%)   /* Key    */
       minmax(220px, 20%)   /* BPM (Min – Max) */
-      minmax(120px, 10%)   /* Sort   */
+      minmax(120px, 5%)   /* Sort   */
       auto;                /* Reset  */
     column-gap: 14px;
     align-items: end;
