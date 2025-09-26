@@ -5,7 +5,7 @@
     "bpm": 78,
     "key": "C#m",
     "genre": "Hip-Hop",
-    "mood": ["Dark"],
+    "mood": ["Dark", "Storytelling"],
     "art": "img/birds_eye_cover.jpeg",
     "audio": "audio/birds_eye_mp3.mp3",
     "tiers": {
