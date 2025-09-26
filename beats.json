@@ -1,7 +1,6 @@
 [
   
   {
-    "_comment": "BIRDS EYE BEAT",
     "id": "birds-eye-beat",
     "title": "BIRDS EYE",
     "bpm": 78,
@@ -40,7 +39,6 @@
   }
 
     {
-    "_comment": "SOUTHDOWNS BEAT",
     "id": "southdowns-beat",
     "title": "SOUTHDOWNS",
     "bpm": 151,
