@@ -24,7 +24,8 @@
 
   // Shared audio element (single player for all rows)
   const player = new Audio();
-  window.__twfPlayer = player; // expose shared player so add-ons can seek it
+  window.__twfPlayer = player;  // existing exposure
+  window.player = player;       // NEW: alias so scrubber always finds it
   player.preload = 'metadata';
   let currentRow = null;
   let isDragging = false;
@@ -327,7 +328,9 @@
         return;
       }
 
+      // We are switching rows: clear previous row UI + remove active marker
       if (currentRow) {
+        currentRow.classList.remove('is-playing');                // NEW
         const prevBar  = currentRow.querySelector('.wave-progress');
         const prevBtn  = currentRow.querySelector('.t-ctrl button');
         const prevTime = currentRow.querySelector('.t-time');
@@ -337,6 +340,8 @@
       }
 
       currentRow = row;
+      row.classList.add('is-playing');                            // NEW
+
       player.src = src;
       player.currentTime = 0;
       player.play().then(() => setCtrlIcon(row, true)).catch(() => {});
@@ -401,6 +406,8 @@
 
   function renderList(items) {
     if (!player.paused) player.pause();
+    // clear any stale active marker when we rebuild the list
+    document.querySelector('.track.is-playing')?.classList.remove('is-playing'); // NEW
     currentRow = null;
 
     listEl.innerHTML = '';
