@@ -426,3 +426,45 @@
   }
   .ctrl.bpm .sep { margin: 0 6px; }
 }
+
+/* === Desktop filters: no collisions, predictable widths === */
+@media (min-width: 1200px){
+  .beats-controls .row{
+    display: grid;
+    /* Wider Search and BPM; totals <= 100% */
+    grid-template-columns:
+      minmax(260px, 30%)   /* Search */
+      minmax(120px, 12%)   /* Genre  */
+      minmax(120px, 12%)   /* Mood   */
+      minmax(120px, 12%)   /* Key    */
+      minmax(220px, 20%)   /* BPM (Min – Max) */
+      minmax(120px, 10%)   /* Sort   */
+      auto;                /* Reset  */
+    column-gap: 14px;
+    align-items: end;
+  }
+
+  /* Allow items to actually shrink inside their grid cells */
+  .beats-controls .row > .ctrl,
+  .beats-controls .row > .btn-reset { min-width: 0; }
+
+  /* Map to columns */
+  label.ctrl[for="q"]     { grid-column: 1; }
+  label.ctrl[for="genre"] { grid-column: 2; }
+  label.ctrl[for="mood"]  { grid-column: 3; }
+  label.ctrl[for="key"]   { grid-column: 4; }
+  .ctrl.bpm               { grid-column: 5; }  /* BPM */
+  label.ctrl[for="sort"]  { grid-column: 6; }  /* Sort */
+  .btn-reset              { grid-column: 7; justify-self: start; }
+
+  /* Keep the BPM inputs nice and small and tighten the dash spacing */
+  .ctrl.bpm .bpm-range{ gap: 6px; }
+  .ctrl.bpm .bpm-range input{
+    width: 80px;          /* fits up to 3 digits comfortably */
+    max-width: 86px;
+  }
+}
+
+/* Ensure the form controls fill their grid cell width cleanly */
+.beats-controls .row .ctrl > input,
+.beats-controls .row .ctrl > select { width: 100%; }
