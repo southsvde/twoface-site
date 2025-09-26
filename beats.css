@@ -318,3 +318,14 @@
 #tracks .track .t-play .dot{
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--row-accent), transparent 75%) !important;
 }
+
+/* Extra space under the MP3 vs WAV pill */
+.info-row{
+  margin-bottom: 20px;   /* was 6px via shorthand; gives the pill room to breathe */
+}
+
+/* Tiny bump on phones if you want a touch more space */
+@media (max-width: 560px){
+  .info-row{ margin-bottom: 22px; }
+}
+
