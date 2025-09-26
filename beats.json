@@ -1,13 +1,13 @@
 [
   {
-    "id": "brampton-beat",
-    "title": "BRAMPTON",
-    "bpm": 122,
-    "key": "Dm",
-    "genre": "Trap",
+    "id": "birds-eye-beat",
+    "title": "BIRDS EYE",
+    "bpm": 78,
+    "key": "C#m",
+    "genre": "Hip-Hop",
     "mood": ["Dark"],
-    "art": "img/IMG_2884.jpg",
-    "audio": "audio/brampton.mp3",
+    "art": "img/birds_eye_cover.jpeg",
+    "audio": "audio/birds_eye_mp3.mp3",
     "tiers": {
       "mp3": {
         "label": "MP3",
