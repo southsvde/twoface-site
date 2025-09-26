@@ -25,14 +25,13 @@
 
 /* Info row (question mark + text) */
 .info-row{margin:10px 0 6px;}
-/* Center the info row on desktop only */
 @media (min-width:900px){
   .info-row{display:flex;justify-content:center;}
 }
 .info-link{
   display:inline-flex; align-items:center; gap:8px;
-  background: var(--recGlowBg);                 /* gold subtle */
-  border:1px solid var(--recBorder);             /* faint ring */
+  background: var(--recGlowBg);
+  border:1px solid var(--recBorder);
   color:#dfe0e6; cursor:pointer; font:inherit;
   padding:6px 10px; border-radius:10px;
   box-shadow:
@@ -52,7 +51,7 @@
 .qmark{
   width:18px; height:18px; display:grid; place-items:center;
   border-radius:50%;
-  background: var(--recBadgeBg);                 /* match badge */
+  background: var(--recBadgeBg);
   border:1px solid var(--recBadgeBd);
   font-weight:700; font-size:12px; color: var(--recBadgeTx);
   line-height:1;
@@ -128,7 +127,7 @@
 /* ---------- Actions (Buy / Add) ---------- */
 .t-actions{
   grid-area:actions;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  position:relative; /* anchor for menus */
+  position:relative;
 }
 
 .buy-btn{
@@ -139,15 +138,12 @@
 .buy-btn:hover{background:var(--btnHover)}
 .buy-btn:focus-visible{outline:2px solid rgba(125,95,255,.35); outline-offset:2px}
 
-/* Slightly different visual for Add to cart (subtle outline) */
-.add-btn{
-  background:transparent;border-color:#34343a;color:#eaeaf2
-}
+.add-btn{background:transparent;border-color:#34343a;color:#eaeaf2}
 .add-btn:hover{background:#1a1a1f;border-color:#3a3a40}
 
-/* Menus (placed under buttons, responsive-fit) */
+/* Menus */
 .buy-menu{
-  position:absolute;top:calc(100% + 8px);right:0; /* default align to the rightmost button */
+  position:absolute;top:calc(100% + 8px);right:0;
   min-width:360px;max-width:min(420px, 92vw);
   background:#121216;border:1px solid #26262b;border-radius:12px;
   box-shadow:0 8px 24px rgba(0,0,0,.35);padding:8px;display:none;z-index:10;
@@ -205,7 +201,7 @@
 @media (max-width: 560px){
   .t-actions{overflow:visible}
   .buy-menu{
-    right:auto; left:0;            /* anchor to left so it doesn’t overflow */
+    right:auto; left:0;
     min-width:min(92vw, 380px);
     max-width:92vw;
   }
@@ -245,68 +241,31 @@
 .modal-actions .btn:hover{background:#22232a}
 
 /* ===== Beats hero banner ===== */
-.beats-hero {
-  margin: 12px 0 18px;
-}
-
+.beats-hero { margin: 12px 0 18px; }
 .beats-hero .img-wrap {
-  position: relative;
-  width: 100%;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #0b0b0c;
-  border: 1px solid #1d1d22;
+  position: relative; width: 100%; border-radius: 16px; overflow: hidden;
+  background: #0b0b0c; border: 1px solid #1d1d22;
 }
-
-/* The source image is ~2048x652 (≈ 3.141:1). Use its native aspect on desktop.
-   On small screens we'll allow taller cropping so text stays legible. */
 .beats-hero img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 2048 / 652;
-  object-fit: cover;
+  display:block; width:100%; height:auto; aspect-ratio:2048/652; object-fit:cover;
 }
-
-/* Mobile: still full-width, allow more height for readability */
-@media (max-width: 768px) {
-  .beats-hero .img-wrap { border-radius: 12px; }
-  .beats-hero img {
-    aspect-ratio: 16 / 9;   /* a bit taller on phones so copy doesn't get too tiny */
-  }
+@media (max-width:768px){
+  .beats-hero .img-wrap{ border-radius:12px; }
+  .beats-hero img{ aspect-ratio:16/9; }
 }
-
-/* Super small phones: give it even more height */
-@media (max-width: 420px) {
-  .beats-hero img {
-    aspect-ratio: 4 / 3;
-  }
+@media (max-width:420px){
+  .beats-hero img{ aspect-ratio:4/3; }
 }
-
 /* Hide the title/strapline block above the banner on Beats only */
-.page-head { 
-  display: none; 
-}
-
-/* Nudge the banner up a touch now that the header is gone */
-.beats-hero { 
-  margin-top: 8px; 
-}
+.page-head{ display:none; }
+.beats-hero{ margin-top:8px; }
 
 /* === Hero outline color (dark neutral) === */
-:root{
-  /* tweak this hex if you want it a touch lighter/darker */
-  --hero-ring: #2a2a30;
-}
-
+:root{ --hero-ring:#2a2a30; }
 .beats-hero .img-wrap{
-  border: 1px solid var(--hero-ring);
-  /* subtle inner lift so the border reads on dark backgrounds */
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--hero-ring), transparent 65%) inset;
+  border:1px solid var(--hero-ring);
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--hero-ring), transparent 65%) inset;
 }
-
-/* Optional hover lift on desktop, same color */
 @media (hover:hover){
   .beats-hero .img-wrap:hover{
     box-shadow:
@@ -315,12 +274,8 @@
   }
 }
 
-
-
 /* Row-scoped accent defaults (fallback to your global gold). */
 #tracks .track { --row-accent: var(--accent); --row-glyph: #000; }
-
-/* Paint the round play/pause button with the per-row accent. */
 #tracks .track .t-play,
 #tracks .track .play-btn,
 #tracks .track button[aria-label^="Play"],
@@ -328,157 +283,62 @@
   background: var(--row-accent) !important;
   border-color: var(--row-accent) !important;
 }
-
-/* Use the per-row glyph color for the CSS-drawn triangle/bars */
-#tracks .track button[aria-label^="Play"]::after{
-  border-left-color: var(--row-glyph, #000) !important;
-}
+#tracks .track button[aria-label^="Play"]::after{ border-left-color: var(--row-glyph, #000) !important; }
 #tracks .track button[aria-label^="Pause"]::before,
-#tracks .track button[aria-label^="Pause"]::after{
-  background: var(--row-glyph, #000) !important;
-}
-
-/* Glow ring matches row accent (optional, looks nice) */
+#tracks .track button[aria-label^="Pause"]::after{ background: var(--row-glyph, #000) !important; }
 #tracks .track .t-play .dot{
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--row-accent), transparent 75%) !important;
 }
 
 /* Extra space under the MP3 vs WAV pill */
-.info-row{
-  margin-bottom: 70px;   /* was 6px via shorthand; gives the pill room to breathe */
-}
+.info-row{ margin-bottom:70px; }
+@media (max-width:560px){ .info-row{ margin-bottom:24px; } }
 
-/* Tiny bump on phones if you want a touch more space */
-@media (max-width: 560px){
-  .info-row{ margin-bottom: 24px; }
-}
+/* ==== Compact BPM inputs (all viewports) ==== */
+.ctrl.bpm { flex:0 0 auto; }
+.ctrl.bpm .bpm-range input{ width:86px; max-width:100px; }
+.ctrl.bpm .sep{ margin:0 6px; }
 
-/* ==== Compact BPM inputs + keep all controls on one line (desktop) ==== */
-
-/* Always keep BPM inputs small */
-.ctrl.bpm { flex: 0 0 auto; }
-.ctrl.bpm .bpm-range input {
-  width: 86px;          /* <— adjust if you want a tad wider/narrower */
-  max-width: 100px;
-}
-.ctrl.bpm .sep { margin: 0 6px; }
-
-/* Desktop layout: prevent wrapping & size the Search nicely */
-@media (min-width: 1100px){
+/* ===== Desktop filters: keep in one line & size predictably ===== */
+@media (min-width:1200px){
   .beats-controls .row{
-    flex-wrap: nowrap;        /* keep everything in a single row */
-    align-items: end;
-  }
-
-  /* Let Search grow; others stay compact */
-  label.ctrl[for="q"]{
-    flex: 1 1 360px;          /* grows to fill spare space */
-    min-width: 320px;
-  }
-
-  /* Genre / Mood / Key / Sort stay their natural size */
-  label.ctrl[for="genre"],
-  label.ctrl[for="mood"],
-  label.ctrl[for="key"],
-  label.ctrl[for="sort"]{
-    flex: 0 0 auto;
-  }
-
-  /* Reset button sits on the same line, end-aligned */
-  .btn-reset{
-    flex: 0 0 auto;
-    align-self: end;
-    white-space: nowrap;
-    margin-left: 10px;
-  }
-}
-
-/* ==== Desktop: fit the entire first filter row neatly within content ==== */
-@media (min-width: 1200px){
-  /* Use a grid so widths are predictable and Reset stays on the line */
-  .beats-controls .row{
-    display: grid;
+    display:grid;
+    /* totals ≤ 100% and leave breathing room */
     grid-template-columns:
-      13%   /* Search (compressed) */
-      13%   /* Genre */
-      13%   /* Mood  */
-      13%   /* Key   */
-      14%   /* BPM (Min – Max) */
-      11%   /* Sort  */
-      auto; /* Reset (just enough for the pill) */
-    column-gap: 12px;
-    align-items: end;
-  }
-
-  /* Map items to columns */
-  label.ctrl[for="q"]     { grid-column: 1; min-width: 280px; }  /* Search */
-  label.ctrl[for="genre"] { grid-column: 2; }
-  label.ctrl[for="mood"]  { grid-column: 3; }
-  label.ctrl[for="key"]   { grid-column: 4; }
-  .ctrl.bpm               { grid-column: 5; }                    /* BPM */
-  label.ctrl[for="sort"]  { grid-column: 6; }                    /* Sort */
-  .btn-reset              { grid-column: 7; justify-self: start; }
-
-  /* Keep BPM inputs tight (3 digits max) */
-  .ctrl.bpm .bpm-range input {
-    width: 86px;           /* adjust if you want a touch wider/narrower */
-    max-width: 100px;
-  }
-  .ctrl.bpm .sep { margin: 0 6px; }
-}
-
-/* === Desktop filters: no collisions, predictable widths === */
-@media (min-width: 1200px){
-  .beats-controls .row{
-    display: grid;
-    /* Wider Search and BPM; totals <= 100% */
-    grid-template-columns:
-      minmax(260px, 11%)   /* Search */
+      minmax(240px, 14%)   /* Search */
       minmax(120px, 12%)   /* Genre  */
       minmax(120px, 12%)   /* Mood   */
       minmax(120px, 12%)   /* Key    */
-      minmax(220px, 15%)   /* BPM (Min – Max) */
-      minmax(120px, 1%)   /* Sort   */
-      auto;                /* Reset  */
-    column-gap: 14px;
-    align-items: end;
+      minmax(220px, 18%)   /* BPM (Min–Max) */
+      130px                /* Sort column (fits the compact select) */
+      auto;                /* Reset */
+    column-gap:14px;
+    align-items:end;
   }
 
-  /* Allow items to actually shrink inside their grid cells */
+  /* allow children to shrink within cells */
   .beats-controls .row > .ctrl,
-  .beats-controls .row > .btn-reset { min-width: 0; }
+  .beats-controls .row > .btn-reset{ min-width:0; }
 
-  /* Compact Sort dropdown (desktop) */
-@media (min-width: 1200px){
-  .beats-controls .row label.ctrl[for="sort"] > select{
-    width: 120px;       /* tweak to taste: 110–140px usually looks right */
-    min-width: 110px;
-    max-width: 140px;
+  /* map to columns */
+  label.ctrl[for="q"]     { grid-column:1; }
+  label.ctrl[for="genre"] { grid-column:2; }
+  label.ctrl[for="mood"]  { grid-column:3; }
+  label.ctrl[for="key"]   { grid-column:4; }
+  .ctrl.bpm               { grid-column:5; }
+  label.ctrl[for="sort"]  { grid-column:6; }
+  .btn-reset              { grid-column:7; justify-self:start; }
+
+  /* compact Sort dropdown */
+  label.ctrl[for="sort"] > select{
+    width:120px; min-width:110px; max-width:140px;
   }
+
+  /* tighter BPM inputs on desktop */
+  .ctrl.bpm .bpm-range{ gap:6px; }
+  .ctrl.bpm .bpm-range input{ width:80px; max-width:86px; }
 }
 
-
-  /* Map to columns */
-  label.ctrl[for="q"]     { grid-column: 1; }
-  label.ctrl[for="genre"] { grid-column: 2; }
-  label.ctrl[for="mood"]  { grid-column: 3; }
-  label.ctrl[for="key"]   { grid-column: 4; }
-  .ctrl.bpm               { grid-column: 5; }  /* BPM */
-  label.ctrl[for="sort"]  { grid-column: 6; }  /* Sort */
-  .btn-reset              { grid-column: 7; justify-self: start; }
-
-  /* align Reset to the right edge of its grid cell */
-  .btn-reset { grid-column: 7; justify-self: end; }
-
-  /* Keep the BPM inputs nice and small and tighten the dash spacing */
-  .ctrl.bpm .bpm-range{ gap: 6px; }
-  .ctrl.bpm .bpm-range input{
-    width: 80px;          /* fits up to 3 digits comfortably */
-    max-width: 86px;
-  }
-}
-
-/* Ensure the form controls fill their grid cell width cleanly */
+/* final: ensure inputs/selects fill their grid cell unless overridden above */
 .beats-controls .row .ctrl > input,
-.beats-controls .row .ctrl > select { width: 100%; }
-
+.beats-controls .row .ctrl > select{ width:100%; }
