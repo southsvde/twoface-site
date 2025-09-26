@@ -399,7 +399,7 @@
   .beats-controls .row{
     display: grid;
     grid-template-columns:
-      32%   /* Search (compressed) */
+      13%   /* Search (compressed) */
       13%   /* Genre */
       13%   /* Mood  */
       13%   /* Key   */
