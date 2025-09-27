@@ -101,7 +101,7 @@
 
   // --- Normalize genre/moods (back-compat with earlier schema) ------------
   const KNOWN_GENRES = [
-    'Trap','Drill','Boom Bap','Boom-Bap','Boombap',
+    'Trap','Drill','Boom Bap','Boom-Bap','Boombap', 'Alt-Trap',
     'Lo-fi','Lofi','LoFi','Lo-Fi',
     'Hip-Hop','Hip Hop','HipHop',
     'R&B','Pop','House','EDM','Afrobeats','Afrobeat','Dancehall','Reggaeton'
