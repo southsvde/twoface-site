@@ -258,6 +258,13 @@
       ${Number(beat.bpm) ? `<span class="chip">${beat.bpm} BPM</span>` : ''}
     `;
 
+    // Determine the total duration label up-front (from JSON if provided)
+    const totalTimeText =
+      (beat.duration_str && String(beat.duration_str)) ||
+      (Number.isFinite(beat.duration) ? fmtTime(beat.duration) : '0:00');
+
+    row.dataset.totalTime = totalTimeText || '0:00';
+
     row.innerHTML = `
       <div class="t-ctrl">
         <button type="button" aria-label="Play">${ICONS.play}</button>
@@ -275,7 +282,7 @@
       <div class="t-wave" role="progressbar" aria-valuemin="0" aria-valuenow="0" aria-valuemax="100">
         <div class="wave-bars"></div>
         <div class="wave-progress"></div>
-        <div class="t-time">0:00</div>
+        <div class="t-time">${row.dataset.totalTime}</div>
       </div>
 
       <div class="t-actions">
@@ -402,34 +409,48 @@
         return;
       }
 
+      // switching rows: reset the previous row back to its TOTAL time
       if (currentRow) {
         const prevBar  = currentRow.querySelector('.wave-progress');
         const prevBtn  = currentRow.querySelector('.t-ctrl button');
         const prevTime = currentRow.querySelector('.t-time');
         if (prevBar)  prevBar.style.width = '0%';
-        if (prevTime) prevTime.textContent = '0:00';
+        if (prevTime) prevTime.textContent = currentRow.dataset.totalTime || '0:00';
         if (prevBtn)  prevBtn.innerHTML = ICONS.play;
       }
 
       currentRow = row;
       player.src = src;
       player.currentTime = 0;
+      // show total time immediately (will be replaced by elapsed after play)
+      ttime.textContent = row.dataset.totalTime || '0:00';
       player.play().then(() => setCtrlIcon(row, true)).catch(() => {});
     });
 
-    const onLoaded = () => { if (currentRow === row) ttime.textContent = fmtTime(player.duration); };
+    // When metadata loads for the active row, prefer the real duration value
+    const onLoaded = () => {
+      if (currentRow === row) {
+        const realTotal = fmtTime(player.duration);
+        row.dataset.totalTime = realTotal;   // keep it so we can restore later
+        ttime.textContent = realTotal;
+      }
+    };
+
     const onTime   = () => {
       if (currentRow !== row || !player.duration) return;
       const pct = (player.currentTime / player.duration) * 100;
       bar.style.width = `${pct}%`;
       wave.setAttribute('aria-valuenow', Math.round(pct));
+      // while playing, show elapsed time
       ttime.textContent = fmtTime(player.currentTime);
     };
+
     const onEnded  = () => {
       if (currentRow === row) {
         setCtrlIcon(row, false);
         bar.style.width = '0%';
-        ttime.textContent = fmtTime(player.duration || 0);
+        // restore total time when playback ends
+        ttime.textContent = row.dataset.totalTime || fmtTime(player.duration || 0);
       }
     };
 
@@ -509,13 +530,13 @@
     if (!pagerTopEl) {
       pagerTopEl = document.createElement('div');
       pagerTopEl.id = 'pager-top';
-      pagerTopEl.className = 'pager pager--top';
+      pagerTopEl.className = 'pager pager--top left';
       listEl.parentElement?.insertBefore(pagerTopEl, listEl);
     }
     if (!pagerBotEl) {
       pagerBotEl = document.createElement('div');
       pagerBotEl.id = 'pager-bot';
-      pagerBotEl.className = 'pager pager--bot';
+      pagerBotEl.className = 'pager pager--bot left';
       listEl.parentElement?.appendChild(pagerBotEl);
     }
 
