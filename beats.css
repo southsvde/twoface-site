@@ -561,3 +561,13 @@ a.btn-reset,
   }
 }
 
+/* Mobile: center the Reset button and give it breathing room */
+@media (max-width: 768px) and (orientation: portrait){
+  .beats-controls .row{
+    justify-content: center; /* doesn’t affect other rows because items are full-width except Reset */
+  }
+  .beats-controls .row .btn-reset{
+    margin-top: 18px;   /* space above */
+    align-self: center; /* center in its row */
+  }
+}
