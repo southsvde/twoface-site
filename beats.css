@@ -363,3 +363,28 @@
 .beats-controls .row .ctrl > select{ width:100%; }
 
 
+/* === Neutral play/pause button (keep waveform accent) === */
+/* Force a consistent grey for the round control only */
+#tracks .track .t-ctrl button,
+#tracks .track .t-play,
+#tracks .track .play-btn,
+#tracks .track button[aria-label^="Play"],
+#tracks .track button[aria-label^="Pause"]{
+  background: #3a3a44 !important;   /* neutral grey */
+  border-color: #4a4a55 !important;  /* subtle ring */
+  color: #fff !important;            /* icon color fallback */
+}
+
+/* Ensure the SVG glyph is white on the grey background */
+#tracks .track .t-ctrl button svg,
+#tracks .track .t-ctrl button svg *{
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* Optional: subtle hover so it still feels clickable */
+@media (hover:hover){
+  #tracks .track .t-ctrl button:hover{
+    filter: brightness(1.08);
+  }
+}
