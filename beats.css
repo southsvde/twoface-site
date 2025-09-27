@@ -490,4 +490,67 @@ a.btn-reset,
   }
 }
 
+/* =======================
+   Mobile (portrait) fixes
+   ======================= */
+@media (max-width: 768px) and (orientation: portrait){
+
+  /* Guard against any sneaky horizontal scroll on phones */
+  body, .container, .content { overflow-x: hidden; }
+
+  /* 1) Hero: keep it inside the container width and show the whole image */
+  .beats-hero .img-wrap{
+    width: 100%;            /* follow container width (no 100vw) */
+    margin: 0;              /* no centering trick needed */
+    transform: none;
+    border-radius: 12px;
+  }
+  .beats-hero img{
+    width: 100%;
+    height: auto;
+    object-fit: contain;     /* show entire image (no crop) */
+    aspect-ratio: auto;      /* override earlier aspect rules */
+  }
+
+  /* 2) Filters: 4-row compact grid, fully contained */
+  .beats-controls .row{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-areas:
+      "q     q     q"      /* Row 1: Search */
+      "genre mood  key"    /* Row 2: three compact selects */
+      "bpm   bpm   sort"   /* Row 3: BPM (left) + Sort (right) on same line */
+      "reset reset reset"; /* Row 4: Reset (left) */
+    column-gap: 10px;
+    row-gap: 12px;
+    align-items: end;
+  }
+
+  /* Allow controls to shrink inside their cells (prevents spill) */
+  .beats-controls .row > .ctrl,
+  .beats-controls .row > .btn-reset { min-width: 0; }
+
+  /* Map to grid areas */
+  label.ctrl[for="q"]     { grid-area: q; }
+  label.ctrl[for="genre"] { grid-area: genre; }
+  label.ctrl[for="mood"]  { grid-area: mood; }
+  label.ctrl[for="key"]   { grid-area: key; }
+  .ctrl.bpm               { grid-area: bpm; }
+  label.ctrl[for="sort"]  { grid-area: sort; justify-self: end; }
+  .btn-reset              { grid-area: reset; justify-self: start; }
+
+  /* BPM inputs: tighter (3 digits max) */
+  .ctrl.bpm .bpm-range{ gap: 6px; }
+  .ctrl.bpm .bpm-range input{
+    width: 84px;
+    max-width: 90px;
+  }
+
+  /* Make all inputs/selects fill their grid cell cleanly */
+  .beats-controls .row .ctrl > input,
+  .beats-controls .row .ctrl > select{
+    width: 100%;
+    min-width: 0;
+  }
+}
 
