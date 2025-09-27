@@ -129,10 +129,10 @@
 
   /* ---------- Buy/Add menu: read from JSON with safe fallbacks ---------- */
   const DEFAULT_TIERS = {
-    mp3:        { label: 'MP3',                      price: 29,  desc: 'Great for quick demos & writing; not ideal for mixing/mastering.' },
-    mp3wav:     { label: 'MP3 + WAV',                price: 49,  desc: 'Full-quality WAV for recording & release + MP3 for reference.', recommended: true },
-    excl_nowav: { label: 'Exclusive License',        price: 99,  desc: 'Your exclusive rights; beat removed from store after purchase.' },
-    excl_stems: { label: 'Exclusive License + Stems',price: 249, desc: 'Exclusive + individual track stems for full mix control.' }
+    mp3:        { label: 'MP3',                         price: 29,  desc: 'Great for quick demos & writing. Opt for a WAV for better mixing/mastering quality.' },
+    mp3wav:     { label: 'WAV & MP3',                   price: 49,  desc: 'Full-quality WAV, ideal for recording & streaming releases.', recommended: true },
+    excl_nowav: { label: 'Excl. License',               price: 99,  desc: 'Exclusive rights to this beat. File will be removed from the store after purchase.' },
+    excl_stems: { label: 'Excl. License, WAV, & Stems', price: 249, desc: 'Includes all the above, along with individual track stems for full mix control. File will be removed from the store after purchase.' }
   };
   const TIER_ORDER = ['mp3','mp3wav','excl_nowav','excl_stems'];
 
