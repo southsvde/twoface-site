@@ -1,6 +1,7 @@
 // /js/beats.js — TWOFACE Beats page
 // Filters + inline player + MP3/WAV modal + JSON-driven Buy/Add menus
 // + Pagination (10 per page) + optional Stripe Checkout redirect
+// + Background metadata probe so total durations show even before play
 
 (() => {
   const listEl   = document.querySelector('#tracks');
@@ -60,7 +61,39 @@
   let isDragging = false;
 
   // Cache durations so labels can always show length when idle
-  const durationCache = new Map(); // key: audio src, value: seconds (number)
+  const durationCache = new Map();   // key: audio src, value: seconds (number)
+  const probeCache    = new Map();   // key: audio src, value: Promise resolving to seconds
+
+  // Background metadata probe (no playback)
+  function probeDuration(src) {
+    if (!src) return Promise.resolve(NaN);
+    if (durationCache.has(src)) return Promise.resolve(durationCache.get(src));
+    if (probeCache.has(src)) return probeCache.get(src);
+
+    const p = new Promise((resolve) => {
+      const a = new Audio();
+      a.preload = 'metadata';
+      a.src = src;
+      const cleanup = () => { a.src = ''; a.removeAttribute('src'); a.load?.(); };
+      a.addEventListener('loadedmetadata', () => {
+        const d = Number(a.duration);
+        if (Number.isFinite(d) && d > 0) {
+          durationCache.set(src, d);
+          cleanup();
+          resolve(d);
+        } else {
+          cleanup();
+          resolve(NaN);
+        }
+      });
+      a.addEventListener('error', () => { cleanup(); resolve(NaN); });
+      // kick it off
+      try { a.load(); } catch {}
+    });
+
+    probeCache.set(src, p);
+    return p;
+  }
 
   const ICONS = {
     play:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7-11-7Z" fill="white"/></svg>',
@@ -395,7 +428,7 @@
     const bar     = row.querySelector('.wave-progress');
     const ttime   = row.querySelector('.t-time');
 
-    // If we already know the true length (from JSON or previous play), show it
+    // Show cached / JSON-provided length immediately
     {
       const src = row.dataset.src || '';
       if (Number.isFinite(beat.duration)) {
@@ -407,6 +440,15 @@
         ttime.textContent = row.dataset.totalTime;
       } else {
         ttime.textContent = row.dataset.totalTime || '0:00';
+        // Kick off a background probe to replace 0:00 ASAP
+        probeDuration(src).then(d => {
+          if (Number.isFinite(d) && d > 0) {
+            const label = fmtTime(d);
+            row.dataset.totalTime = label;
+            // only update UI if this row isn't actively playing (avoid flicker)
+            if (currentRow !== row) ttime.textContent = label;
+          }
+        });
       }
     }
 
@@ -640,7 +682,6 @@
 
       if (!Array.isArray(allBeats) || allBeats.length === 0) {
         if (statusEl) statusEl.textContent = 'No beats found in beats.json.';
-        // Still initialize empty UI states
         beatsNorm = [];
         populateControls(beatsNorm);
         applyFilters();
