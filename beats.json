@@ -68,6 +68,40 @@
     }
   },
 
+  {
+    "id": "hermes-beat",
+    "title": "HERMES",
+    "bpm": 120,
+    "key": "Dm",
+    "genre": ["Trap", "Alt-Trap"],
+    "mood": ["Dark", "Suspensful"],
+    "art": "img/hermes_cover.png",
+    "audio": "audio/hermes_mp3.mp3",
+    "tiers": {
+      "mp3": {
+        "price": 29,
+        "url": "https://buy.stripe.com/...",
+        "priceId": ""
+      },
+      "mp3wav": {
+        "price": 49,
+        "url": "https://buy.stripe.com/...",
+        "recommended": true,
+        "priceId": ""
+      },
+      "excl_nowav": {
+        "price": 99,
+        "url": "https://buy.stripe.com/...",
+        "priceId": ""
+      },
+      "excl_stems": {
+        "price": 249,
+        "url": "https://buy.stripe.com/...",
+        "priceId": ""
+      }
+    }
+  },
+
     {
     "id": "southdowns-beat",
     "title": "SOUTHDOWNS",
