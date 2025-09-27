@@ -28,11 +28,7 @@
   const BEATS_URL = document.querySelector('meta[name="beats-json"]')?.content || 'beats.json';
 
   // --- Stripe wiring (optional) ------------------------------------------------
-  // Provide your publishable key by either:
-  //  1) window.STRIPE_PK = 'pk_live_...';    (set before this file)
-  //  2) <meta name="stripe-pk" content="pk_live_...">
-  //  3) editing the fallback below.
-  const FALLBACK_STRIPE_PK = ''; // <- leave blank; we read from window or <meta> instead
+  const FALLBACK_STRIPE_PK = ''; // prefer window.STRIPE_PK or <meta name="stripe-pk">
 
   function getStripePublishableKey() {
     return (
@@ -197,7 +193,6 @@
       const recClass = t.recommended ? 'recommended' : '';
 
       if (mode === 'buy') {
-        // We render as a button-like <a> and handle click in JS:
         return `
           <a role="button"
              class="item ${recClass}"
@@ -215,7 +210,6 @@
           </a>
         `;
       } else {
-        // ADD mode
         return `
           <a role="button"
              class="item ${recClass}"
@@ -244,33 +238,6 @@
       .replace(/>/g,'&gt;');
   }
 
-  // --- duration probing (metadata only) ----------------------------------
-  function primeDuration(beat, row, timeEl){
-    const src = beat.audio || row?.dataset?.src || '';
-    if (!src || durationCache.has(src)) return;
-
-    const probe = new Audio();
-    probe.preload = 'metadata';
-    probe.src = src;
-
-    const apply = (d) => {
-      if (Number.isFinite(d) && d > 0) {
-        durationCache.set(src, d);
-        const label = fmtTime(d);
-        if (row) row.dataset.totalTime = label;
-        if (row?.isConnected && timeEl) timeEl.textContent = label;
-      }
-    };
-
-    probe.addEventListener('loadedmetadata', () => {
-      apply(probe.duration);
-      // stop any further loading
-      probe.src = '';
-    }, { once: true });
-
-    probe.addEventListener('error', () => { probe.src = ''; }, { once: true });
-  }
-
   /* ---------- Row builder ---------- */
   function buildRow(beat) {
     const row = document.createElement('article');
@@ -288,10 +255,12 @@
       ${Number(beat.bpm) ? `<span class="chip">${beat.bpm} BPM</span>` : ''}
     `;
 
-    // Seed a default total time; we’ll improve it after we create nodes below
-    row.dataset.totalTime =
+    // Best effort total-time label now; will be enhanced when metadata is known.
+    const seedTotal =
       (beat.duration_str && String(beat.duration_str)) ||
       (Number.isFinite(beat.duration) ? fmtTime(beat.duration) : '0:00');
+
+    row.dataset.totalTime = seedTotal;
 
     row.innerHTML = `
       <div class="t-ctrl">
@@ -372,7 +341,6 @@
           alert('Checkout not ready: Stripe key not found. Please set window.STRIPE_PK or <meta name="stripe-pk">.');
           return;
         }
-        // Stripe client-only redirect
         const { error } = await stripe.redirectToCheckout({
           lineItems: [{ price: priceId, quantity: 1 }],
           mode: 'payment',
@@ -414,7 +382,7 @@
         tierKey,
         tierLabel: label,
         price,
-        priceId, // may be empty; checkout will verify later
+        priceId,
         url
       });
 
@@ -427,20 +395,18 @@
     const bar     = row.querySelector('.wave-progress');
     const ttime   = row.querySelector('.t-time');
 
-    // Improve total-time label now that nodes exist: prefer JSON -> cache -> probe
+    // If we already know the true length (from JSON or previous play), show it
     {
-      const srcForTime = row.dataset.src || '';
+      const src = row.dataset.src || '';
       if (Number.isFinite(beat.duration)) {
-        durationCache.set(srcForTime, beat.duration);
+        durationCache.set(src, beat.duration);
         row.dataset.totalTime = fmtTime(beat.duration);
         ttime.textContent = row.dataset.totalTime;
-      } else if (durationCache.has(srcForTime)) {
-        row.dataset.totalTime = fmtTime(durationCache.get(srcForTime));
+      } else if (src && durationCache.has(src)) {
+        row.dataset.totalTime = fmtTime(durationCache.get(src));
         ttime.textContent = row.dataset.totalTime;
       } else {
-        // keep whatever we seeded, but try to get real metadata
         ttime.textContent = row.dataset.totalTime || '0:00';
-        primeDuration(beat, row, ttime);
       }
     }
 
@@ -582,14 +548,14 @@
   }
 
   function renderPager(totalPages) {
-    // Try to place the top pager inside the "X RESULTS" bar, fall back to old spot
+    // Place top pager inside the "X RESULTS" bar (right), fallback above list
     const resultsBar = document.querySelector('.results-bar');
     if (!pagerTopEl) {
       pagerTopEl = document.createElement('div');
       pagerTopEl.id = 'pager-top';
       pagerTopEl.className = 'pager pager--top';
       if (resultsBar) {
-        resultsBar.appendChild(pagerTopEl);   // inline with "X RESULTS"
+        resultsBar.appendChild(pagerTopEl);
       } else {
         listEl.parentElement?.insertBefore(pagerTopEl, listEl);
       }
@@ -635,7 +601,6 @@
       if (!to || to === currentPage) return;
       currentPage = to;
       renderPage();
-      // scroll to top pager on page change for better UX
       pagerTopEl.scrollIntoView({ behavior:'smooth', block:'nearest' });
     }
     pagerTopEl.onclick = onClick;
@@ -668,10 +633,17 @@
       if (statusEl) statusEl.textContent = 'Loading beats…';
       const res = await fetch(BEATS_URL, { cache: 'no-store' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      allBeats = await res.json();
+      const data = await res.json();
+
+      // Accept either an array or {beats:[...]} safely
+      allBeats = Array.isArray(data) ? data : (Array.isArray(data?.beats) ? data.beats : []);
 
       if (!Array.isArray(allBeats) || allBeats.length === 0) {
         if (statusEl) statusEl.textContent = 'No beats found in beats.json.';
+        // Still initialize empty UI states
+        beatsNorm = [];
+        populateControls(beatsNorm);
+        applyFilters();
         return;
       }
 
@@ -704,7 +676,7 @@
     let lastFocus = null;
 
     function focusables() {
-      return panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])`);
+      return panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
     }
 
     function open() {
