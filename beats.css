@@ -1071,3 +1071,36 @@ a.btn-reset,
   }
 }
 
+/* ===== Results row with inline pager ===== */
+.results-bar{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* make sure the count text hugs the left */
+.results-bar > span:first-child{
+  margin-right: 8px;
+}
+
+/* push the top pager all the way to the right */
+.results-bar .pager{
+  margin-left: auto;
+}
+
+/* optional: ensure the top pager uses same compact spacing as your theme */
+.results-bar .pager .pg{
+  line-height: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #2a2a30;
+  background: #1a1a1f;
+}
+.results-bar .pager .pg.current{
+  background: #2a2a30;
+}
+.results-bar .pager .pg.disabled{
+  opacity:.5;
+  pointer-events:none;
+}
+
