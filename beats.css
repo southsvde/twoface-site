@@ -32,25 +32,22 @@
 /* Info row (question mark + text) */
 .info-row{margin:10px 0 6px;}
 @media (min-width:900px){ .info-row{display:flex;justify-content:center;} }
+/* no outer glow, keep the gold ring */
 .info-link{
-  display:inline-flex; align-items:center; gap:8px;
-  background: var(--recGlowBg);
-  border:1px solid var(--recBorder);
-  color:#dfe0e6; cursor:pointer; font:inherit;
-  padding:6px 10px; border-radius:10px;
+  /* … */
   box-shadow:
-    0 8px 24px var(--recGlow),
     0 0 0 1px var(--recRing1) inset,
     0 0 0 2px var(--recRing2) inset;
-  text-decoration:none;
 }
+
 .info-link:hover{
   background: rgba(255,215,64,.12);
   box-shadow:
-    0 10px 28px var(--recGlow),
     0 0 0 1px var(--recRing1) inset,
     0 0 0 2px var(--recRing2) inset;
+  border-color: var(--recBorder);
 }
+
 .info-link:focus-visible{outline:2px solid #3a3a44; outline-offset:2px}
 .qmark{
   width:18px; height:18px; display:grid; place-items:center;
