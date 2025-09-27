@@ -320,3 +320,16 @@
   fill:#ffffff !important;
   stroke:#ffffff !important;
 }
+
+/* Lock the round play/pause button to a neutral grey (waveform still uses --row-accent) */
+#tracks .track .t-ctrl button{
+  --play-neutral: #676a73;                  /* tweak this grey if you want */
+  background: var(--play-neutral) !important;
+  border-color: var(--play-neutral) !important;
+  color: #000 !important;
+}
+#tracks .track .t-ctrl button svg,
+#tracks .track .t-ctrl button svg *{
+  fill: #000 !important;
+  stroke: #000 !important;
+}
