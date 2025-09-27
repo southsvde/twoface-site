@@ -433,3 +433,61 @@ a.btn-reset,
   line-height: 1;
 }
 
+/* ===== Mobile (portrait) layout tweaks for Beats ===== */
+@media (max-width: 768px) and (orientation: portrait){
+
+  /* 1) Hero banner: full-bleed width inside padded container */
+  .beats-hero .img-wrap{
+    width: 100vw;                  /* span the full viewport width */
+    margin-left: 50%;              /* center the full-bleed box */
+    transform: translateX(-50%);   /* cancel the container padding */
+    border-radius: 12px;           /* keep a softer mobile radius */
+  }
+  /* keep using a taller crop on phones; you already have 16:9/4:3 rules —
+     this just ensures no accidental shrinking */
+  .beats-hero img{
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  /* 2) Filters: 4-row grid */
+  .beats-controls .row{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-areas:
+      "q     q     q"      /* Row 1: Search spans full width */
+      "genre mood  key"    /* Row 2: three compact selects */
+      "bpm   bpm   bpm"    /* Row 3: BPM across the row */
+      "sort  .     reset"; /* Row 4: Sort left, Reset right */
+    column-gap: 10px;
+    row-gap: 12px;
+    align-items: end;
+  }
+
+  /* Map controls to grid areas */
+  label.ctrl[for="q"]     { grid-area: q; }
+  label.ctrl[for="genre"] { grid-area: genre; }
+  label.ctrl[for="mood"]  { grid-area: mood; }
+  label.ctrl[for="key"]   { grid-area: key; }
+  .ctrl.bpm               { grid-area: bpm; }
+  label.ctrl[for="sort"]  { grid-area: sort; justify-self: start; }
+  .btn-reset              { grid-area: reset; justify-self: end; }
+
+  /* Compact BPM inputs (3 digits max) */
+  .ctrl.bpm .bpm-range{
+    gap: 6px;                         /* tighten spacing around the dash */
+  }
+  .ctrl.bpm .bpm-range input{
+    width: 80px;                      /* comfortably fits 3 digits */
+    max-width: 86px;
+  }
+
+  /* Ensure inputs/selects fill their cell cleanly */
+  .beats-controls .row .ctrl > input,
+  .beats-controls .row .ctrl > select{
+    width: 100%;
+  }
+}
+
+
