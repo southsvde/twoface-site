@@ -374,16 +374,19 @@
           alert('Checkout not ready: Stripe key not found. Please set window.STRIPE_PK or <meta name="stripe-pk">.');
           return;
         }
+        
         const { error } = await stripe.redirectToCheckout({
-          lineItems: [{ price: priceId, quantity: 1 }],
-          mode: 'payment',
-          successUrl: STRIPE_SUCCESS_URL,
-          cancelUrl: STRIPE_CANCEL_URL
+        lineItems: [{ price: priceId, quantity: 1 }],
+        mode: 'payment',
+        successUrl: STRIPE_SUCCESS_URL,
+        cancelUrl: STRIPE_CANCEL_URL
         });
-        if (error) {
-          console.error('[Stripe] redirect error:', error);
-          alert('Could not start checkout. Please try again.');
-        }
+      if (error) {
+        console.error('[Stripe] redirect error:', error);
+        alert(`Checkout error: ${error.message || 'Unable to start checkout.'}`);
+      }
+
+        
       } else if (url) {
         window.open(url, '_blank', 'noopener');
       } else {
