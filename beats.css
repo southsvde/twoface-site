@@ -583,3 +583,17 @@ a.btn-reset,
   }
 }
 
+/* ===== Wave progress: force neutral grey (#bbbbbb) on all rows/devices ===== */
+:root{
+  --wave-gray: #bbbbbb;
+  --wave-gray-rgb: 187, 187, 187;
+}
+
+#tracks .track .wave-progress{
+  background: linear-gradient(
+    90deg,
+    rgba(var(--wave-gray-rgb), .35),
+    rgba(var(--wave-gray-rgb), .15)
+  ) !important;
+  border-right: 2px solid var(--wave-gray) !important;
+}
