@@ -7,6 +7,12 @@
 
   --modalBg:#0f1014; --modalBorder:#24252c; --backdrop:rgba(0,0,0,.55);
 
+  /* Gold used across the site (keeps MP3+WAV glow consistent) */
+  --gold: #ffd740;
+  --gold-28: rgba(255,215,64,.28);
+  --gold-12: rgba(255,215,64,.12);
+  --gold-90: rgba(255,215,64,.90);
+
   /* Recommended (gold) glow tones */
   --recGlowBg: rgba(255, 215, 64, .08);
   --recGlow:   rgba(255, 215, 64, .22);
@@ -70,7 +76,7 @@
 .ctrl.bpm .bpm-range{display:flex;align-items:center;gap:8px}
 .ctrl .sep{opacity:.6}
 
-/* Reset — pill look removed */
+/* Reset — link style */
 .btn-reset{
   background:transparent;color:#d0d0da;border:0;border-radius:0;
   padding:0 2px;cursor:pointer;min-height:auto;text-decoration:underline;
@@ -83,22 +89,17 @@
 .tracks{display:flex;flex-direction:column;gap:14px;margin:18px 0 60px}
 
 .track{
-  /* row-scoped fallback accent (JS will override per-row) */
-  --row-accent: #f5c048;
-  --row-accent-rgb: 245,192,72;
-  --row-glyph: #000;
-
   background:var(--panel);border:1px solid var(--panelBorder);border-radius:12px;
   padding:12px;display:grid;align-items:center;gap:14px;
   grid-template-columns:48px 56px auto minmax(320px,1.6fr) auto;
   grid-template-areas:"ctrl art title wave actions";
 }
 
-/* Control (play/pause) — FIXED NEUTRAL GREY (no longer uses row accent) */
+/* Control (play/pause) — FIXED NEUTRAL GREY */
 .t-ctrl{grid-area:ctrl;display:grid;place-items:center}
 .t-ctrl button{
   width:38px;height:38px;border-radius:50%;
-  background:#2b2b30 !important;             /* <- fixed grey */
+  background:#2b2b30 !important;
   border:1px solid #34343a !important;
   color:#000;display:grid;place-items:center;
   box-shadow:0 0 0 2px rgba(255,255,255,.06);
@@ -117,19 +118,15 @@
 .meta{display:flex;gap:10px;align-items:center;color:#a0a0a7;font-size:13px;flex-wrap:wrap}
 .meta .chip{background:var(--chip);color:var(--chipText);padding:2px 8px;border-radius:999px;border:1px solid var(--chipBorder)}
 
-/* Wave (taller, easier to scrub) — USE ROW ACCENT */
+/* Wave (taller, easier to scrub) — CONSTANT GOLD */
 .t-wave{
   grid-area:wave;height:44px;border-radius:8px;overflow:hidden;position:relative;border:1px solid #222;background:#101013;cursor:pointer
 }
 .wave-bars{position:absolute;inset:0;background:repeating-linear-gradient(to right,#1f1f24 0 2px,transparent 2px 7px);opacity:.9}
 .wave-progress{
   position:absolute;top:0;left:0;height:100%;width:0%;
-  background: linear-gradient(
-    90deg,
-    rgba(var(--row-accent-rgb), .28),
-    rgba(var(--row-accent-rgb), .12)
-  );
-  border-right:2px solid color-mix(in srgb, var(--row-accent), #000 0%);
+  background:linear-gradient(90deg,var(--gold-28),var(--gold-12));
+  border-right:2px solid var(--gold-90);
   transition:width .06s linear;pointer-events:none
 }
 .t-time{
@@ -143,6 +140,7 @@
   position:relative;
 }
 
+/* Uppercase, smaller pills */
 .buy-btn{
   appearance:none;border:1px solid #2e2e34;cursor:pointer;font:inherit;
   background:var(--btnBg);color:#eaeaf2;padding:9px 12px;border-radius:999px;
@@ -169,8 +167,6 @@
   padding:10px 12px;border-radius:8px;color:#eaeaf2;text-decoration:none;border:1px solid transparent;
   cursor:pointer;
 }
-.buy-menu a:hover,
-.buy-menu a[role="button"]:{}
 .buy-menu a:hover,
 .buy-menu a[role="button"]:hover{background:#1b1b20;border-color:#292930}
 .buy-menu a[aria-disabled="true"]{opacity:.45;pointer-events:none}
@@ -297,9 +293,7 @@
   .ctrl.bpm{ grid-column:5; }
   label.ctrl[for="sort"]{ grid-column:6; }
   .btn-reset{ grid-column:7; justify-self:start; }
-  /* small sort select */
   label.ctrl[for="sort"] > select{ width:120px; min-width:110px; max-width:140px; }
-  /* tight BPM boxes */
   .ctrl.bpm .bpm-range{ gap:6px; }
   .ctrl.bpm .bpm-range input{ width:80px; max-width:86px; }
 }
