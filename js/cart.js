@@ -3,7 +3,7 @@
    - LocalStorage persistence
    - Client-side Stripe Checkout
    - Duplicates-by-priceId are merged (quantity summed) for Checkout
-   - Detailed error surfacing for Stripe exceptions
+   - Strong diagnostics for multi-item failures (console + alert)
 */
 
 (function () {
@@ -217,7 +217,7 @@
 
   // ---------- Checkout ----------
   function buildLineItems(items) {
-    // 1) validate items (must have priceId and qty >=1 integer)
+    // 1) validate items (must have priceId and qty ≥ 1 integer)
     const valid = items
       .map(it => ({
         priceId: (it.priceId || '').trim(),
@@ -238,7 +238,17 @@
     }));
   }
 
-  async function checkout() {
+  function stripeErrorToString(err) {
+    if (!err) return '';
+    if (err.message) return err.message;
+    try {
+      return JSON.stringify(err, Object.getOwnPropertyNames(err), 2);
+    } catch {
+      try { return JSON.stringify(err); } catch { return String(err); }
+    }
+  }
+
+  function checkout() {
     if (!items.length) return;
 
     const missing = items.filter(it => !it.priceId);
@@ -254,6 +264,13 @@
     }
 
     const lineItems = buildLineItems(items);
+
+    // DIAGNOSTICS — see exactly what we send to Stripe
+    console.group('[Checkout] Payload');
+    console.log('Raw items:', items);
+    console.log('Line items for Stripe:', lineItems);
+    console.groupEnd();
+
     if (!lineItems.length) {
       alert('Your cart has no valid items to checkout.');
       return;
@@ -263,25 +280,22 @@
     const successUrl = `${domain}/beats.html?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl  = `${domain}/beats.html?checkout=cancel`;
 
-    try {
-      const { error } = await stripe.redirectToCheckout({
-        mode: 'payment',
-        lineItems,
-        successUrl,
-        cancelUrl
-      });
-
-      if (error) {
-        console.error('[Stripe] redirectToCheckout error:', error);
-        alert(error.message || `Stripe error:\n${JSON.stringify(error, null, 2)}`);
+    // Use documented promise form (Stripe recommends this). It normally RESOLVES with {error} if anything is wrong.
+    stripe.redirectToCheckout({
+      mode: 'payment',
+      lineItems,
+      successUrl,
+      cancelUrl
+    }).then(result => {
+      if (result && result.error) {
+        console.error('[Stripe] redirectToCheckout result.error:', result.error);
+        alert(result.error.message || ('Stripe error:\n' + stripeErrorToString(result.error)));
       }
-    } catch (err) {
-      // If Stripe throws (not just returns {error}), surface the details:
-      console.error('[Stripe] exception thrown by redirectToCheckout:', err);
-      const details = (err && (err.message || err.error?.message)) ? (err.message || err.error.message)
-        : JSON.stringify(err, Object.getOwnPropertyNames(err), 2);
-      alert(details || 'Unable to start checkout. Please try again.');
-    }
+    }).catch(err => {
+      // If the promise truly rejects, show full details so we can fix the root cause.
+      console.error('[Stripe] redirectToCheckout promise rejected:', err);
+      alert('Stripe threw:\n' + stripeErrorToString(err));
+    });
   }
 
   // ---------- Public API ----------
