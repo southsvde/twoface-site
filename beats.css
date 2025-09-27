@@ -300,3 +300,38 @@
 /* make inputs fill their cells */
 .beats-controls .row .ctrl > input,
 .beats-controls .row .ctrl > select{ width:100%; }
+
+/* === Reset button: restore pill style === */
+.btn-reset{
+  appearance: none;                      /* avoid UA default */
+  background: transparent;
+  color: #d0d0da;
+  border: 1px solid #2a2a30;
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+  min-height: 38px;
+  line-height: 1;
+}
+.btn-reset:hover{ background:#19191e; }
+.btn-reset:focus-visible{
+  outline: 2px solid rgba(125,95,255,.35);
+  outline-offset: 2px;
+}
+
+/* === Results bar alignment === */
+/* Base: keep mobile left-aligned */
+.results-bar{
+  margin-top: 8px;
+  color:#a0a0a7;
+  font-size:14px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+/* Desktop: hug the right edge */
+@media (min-width: 900px){
+  .results-bar{ justify-content: flex-end; }
+}
+
