@@ -527,12 +527,25 @@
 
   function renderPager(totalPages) {
     // Ensure containers exist
+
+    
+    // Try to place the top pager inside the "X RESULTS" bar, fall back to old spot
+    const resultsBar = document.querySelector('.results-bar');
+    
     if (!pagerTopEl) {
       pagerTopEl = document.createElement('div');
       pagerTopEl.id = 'pager-top';
-      pagerTopEl.className = 'pager pager--top left';
-      listEl.parentElement?.insertBefore(pagerTopEl, listEl);
+      pagerTopEl.className = 'pager pager--top';
+      if (resultsBar) {
+        resultsBar.appendChild(pagerTopEl);   // inline with "X RESULTS"
+      } else {
+        // fallback: above the list like before
+        listEl.parentElement?.insertBefore(pagerTopEl, listEl);
+      }
     }
+
+
+    
     if (!pagerBotEl) {
       pagerBotEl = document.createElement('div');
       pagerBotEl.id = 'pager-bot';
