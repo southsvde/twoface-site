@@ -380,3 +380,56 @@ a.btn-reset,
   justify-content:flex-end;   /* right align */
   gap:10px;
 }
+
+/* === Beats: Info pill (no glow, gold ring, dark background) === */
+/* Paste this at the very bottom of beats.css */
+
+.info-link{
+  /* layout */
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  /* kill native button styling that caused the white look */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* visual */
+  background: transparent;                 /* stay dark, no white fill */
+  border: 1px solid var(--recBorder);      /* thin gold ring outline */
+  color: #dfe0e6;
+  font: inherit;
+  padding: 6px 10px;
+  border-radius: 10px;
+  text-decoration: none;
+
+  /* inner “double ring” (no outer glow) */
+  box-shadow:
+    0 0 0 1px var(--recRing1) inset,
+    0 0 0 2px var(--recRing2) inset;
+}
+
+.info-link:hover{
+  background: #111217;                     /* subtle dark hover */
+  border-color: var(--recBorder);
+  box-shadow:
+    0 0 0 1px var(--recRing1) inset,
+    0 0 0 2px var(--recRing2) inset;
+}
+
+/* Keep the badge consistent */
+.qmark{
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--recBadgeBg);
+  border: 1px solid var(--recBadgeBd);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--recBadgeTx);
+  line-height: 1;
+}
+
