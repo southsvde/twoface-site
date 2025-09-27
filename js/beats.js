@@ -63,6 +63,9 @@
   let currentRow = null;
   let isDragging = false;
 
+  // Cache durations so labels can always show length when idle
+  const durationCache = new Map(); // key: audio src, value: seconds (number)
+
   const ICONS = {
     play:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7-11-7Z" fill="white"/></svg>',
     pause: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 5h4v14H6zM14 5h4v14h-4z" fill="white"/></svg>'
@@ -241,6 +244,33 @@
       .replace(/>/g,'&gt;');
   }
 
+  // --- duration probing (metadata only) ----------------------------------
+  function primeDuration(beat, row, timeEl){
+    const src = beat.audio || row?.dataset?.src || '';
+    if (!src || durationCache.has(src)) return;
+
+    const probe = new Audio();
+    probe.preload = 'metadata';
+    probe.src = src;
+
+    const apply = (d) => {
+      if (Number.isFinite(d) && d > 0) {
+        durationCache.set(src, d);
+        const label = fmtTime(d);
+        if (row) row.dataset.totalTime = label;
+        if (row?.isConnected && timeEl) timeEl.textContent = label;
+      }
+    };
+
+    probe.addEventListener('loadedmetadata', () => {
+      apply(probe.duration);
+      // stop any further loading
+      probe.src = '';
+    }, { once: true });
+
+    probe.addEventListener('error', () => { probe.src = ''; }, { once: true });
+  }
+
   /* ---------- Row builder ---------- */
   function buildRow(beat) {
     const row = document.createElement('article');
@@ -258,12 +288,10 @@
       ${Number(beat.bpm) ? `<span class="chip">${beat.bpm} BPM</span>` : ''}
     `;
 
-    // Determine the total duration label up-front (from JSON if provided)
-    const totalTimeText =
+    // Seed a default total time; we’ll improve it after we create nodes below
+    row.dataset.totalTime =
       (beat.duration_str && String(beat.duration_str)) ||
       (Number.isFinite(beat.duration) ? fmtTime(beat.duration) : '0:00');
-
-    row.dataset.totalTime = totalTimeText || '0:00';
 
     row.innerHTML = `
       <div class="t-ctrl">
@@ -399,6 +427,23 @@
     const bar     = row.querySelector('.wave-progress');
     const ttime   = row.querySelector('.t-time');
 
+    // Improve total-time label now that nodes exist: prefer JSON -> cache -> probe
+    {
+      const srcForTime = row.dataset.src || '';
+      if (Number.isFinite(beat.duration)) {
+        durationCache.set(srcForTime, beat.duration);
+        row.dataset.totalTime = fmtTime(beat.duration);
+        ttime.textContent = row.dataset.totalTime;
+      } else if (durationCache.has(srcForTime)) {
+        row.dataset.totalTime = fmtTime(durationCache.get(srcForTime));
+        ttime.textContent = row.dataset.totalTime;
+      } else {
+        // keep whatever we seeded, but try to get real metadata
+        ttime.textContent = row.dataset.totalTime || '0:00';
+        primeDuration(beat, row, ttime);
+      }
+    }
+
     ctrlBtn.addEventListener('click', () => {
       const src = row.dataset.src;
       if (!src) return;
@@ -415,8 +460,12 @@
         const prevBtn  = currentRow.querySelector('.t-ctrl button');
         const prevTime = currentRow.querySelector('.t-time');
         if (prevBar)  prevBar.style.width = '0%';
-        if (prevTime) prevTime.textContent = currentRow.dataset.totalTime || '0:00';
         if (prevBtn)  prevBtn.innerHTML = ICONS.play;
+        if (prevTime) {
+          const prevSrc = currentRow.dataset.src || '';
+          const cached  = durationCache.get(prevSrc);
+          prevTime.textContent = cached ? fmtTime(cached) : (currentRow.dataset.totalTime || '0:00');
+        }
       }
 
       currentRow = row;
@@ -427,12 +476,17 @@
       player.play().then(() => setCtrlIcon(row, true)).catch(() => {});
     });
 
-    // When metadata loads for the active row, prefer the real duration value
+    // When metadata loads for the active row, store the real duration
     const onLoaded = () => {
       if (currentRow === row) {
-        const realTotal = fmtTime(player.duration);
-        row.dataset.totalTime = realTotal;   // keep it so we can restore later
-        ttime.textContent = realTotal;
+        const src = row.dataset.src || '';
+        const d   = Number(player.duration);
+        if (Number.isFinite(d) && d > 0) {
+          durationCache.set(src, d);
+          const label = fmtTime(d);
+          row.dataset.totalTime = label; // keep for later restores
+          if (player.paused) ttime.textContent = label;
+        }
       }
     };
 
@@ -449,8 +503,10 @@
       if (currentRow === row) {
         setCtrlIcon(row, false);
         bar.style.width = '0%';
-        // restore total time when playback ends
-        ttime.textContent = row.dataset.totalTime || fmtTime(player.duration || 0);
+        // restore total time when playback ends (prefer cache)
+        const src = row.dataset.src || '';
+        const len = durationCache.get(src) || player.duration || 0;
+        ttime.textContent = fmtTime(len);
       }
     };
 
@@ -526,12 +582,8 @@
   }
 
   function renderPager(totalPages) {
-    // Ensure containers exist
-
-    
     // Try to place the top pager inside the "X RESULTS" bar, fall back to old spot
     const resultsBar = document.querySelector('.results-bar');
-    
     if (!pagerTopEl) {
       pagerTopEl = document.createElement('div');
       pagerTopEl.id = 'pager-top';
@@ -539,13 +591,9 @@
       if (resultsBar) {
         resultsBar.appendChild(pagerTopEl);   // inline with "X RESULTS"
       } else {
-        // fallback: above the list like before
         listEl.parentElement?.insertBefore(pagerTopEl, listEl);
       }
     }
-
-
-    
     if (!pagerBotEl) {
       pagerBotEl = document.createElement('div');
       pagerBotEl.id = 'pager-bot';
@@ -656,7 +704,7 @@
     let lastFocus = null;
 
     function focusables() {
-      return panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      return panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])`);
     }
 
     function open() {
