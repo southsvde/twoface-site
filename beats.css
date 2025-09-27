@@ -571,3 +571,15 @@ a.btn-reset,
     align-self: center; /* center in its row */
   }
 }
+
+/* ===== Mobile: center the Reset button and add breathing room ===== */
+@media (max-width: 768px){
+  /* Make sure the Reset button is treated as a grid item we can center */
+  .beats-controls .row .btn-reset{
+    display: inline-flex;          /* keep its pill look */
+    justify-self: center !important;
+    margin: 18px auto 0 !important;/* space above + centered horizontally */
+    text-decoration: none;         /* no underline, in case a UA adds it */
+  }
+}
+
