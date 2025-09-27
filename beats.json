@@ -46,7 +46,7 @@
     "genre": "Trap",
     "mood": ["Dark", "Grand"],
     "art": "img/family_feud_cover.png",
-    "audio": "audio/family_feud.mp3",
+    "audio": "audio/family_feud_mp3.mp3",
     "tiers": {
       "mp3": {
         "label": "MP3",
