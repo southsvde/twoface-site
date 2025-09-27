@@ -40,7 +40,7 @@
     "bpm": 120,
     "key": "Dm",
     "genre": "Trap",
-    "mood": ["Dark", "Grand"],
+    "mood": ["Grand", "Dark"],
     "art": "img/family_feud_cover.png",
     "audio": "audio/family_feud_mp3.mp3",
     "tiers": {
@@ -74,7 +74,7 @@
     "bpm": 120,
     "key": "Dm",
     "genre": "Alt-Trap",
-    "mood": ["Dark", "Suspensful"],
+    "mood": ["Suspensful", "Dark"],
     "art": "img/hermes_cover.png",
     "audio": "audio/hermes_mp3.mp3",
     "tiers": {
@@ -108,7 +108,7 @@
     "bpm": 151,
     "key": "A#m",
     "genre": "Trap",
-    "mood": ["Dark"],
+    "mood": ["Dark", "Freestyle"],
     "art": "img/southdowns_cover.png",
     "audio": "audio/southdowns_mp3.mp3",
     "tiers": {
