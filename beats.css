@@ -622,3 +622,80 @@ a.btn-reset,
   gap: 4px;
 }
 
+/* === Results + Pager (desktop & mobile) =============================== */
+/* Keep "X RESULTS" on the left, pager on the right, and force ALL CAPS */
+.results-bar{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.results-bar > span:nth-of-type(2){
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+#pager-top{ margin-left:auto; }
+
+/* Pager container */
+#pager-top .pager-nav{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+
+/* Pager buttons */
+#pager-top .pager-nav button{
+  appearance:none;
+  border:1px solid var(--panelBorder, #2a2a30);
+  background:#191a1f;
+  color:#e4e4ec;
+  height:34px;
+  min-width:36px;             /* squareish touch target */
+  padding:0 10px;
+  border-radius:8px;
+  font:600 14px/1.1 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+  cursor:pointer;
+  transition:
+    background .15s ease,
+    border-color .15s ease,
+    color .15s ease,
+    transform .06s ease;
+}
+#pager-top .pager-nav button:hover{
+  background:#21222a;
+  border-color:#34343c;
+}
+#pager-top .pager-nav button:active{
+  transform:translateY(1px);
+}
+
+/* Active page */
+#pager-top .pager-nav button.is-active{
+  background:var(--accent, #7d5fff);
+  border-color:var(--accent, #7d5fff);
+  color:#000;
+}
+
+/* Disabled states (first/prev on page 1, next/last on final page) */
+#pager-top .pager-nav button.is-disabled{
+  opacity:.45;
+  cursor:default;
+  pointer-events:none;
+}
+
+/* Icon-only chevrons (» « ‹ ›) keep same width for tidy alignment */
+#pager-top .pager-nav button.icon{
+  min-width:34px;
+  padding:0 8px;
+}
+
+/* Mobile tweaks: slightly larger tap targets, tighter type */
+@media (max-width:560px){
+  #pager-top .pager-nav{ gap:4px; }
+  #pager-top .pager-nav button{
+    height:36px;
+    min-width:34px;
+    font-size:13px;
+    border-radius:9px;
+  }
+}
+
