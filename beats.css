@@ -991,3 +991,83 @@ a.btn-reset,
   .ci-price{ justify-self: end; }
   .ci-remove{ grid-column: 3; }
 }
+
+/* ===== Results + Pager (revert to compact theme) ===== */
+
+/* Results row: keep count on the left, pager can live on the right if present */
+.results-bar{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-start;           /* <- hug left */
+  flex-wrap: wrap;
+}
+
+/* Uppercase “X RESULTS” for continuity */
+.results-bar,
+.results-bar strong,
+.results-bar #count,
+.results-bar #count-s {
+  text-transform: uppercase;
+}
+
+/* If the pager is in the same row, push it to the right on wide screens */
+.results-bar .pager{ margin-left: auto; }
+
+/* Pager look & feel (matches your darker UI) */
+.pager{
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pager button,
+.pager a[role="button"]{
+  appearance: none;
+  border: 1px solid #2a2a30;
+  background: #202025;
+  color: #e6e6eb;
+  min-width: 34px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: 6px;                     /* compact rounded */
+  cursor: pointer;
+  line-height: 30px;
+  text-align: center;
+}
+
+.pager button:hover,
+.pager a[role="button"]:hover{
+  background: #26262c;
+  border-color: #34343a;
+}
+
+.pager button[aria-current="true"],
+.pager .is-active{
+  background: #2a2a30;
+  color: #fff;
+  border-color: #3a3a40;
+}
+
+/* Bottom pager should hug the left */
+.pager--bottom{
+  justify-content: flex-start;            /* <- left aligned */
+  margin-top: 12px;
+}
+
+/* Mobile niceties */
+@media (max-width: 560px){
+  .results-bar{
+    gap: 8px;
+  }
+  .results-bar .pager{
+    margin-left: 0;                        /* keep them stacked left on phones */
+  }
+  .pager button,
+  .pager a[role="button"]{
+    min-width: 32px;
+    height: 28px;
+    line-height: 28px;
+  }
+}
+
