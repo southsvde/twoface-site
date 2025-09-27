@@ -554,3 +554,10 @@ a.btn-reset,
   }
 }
 
+/* Mobile: extra space before the Reset row */
+@media (max-width: 768px) and (orientation: portrait){
+  .beats-controls .row .btn-reset{
+    margin-top: 16px; /* tweak to taste: 12–20px */
+  }
+}
+
