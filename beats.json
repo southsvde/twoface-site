@@ -13,23 +13,23 @@
       "mp3": {
         "price": 29,
         "url": "https://buy.stripe.com/...",
-        "priceId": ""
+        "priceId": "price_1RwBqfBSTF6yn9vqjTqKKQKu"
       },
       "mp3wav": {
         "price": 49,
         "url": "https://buy.stripe.com/...",
         "recommended": true,
-        "priceId": ""
+        "priceId": "price_1RwBw0BSTF6yn9vqBzhjt9JX"
       },
       "excl_nowav": {
         "price": 99,
         "url": "https://buy.stripe.com/...",
-        "priceId": ""
+        "priceId": "price_1RwBxMBSTF6yn9vq4prCClQa"
       },
       "excl_stems": {
         "price": 249,
         "url": "https://buy.stripe.com/...",
-        "priceId": ""
+        "priceId": "price_1RwBxfBSTF6yn9vq1QbOeAXb"
       }
     }
   },
@@ -47,23 +47,23 @@
       "mp3": {
         "price": 29,
         "url": "https://buy.stripe.com/...",
-        "priceId": ""
+        "priceId": "price_1RwBqfBSTF6yn9vqjTqKKQKu"
       },
       "mp3wav": {
         "price": 49,
         "url": "https://buy.stripe.com/...",
         "recommended": true,
-        "priceId": ""
+        "priceId": "price_1RwBw0BSTF6yn9vqBzhjt9JX"
       },
       "excl_nowav": {
         "price": 99,
         "url": "https://buy.stripe.com/...",
-        "priceId": ""
+        "priceId": "price_1RwBxMBSTF6yn9vq4prCClQa"
       },
       "excl_stems": {
         "price": 249,
         "url": "https://buy.stripe.com/...",
-        "priceId": ""
+        "priceId": "price_1RwBxfBSTF6yn9vq1QbOeAXb"
       }
     }
   },
@@ -81,23 +81,23 @@
       "mp3": {
         "price": 29,
         "url": "https://buy.stripe.com/...",
-        "priceId": ""
+        "priceId": "price_1RwBqfBSTF6yn9vqjTqKKQKu"
       },
       "mp3wav": {
         "price": 49,
         "url": "https://buy.stripe.com/...",
         "recommended": true,
-        "priceId": ""
+        "priceId": "price_1RwBw0BSTF6yn9vqBzhjt9JX"
       },
       "excl_nowav": {
         "price": 99,
         "url": "https://buy.stripe.com/...",
-        "priceId": ""
+        "priceId": "price_1RwBxMBSTF6yn9vq4prCClQa"
       },
       "excl_stems": {
         "price": 249,
         "url": "https://buy.stripe.com/...",
-        "priceId": ""
+        "priceId": "price_1RwBxfBSTF6yn9vq1QbOeAXb"
       }
     }
   },
@@ -115,23 +115,23 @@
       "mp3": {
         "price": 29,
         "url": "https://buy.stripe.com/...",
-        "priceId": ""
+        "priceId": "price_1RwBqfBSTF6yn9vqjTqKKQKu"
       },
       "mp3wav": {
         "price": 49,
         "url": "https://buy.stripe.com/...",
         "recommended": true,
-        "priceId": ""
+        "priceId": "price_1RwBw0BSTF6yn9vqBzhjt9JX"
       },
       "excl_nowav": {
         "price": 99,
         "url": "https://buy.stripe.com/...",
-        "priceId": ""
+        "priceId": "price_1RwBxMBSTF6yn9vq4prCClQa"
       },
       "excl_stems": {
         "price": 249,
         "url": "https://buy.stripe.com/...",
-        "priceId": ""
+        "priceId": "price_1RwBxfBSTF6yn9vq1QbOeAXb"
       }
     }
   }
