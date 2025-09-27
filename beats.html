@@ -33,16 +33,16 @@
       <p>Preview &amp; license directly — secure delivery after purchase.</p>
     </div>
 
-      <!-- Beats hero banner -->
+    <!-- Beats hero banner -->
     <div class="beats-hero">
-    <div class="img-wrap">
-      <img
-        src="img/beats-hero.JPEG"
-        alt="Produced by TWOFACE — no hassle, no 3rd parties, instant download."
-        loading="eager"
-        decoding="async"
-      />
-    </div>
+      <div class="img-wrap">
+        <img
+          src="img/beats-hero.JPEG"
+          alt="Produced by TWOFACE — no hassle, no 3rd parties, instant download."
+          loading="eager"
+          decoding="async"
+        />
+      </div>
     </div>
 
     <!-- Inline help: MP3 vs WAV -->
@@ -136,257 +136,12 @@
     </div>
   </div>
 
-  <!-- Cart first (injects header button + drawer), then Beats (renders rows & hooks into cart) -->
-<script src="js/cart.js"></script>
-<script src="js/beats.js"></script>
-<script src="js/player-scrub-wave.js"></script>
-<script src="js/accent-from-cover.js"></script>
+  <!-- JS: Cart, Beats (renders rows), scrub-wave -->
+  <script src="js/cart.js"></script>
+  <script src="js/beats.js"></script>
+  <script src="js/player-scrub-wave.js"></script>
+  <!-- Removed: js/accent-from-cover.js (no per-row color extraction) -->
 
-
-<!-- Accent override: switch purple to gold (placed last so it wins) -->
-<style id="accent-gold">
-  :root{
-    --accent: #f5c048 !important;            /* gold */
-    --accent-rgb: 245,192,72 !important;
-  }
-
-  /* Mini-player play dot + glow */
-  #tracks .t-play .dot{
-    background: var(--accent) !important;
-    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), .25) !important;
-  }
-
-  /* Mini-player progress fill & edge */
-  #tracks .wave-progress{
-    background: linear-gradient(
-      90deg,
-      rgba(var(--accent-rgb), .28),
-      rgba(var(--accent-rgb), .12)
-    ) !important;
-    border-right: 2px solid rgba(var(--accent-rgb), .9) !important;
-  }
-
-  /* Cart badge pill */
-  .cart-btn .cart-badge{
-    background: var(--accent) !important;
-    color: #000 !important;
-  }
-
-  /* (Optional) highlight the Buy CTA to match */
-  .tier, .buy-btn, .btn-checkout{
-    /* comment these in if you want more gold touch points */
-    /* background: var(--accent) !important; color:#000 !important; border-color: var(--accent) !important; */
-  }
-</style>
-
-<style id="accent-gold-fixes">
-  :root{ --accent:#f5c048; --accent-rgb:245,192,72; }
-
-  /* 1) Left round play/pause button (covers multiple markups) */
-  #tracks .track .t-play,
-  #tracks .track .play-btn,
-  #tracks .track button[aria-label^="Play"],
-  #tracks .track button[aria-label^="Pause"]{
-    background: var(--accent) !important;
-    border-color: var(--accent) !important;
-    color:#000 !important;
-  }
-  /* ensure the icon inside flips to dark */
-  #tracks .track .t-play svg,
-  #tracks .track .play-btn svg{
-    fill:#000 !important;
-    color:#000 !important;
-  }
-
-  /* keep the small inner dot in sync (if present) */
-  #tracks .t-play .dot{
-    background: var(--accent) !important;
-    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), .25) !important;
-  }
-
-  /* 2) Cart drawer checkout button */
-  .cart-drawer .cart-foot .btn-checkout,
-  .cart-drawer .btn-checkout{
-    background: var(--accent) !important;
-    border-color: var(--accent) !important;
-    color:#000 !important;
-  }
-  .cart-drawer .btn-checkout:hover{ filter:brightness(.95) !important; }
-</style>
-
-<style id="accent-gold-icon-fix">
-  /* Make the play/pause glyph inside the round button black */
-  #tracks .t-play svg,
-  #tracks .t-play svg * {
-    fill: #000 !important;
-    stroke: #000 !important; /* covers pause bars if they use stroke */
-  }
-</style>
-
-<style id="accent-gold-icon-force">
-  /* Force the glyph inside the round play/pause button to black */
-  #tracks .t-play svg,
-  #tracks .t-play svg *,
-  #tracks .t-play .dot svg,
-  #tracks .t-play .dot svg *,
-  #tracks .track .t-play svg path,
-  #tracks .track .t-play svg polygon,
-  #tracks .track .t-play svg use {
-    fill: #000 !important;
-    stroke: #000 !important;
-  }
-
-  /* Fallback for stubborn inline fills/masks: turn the whole SVG black */
-  #tracks .t-play svg {
-    filter: brightness(0) saturate(100%) !important;
-  }
-</style>
-
-<style id="accent-gold-glyphs">
-  /* Always draw our own black play/pause icon, regardless of inner markup */
-
-  /* Ensure the dot can host pseudo-elements */
-  #tracks .t-play .dot{
-    position: relative;
-  }
-
-  /* Hide whatever icon the template inserted (SVG, <use>, etc.) */
-  #tracks .t-play .dot > *{
-    opacity: 0 !important;
-  }
-
-  /* --- PLAY state (triangle) ------------------------------------------ */
-  /* We key off the accessible label; this is present in your markup */
-  #tracks .t-play[aria-label^="Play"] .dot::after{
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-40%, -50%); /* slight optical centering */
-    width: 0; height: 0;
-    border-top: 7px solid transparent;
-    border-bottom: 7px solid transparent;
-    border-left: 11px solid #000;      /* black triangle */
-  }
-
-  /* --- PAUSE state (two bars) ----------------------------------------- */
-  #tracks .t-play[aria-label^="Pause"] .dot::before,
-  #tracks .t-play[aria-label^="Pause"] .dot::after{
-    content: "";
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;                        /* bar width */
-    height: 14px;                      /* bar height */
-    background: #000;                  /* black bars */
-    border-radius: 1px;
-  }
-  #tracks .t-play[aria-label^="Pause"] .dot::before{ left: calc(50% - 5px); }
-  #tracks .t-play[aria-label^="Pause"] .dot::after { left: calc(50% + 2px);  }
-</style>
-
-<style id="accent-gold-glyphs-final">
-  /* Make sure we’re drawing on the button itself */
-  #tracks .track button[aria-label^="Play"],
-  #tracks .track button[aria-label^="Pause"]{
-    position: relative;
-    background-image: none !important;   /* kill the built-in white icon */
-    -webkit-mask-image: none !important; /* if it was using a mask */
-            mask-image: none !important;
-    overflow: visible;                    /* give our glyph room */
-  }
-
-  /* Also remove any icon bg on the inner “dot”, if present */
-  #tracks .track button[aria-label^="Play"] .dot,
-  #tracks .track button[aria-label^="Pause"] .dot{
-    background-image: none !important;
-    -webkit-mask-image: none !important;
-            mask-image: none !important;
-    position: relative;
-  }
-
-  /* ------- PLAY (triangle) ------- */
-  #tracks .track button[aria-label^="Play"]::after{
-    content:"";
-    position:absolute;
-    left:50%; top:50%;
-    transform: translate(-40%, -50%);    /* slight optical centering */
-    width:0; height:0;
-    border-top: 7px solid transparent;
-    border-bottom: 7px solid transparent;
-    border-left: 11px solid #000;        /* black triangle */
-    pointer-events:none;
-    z-index:2;
-  }
-
-  /* ------- PAUSE (two bars) ------- */
-  #tracks .track button[aria-label^="Pause"]::before,
-  #tracks .track button[aria-label^="Pause"]::after{
-    content:"";
-    position:absolute;
-    top:50%; transform:translateY(-50%);
-    width:3px; height:14px;
-    background:#000; border-radius:1px;
-    pointer-events:none; z-index:2;
-  }
-  #tracks .track button[aria-label^="Pause"]::before{ left:calc(50% - 5px); }
-  #tracks .track button[aria-label^="Pause"]::after { left:calc(50% + 2px);  }
-
-  /* Fallback: if your code uses a class instead of aria-label, support it too */
-  #tracks .track button.is-playing::before,
-  #tracks .track button.is-playing::after{
-    /* same as pause bars (duplicate to cover class-based state) */
-    content:"";
-    position:absolute; top:50%; transform:translateY(-50%);
-    width:3px; height:14px; background:#000; border-radius:1px;
-    pointer-events:none; z-index:2;
-  }
-  #tracks .track button.is-playing::before{ left:calc(50% - 5px); }
-  #tracks .track button.is-playing::after { left:calc(50% + 2px);  }
-</style>
-
-  <style id="row-accent-final-override">
-  /* Use the per-row accent (falls back to site accent if none found). */
-  #tracks .track .t-play,
-  #tracks .track .play-btn,
-  #tracks .track button[aria-label^="Play"],
-  #tracks .track button[aria-label^="Pause"]{
-    background: var(--row-accent, var(--accent)) !important;
-    border-color: var(--row-accent, var(--accent)) !important;
-  }
-
-  /* Make the glyph inside the round button use the per-row glyph color. */
-  #tracks .track .t-play svg,
-  #tracks .track .t-play svg *,
-  #tracks .track .t-play .dot svg,
-  #tracks .track .t-play .dot svg *{
-    fill: var(--row-glyph, #000) !important;
-    stroke: var(--row-glyph, #000) !important;
-    filter: none !important; /* neutralize previous “force black/white” tricks */
-  }
-
-  /* Pseudo-drawn triangle/bars also match the per-row glyph color */
-  #tracks .track button[aria-label^="Play"]::after{
-    border-left-color: var(--row-glyph, #000) !important;
-  }
-  #tracks .track button[aria-label^="Pause"]::before,
-  #tracks .track button[aria-label^="Pause"]::after{
-    background: var(--row-glyph, #000) !important;
-  }
-</style>
-
-<style id="row-accent-wave-progress">
-  /* Wave progress uses per-row color (falls back to site accent) */
-  #tracks .track .wave-progress{
-    background: linear-gradient(
-      90deg,
-      rgba(var(--row-accent-rgb, var(--accent-rgb)), .28),
-      rgba(var(--row-accent-rgb, var(--accent-rgb)), .12)
-    ) !important;
-    border-right: 2px solid rgba(var(--row-accent-rgb, var(--accent-rgb)), .9) !important;
-  }
-</style>
-
-  
+  <!-- Removed all inline <style> overrides (accent-gold*, row-accent*, icon/glyph fixes) so beats.css rules control colors -->
 </body>
 </html>
