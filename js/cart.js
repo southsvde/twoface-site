@@ -3,6 +3,7 @@
    - LocalStorage persistence
    - Client-side Stripe Checkout
    - Duplicates-by-priceId are merged (quantity summed) for Checkout
+   - Detailed error surfacing for Stripe exceptions
 */
 
 (function () {
@@ -215,10 +216,31 @@
   function clear() { items = []; save(); render(); }
 
   // ---------- Checkout ----------
+  function buildLineItems(items) {
+    // 1) validate items (must have priceId and qty >=1 integer)
+    const valid = items
+      .map(it => ({
+        priceId: (it.priceId || '').trim(),
+        qty: Math.max(1, Math.floor(it.qty || 1))
+      }))
+      .filter(it => !!it.priceId && Number.isFinite(it.qty) && it.qty >= 1);
+
+    // 2) merge duplicates by priceId
+    const qtyByPrice = new Map();
+    for (const it of valid) {
+      qtyByPrice.set(it.priceId, (qtyByPrice.get(it.priceId) || 0) + it.qty);
+    }
+
+    // 3) materialize
+    return Array.from(qtyByPrice.entries()).map(([price, quantity]) => ({
+      price,
+      quantity: Math.max(1, Math.floor(quantity))
+    }));
+  }
+
   async function checkout() {
     if (!items.length) return;
 
-    // Require priceId for each item
     const missing = items.filter(it => !it.priceId);
     if (missing.length) {
       alert('Some items are missing Stripe price IDs. Use “Buy” for those, or add the priceId to beats.json.');
@@ -231,15 +253,11 @@
       return;
     }
 
-    // Group by priceId to avoid duplicate line-items with same price
-    const qtyByPrice = new Map();
-    for (const it of items) {
-      const pid = it.priceId;
-      const q   = Math.max(1, it.qty || 1);
-      qtyByPrice.set(pid, (qtyByPrice.get(pid) || 0) + q);
+    const lineItems = buildLineItems(items);
+    if (!lineItems.length) {
+      alert('Your cart has no valid items to checkout.');
+      return;
     }
-
-    const lineItems = Array.from(qtyByPrice.entries()).map(([price, quantity]) => ({ price, quantity }));
 
     const domain = 'https://twfc808.com';
     const successUrl = `${domain}/beats.html?checkout=success&session_id={CHECKOUT_SESSION_ID}`;
@@ -252,13 +270,17 @@
         successUrl,
         cancelUrl
       });
+
       if (error) {
         console.error('[Stripe] redirectToCheckout error:', error);
-        alert(error.message || 'Unable to start checkout. Please try again.');
+        alert(error.message || `Stripe error:\n${JSON.stringify(error, null, 2)}`);
       }
     } catch (err) {
-      console.error('[Stripe] exception:', err);
-      alert(err.message || 'Unable to start checkout. Please try again.');
+      // If Stripe throws (not just returns {error}), surface the details:
+      console.error('[Stripe] exception thrown by redirectToCheckout:', err);
+      const details = (err && (err.message || err.error?.message)) ? (err.message || err.error.message)
+        : JSON.stringify(err, Object.getOwnPropertyNames(err), 2);
+      alert(details || 'Unable to start checkout. Please try again.');
     }
   }
 
