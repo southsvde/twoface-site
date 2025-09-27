@@ -351,3 +351,35 @@ a.btn-reset,
   text-transform: uppercase;
   letter-spacing: .02em; /* optional: looks a bit nicer in caps */
 }
+
+/* ==== PLAY BUTTONS: force a uniform light grey (#bbbbbb) ==== */
+:root { --playbtn-grey: #bbbbbb; }
+
+#tracks .track .t-ctrl button,
+#tracks .track .t-play,
+#tracks .track .play-btn,
+#tracks .track button[aria-label^="Play"],
+#tracks .track button[aria-label^="Pause"]{
+  background: var(--playbtn-grey) !important;
+  border-color: var(--playbtn-grey) !important;
+  color: #000 !important;  /* ensures any built-in glyph is visible */
+}
+
+/* If an inline SVG is used for the icon, make it dark for contrast */
+#tracks .track .t-ctrl button svg,
+#tracks .track .t-ctrl button svg *,
+#tracks .track .t-play svg,
+#tracks .track .t-play svg *{
+  fill: #000 !important;
+  stroke: #000 !important;
+}
+
+/* Results line: push it down a bit and keep it right-aligned */
+.results-bar{
+  margin-top: 22px;           /* ← increase this number for more/less room */
+  color:#a0a0a7;
+  font-size:14px;
+  display:flex;
+  justify-content:flex-end;   /* right align */
+  gap:10px;
+}
