@@ -1163,3 +1163,12 @@ a.btn-reset,
   /* Minor touch: consistent separators */
   .ctrl .sep{ margin: 0 4px; }
 }
+
+/* === Mobile portrait: right-align action buttons === */
+@media (max-width: 560px) and (orientation: portrait){
+  .t-actions{
+    justify-content: flex-end;   /* push buttons to the right */
+    gap: 8px;
+  }
+}
+
