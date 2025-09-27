@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
+
+  <!-- Stripe publishable key for client-side Checkout -->
+  <meta name="stripe-pk" content="pk_live_51Rw8l4BSTF6yn9vqlVUdh0CKPsYREFjktl3lGs6Yas7DQ38j2AtDExxnAaIp8XmXC0FnaxPM62yUP017WeEBYO6c00xFQFkhHa">
+
+  <!-- Stripe.js must be loaded before beats.js uses it -->
+  <script src="https://js.stripe.com/v3" defer></script>
+
   <meta charset="utf-8" />
   <title>TWOFACE — Beats</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
