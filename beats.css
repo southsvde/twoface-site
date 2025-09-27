@@ -333,3 +333,19 @@
   fill: #000 !important;
   stroke: #000 !important;
 }
+
+/* === Lock the PLAY/PAUSE button to a neutral grey === */
+#tracks .track .t-ctrl > button{
+  --play-neutral: #676a73;                  /* tweak this if you want */
+  background: var(--play-neutral) !important;
+  border-color: var(--play-neutral) !important;
+  color: #000 !important;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.25) !important; /* subtle ring */
+}
+
+/* Force the icon to black */
+#tracks .track .t-ctrl > button svg,
+#tracks .track .t-ctrl > button svg *{
+  fill: #000 !important;
+  stroke: #000 !important;
+}
