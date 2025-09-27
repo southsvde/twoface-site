@@ -597,3 +597,28 @@ a.btn-reset,
   ) !important;
   border-right: 2px solid var(--wave-gray) !important;
 }
+
+/* === Results alignment & casing (desktop + mobile) === */
+.results-bar{
+  display: flex;
+  align-items: center;
+  gap: 12px;                 /* small breathing room */
+}
+
+/* Force the "X RESULTS" text to uppercase */
+.results-bar > span:nth-of-type(2){
+  text-transform: uppercase;
+  letter-spacing: .04em;     /* optional: reads better in all-caps */
+}
+
+/* Keep pager on the far right */
+#pager-top{
+  margin-left: auto;
+}
+
+/* (Optional) make sure the pager lays out nicely */
+#pager-top .pager-nav{
+  display: inline-flex;
+  gap: 4px;
+}
+
