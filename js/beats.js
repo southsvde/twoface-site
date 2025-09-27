@@ -24,11 +24,38 @@
 
   // Shared audio element (single player for all rows)
   const player = new Audio();
-  window.__twfPlayer = player;  // existing exposure
-  window.player = player;       // NEW: alias so scrubber always finds it
+  window.__twfPlayer = player; // expose shared player so add-ons can seek it
   player.preload = 'metadata';
   let currentRow = null;
   let isDragging = false;
+
+  // ---- Duration cache (NEW) ----------------------------------------------
+  const __durations = new Map();
+
+  /** Get duration (in seconds) for a given src. Uses a tiny, metadata-only Audio. */
+  function getDuration(src) {
+    if (!src) return Promise.resolve(0);
+    if (__durations.has(src)) return Promise.resolve(__durations.get(src));
+
+    return new Promise((resolve) => {
+      const a = new Audio();
+      a.preload = 'metadata';
+      a.src = src;
+
+      function done(sec) {
+        __durations.set(src, sec || 0);
+        a.removeEventListener('loadedmetadata', onLoad);
+        a.removeEventListener('error', onErr);
+        resolve(sec || 0);
+      }
+      function onLoad() { done(isFinite(a.duration) ? a.duration : 0); }
+      function onErr()  { done(0); }
+
+      a.addEventListener('loadedmetadata', onLoad);
+      a.addEventListener('error', onErr);
+    });
+  }
+  // ------------------------------------------------------------------------
 
   const ICONS = {
     play:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7-11-7Z" fill="white"/></svg>',
@@ -102,10 +129,10 @@
 
   /* ---------- Buy/Add menu: read from JSON with safe fallbacks ---------- */
   const DEFAULT_TIERS = {
-    mp3:        { label: 'MP3',                      price: 29,  desc: 'Great for quick demos & writing. Not ideal for mixing/mastering.' },
-    mp3wav:     { label: 'WAV & MP3',                price: 49,  desc: 'Full-quality WAV for recording & release. MP3 provided for references.', recommended: true },
-    excl_nowav: { label: 'Exclusive License',        price: 99,  desc: 'Exclusive rights, includes WAV & MP3. Beat removed from store after purchase.' },
-    excl_stems: { label: 'Exclusive License & Stems',price: 249, desc: 'Exclusive rights, WAV, and individual track stems for full mixing control. Beat removed from store after purchase.' }
+    mp3:        { label: 'MP3',                      price: 29,  desc: 'Great for quick demos & writing; not ideal for mixing/mastering.' },
+    mp3wav:     { label: 'MP3 + WAV',                price: 49,  desc: 'Full-quality WAV for recording & release + MP3 for reference.', recommended: true },
+    excl_nowav: { label: 'Exclusive License',        price: 99,  desc: 'Your exclusive rights; beat removed from store after purchase.' },
+    excl_stems: { label: 'Exclusive License + Stems',price: 249, desc: 'Exclusive + individual track stems for full mix control.' }
   };
   const TIER_ORDER = ['mp3','mp3wav','excl_nowav','excl_stems'];
 
@@ -264,255 +291,4 @@
     }
     function toggleMenu(which) {
       closeMenus();
-      const btn  = which === 'buy' ? buyBtn  : addBtn;
-      const menu = which === 'buy' ? buyMenu : addMenu;
-      const wasOpen = menu.classList.contains('open');
-      if (wasOpen) {
-        menu.classList.remove('open');
-        btn.setAttribute('aria-expanded','false');
-      } else {
-        menu.classList.add('open');
-        btn.setAttribute('aria-expanded','true');
-      }
-    }
-
-    buyBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu('buy'); });
-    addBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu('add'); });
-    buyMenu.addEventListener('click', (e) => e.stopPropagation());
-    addMenu.addEventListener('click', (e) => e.stopPropagation());
-    document.addEventListener('click', closeMenus);
-
-    // Add-to-cart action
-    addMenu.addEventListener('click', (e) => {
-      const item = e.target.closest('[data-action="add"]');
-      if (!item) return;
-      e.preventDefault();
-
-      const priceId = item.getAttribute('data-priceid') || '';
-      const price   = Number(item.getAttribute('data-price')) || 0;
-      const label   = item.getAttribute('data-label') || 'License';
-      const tierKey = item.getAttribute('data-tier') || '';
-      const url     = item.getAttribute('data-url') || '';
-
-      if (!window.TWFCart || typeof window.TWFCart.add !== 'function') {
-        alert('Cart is not available yet. Please use Buy for now.');
-        return;
-      }
-
-      window.TWFCart.add({
-        beatId: beat.id || beat.title || 'beat',
-        title: beat.title || 'Untitled',
-        tierKey,
-        tierLabel: label,
-        price,
-        priceId, // can be empty for now; checkout should enforce later
-        url
-      });
-
-      closeMenus();
-    });
-
-    // --- Player wiring ----------------------------------------------------
-    const ctrlBtn = row.querySelector('.t-ctrl button');
-    const wave    = row.querySelector('.t-wave');
-    const bar     = row.querySelector('.wave-progress');
-    const ttime   = row.querySelector('.t-time');
-
-    ctrlBtn.addEventListener('click', () => {
-      const src = row.dataset.src;
-      if (!src) return;
-
-      if (currentRow === row) {
-        if (player.paused) { player.play().catch(() => {}); setCtrlIcon(row, true); }
-        else { player.pause(); setCtrlIcon(row, false); }
-        return;
-      }
-
-      // We are switching rows: clear previous row UI + remove active marker
-      if (currentRow) {
-        currentRow.classList.remove('is-playing');                // NEW
-        const prevBar  = currentRow.querySelector('.wave-progress');
-        const prevBtn  = currentRow.querySelector('.t-ctrl button');
-        const prevTime = currentRow.querySelector('.t-time');
-        if (prevBar)  prevBar.style.width = '0%';
-        if (prevTime) prevTime.textContent = '0:00';
-        if (prevBtn)  prevBtn.innerHTML = ICONS.play;
-      }
-
-      currentRow = row;
-      row.classList.add('is-playing');                            // NEW
-
-      player.src = src;
-      player.currentTime = 0;
-      player.play().then(() => setCtrlIcon(row, true)).catch(() => {});
-    });
-
-    const onLoaded = () => { if (currentRow === row) ttime.textContent = fmtTime(player.duration); };
-    const onTime   = () => {
-      if (currentRow !== row || !player.duration) return;
-      const pct = (player.currentTime / player.duration) * 100;
-      bar.style.width = `${pct}%`;
-      wave.setAttribute('aria-valuenow', Math.round(pct));
-      ttime.textContent = fmtTime(player.currentTime);
-    };
-    const onEnded  = () => {
-      if (currentRow === row) {
-        setCtrlIcon(row, false);
-        bar.style.width = '0%';
-        ttime.textContent = fmtTime(player.duration || 0);
-      }
-    };
-
-    player.addEventListener('loadedmetadata', onLoaded);
-    player.addEventListener('timeupdate', onTime);
-    player.addEventListener('ended', onEnded);
-
-    bindSeek(row, wave);
-    return row;
-  }
-
-  /* ---------- Data + Filters ---------- */
-  let allBeats = [];
-  let beatsNorm = [];
-
-  function applyFilters() {
-    const q   = (qEl?.value || '').trim().toLowerCase();
-    const g   = genreEl?.value || '';
-    const m   = moodEl?.value || '';
-    const k   = keyEl?.value || '';
-    const min = Number(bpmMinEl?.value) || -Infinity;
-    const max = Number(bpmMaxEl?.value) || Infinity;
-
-    let filtered = beatsNorm.filter(b => {
-      const titleOk = !q || (b.title || '').toLowerCase().includes(q);
-      const genreOk = !g || b._genre === g;
-      const moodOk  = !m || (Array.isArray(b._moods) && b._moods.includes(m));
-      const keyOk   = !k || String(b.key) === k;
-      const bpm     = Number(b.bpm);
-      const bpmOk   = isFinite(bpm) ? (bpm >= min && bpm <= max) : true;
-      return titleOk && genreOk && moodOk && keyOk && bpmOk;
-    });
-
-    switch (sortEl?.value) {
-      case 'bpm-asc':  filtered.sort((a,b)=> (a.bpm||0)-(b.bpm||0)); break;
-      case 'bpm-desc': filtered.sort((a,b)=> (b.bpm||0)-(a.bpm||0)); break;
-      case 'title-asc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')); break;
-      case 'title-desc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')).reverse(); break;
-      default: break;
-    }
-
-    renderList(filtered);
-  }
-
-  function renderList(items) {
-    if (!player.paused) player.pause();
-    // clear any stale active marker when we rebuild the list
-    document.querySelector('.track.is-playing')?.classList.remove('is-playing'); // NEW
-    currentRow = null;
-
-    listEl.innerHTML = '';
-    items.forEach(beat => listEl.appendChild(buildRow(beat)));
-
-    const n = items.length;
-    if (countEl)  countEl.textContent = String(n);
-    if (countSEl) countSEl.style.display = n === 1 ? 'none' : 'inline';
-    if (statusEl) statusEl.textContent = n ? '' : 'No results with those filters.';
-  }
-
-  function populateControls(beats) {
-    const genres = uniqueValues(beats, b => b._genre);
-    const moods  = uniqueValues(beats, b => b._moods || []);
-    const keys   = uniqueValues(beats, b => b.key);
-
-    if (genreEl) genreEl.innerHTML = `<option value="">All</option>` + genres.map(v => `<option value="${v}">${v}</option>`).join('');
-    if (moodEl)  moodEl.innerHTML  = `<option value="">All</option>` + moods.map(v => `<option value="${v}">${v}</option>`).join('');
-    if (keyEl)   keyEl.innerHTML   = `<option value="">All</option>` + keys.map(v => `<option value="${v}">${v}</option>`).join('');
-  }
-
-  function resetFilters() {
-    if (qEl) qEl.value = '';
-    if (genreEl) genreEl.value = '';
-    if (moodEl)  moodEl.value = '';
-    if (keyEl)   keyEl.value = '';
-    if (bpmMinEl) bpmMinEl.value = '';
-    if (bpmMaxEl) bpmMaxEl.value = '';
-    if (sortEl) sortEl.value = 'default';
-    applyFilters();
-  }
-
-  async function init() {
-    try {
-      if (statusEl) statusEl.textContent = 'Loading beats…';
-      const res = await fetch(BEATS_URL, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      allBeats = await res.json();
-
-      if (!Array.isArray(allBeats) || allBeats.length === 0) {
-        if (statusEl) statusEl.textContent = 'No beats found in beats.json.';
-        return;
-      }
-
-      beatsNorm = allBeats.map(normalizeBeat);
-      populateControls(beatsNorm);
-      if (statusEl) statusEl.textContent = '';
-      applyFilters();
-    } catch (err) {
-      console.error('[Beats] load error:', err);
-      if (statusEl) statusEl.textContent = 'Couldn’t load beats. Make sure /beats.json exists, is valid JSON (no comments), and is publicly accessible.';
-    }
-  }
-
-  // Wire filter events
-  [qEl, genreEl, moodEl, keyEl, bpmMinEl, bpmMaxEl, sortEl].forEach(ctrl => {
-    ctrl && ctrl.addEventListener('input', applyFilters);
-    ctrl && ctrl.addEventListener('change', applyFilters);
-  });
-  resetEl && resetEl.addEventListener('click', resetFilters);
-
-  /* ---------- Modal wiring (MP3 vs WAV) ---------- */
-  (function setupInfoModal(){
-    const trigger = document.getElementById('mp3wav-trigger');
-    const modal   = document.getElementById('mp3wav-modal');
-    if (!trigger || !modal) return;
-
-    const backdrop  = modal.querySelector('.modal-backdrop');
-    const panel     = modal.querySelector('.modal-panel');
-
-    let lastFocus = null;
-
-    function focusables() {
-      return panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-    }
-
-    function open() {
-      lastFocus = document.activeElement;
-      modal.classList.add('open');
-      const f = focusables();
-      (f[0] || panel).focus();
-      document.addEventListener('keydown', onKey);
-    }
-    function close() {
-      modal.classList.remove('open');
-      document.removeEventListener('keydown', onKey);
-      if (lastFocus) lastFocus.focus();
-    }
-    function onKey(e) {
-      if (e.key === 'Escape') { e.preventDefault(); close(); }
-      if (e.key === 'Tab') {
-        const f = focusables();
-        if (!f.length) return;
-        const first = f[0], last = f[f.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      }
-    }
-
-    trigger.addEventListener('click', open);
-    backdrop?.addEventListener('click', close);
-    panel.querySelectorAll('[data-close="modal"], .modal-close').forEach(b => b.addEventListener('click', close));
-  })();
-
-  // Init
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
-})();
+      const btn  = which === 'buy
