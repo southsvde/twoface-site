@@ -335,3 +335,19 @@
   .results-bar{ justify-content: flex-end; }
 }
 
+/* Reset button: never underline */
+.btn-reset,
+a.btn-reset,
+.btn-reset:link,
+.btn-reset:visited,
+.btn-reset:hover,
+.btn-reset:focus,
+.btn-reset:active{
+  text-decoration: none !important;
+}
+
+/* Uppercase the "<count> results" text */
+.results-bar span:last-child{
+  text-transform: uppercase;
+  letter-spacing: .02em; /* optional: looks a bit nicer in caps */
+}
