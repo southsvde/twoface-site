@@ -1104,3 +1104,62 @@ a.btn-reset,
   pointer-events:none;
 }
 
+/* === Mobile portrait: compact track cards === */
+@media (max-width: 560px) and (orientation: portrait){
+  /* Card spacing */
+  .tracks{ gap: 10px; }
+
+  .track{
+    padding: 10px;
+    gap: 8px;
+    border-radius: 10px;
+  }
+
+  /* Play button + art a bit smaller */
+  .t-ctrl button{ width: 32px; height: 32px; }
+  .t-art{ width: 48px; height: 48px; border-radius: 8px; }
+
+  /* Title + chips more compact */
+  .t-title h4{
+    font-size: 16px;         /* was larger */
+    margin: 0 0 2px;
+  }
+  .meta{
+    gap: 6px;
+    font-size: 12px;
+  }
+  .meta .chip{
+    padding: 2px 6px;
+    font-size: 11px;
+  }
+
+  /* Waveform shorter */
+  .t-wave{
+    height: 32px;            /* was 44px */
+    border-radius: 6px;
+  }
+  .t-time{
+    right: 6px;
+    bottom: 4px;
+    font-size: 11px;
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+
+  /* Action buttons tighter */
+  .t-actions{ gap: 8px; }
+  .buy-btn{
+    padding: 8px 10px;       /* was ~10px 14px */
+    font-size: 13px;
+    border-radius: 999px;
+  }
+
+  /* Keep menus usable on phones */
+  .buy-menu{
+    min-width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+  }
+
+  /* Minor touch: consistent separators */
+  .ctrl .sep{ margin: 0 4px; }
+}
