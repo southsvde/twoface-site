@@ -291,4 +291,274 @@
     }
     function toggleMenu(which) {
       closeMenus();
-      const btn  = which === 'buy
+      const btn  = which === 'buy' ? buyBtn  : addBtn;
+      const menu = which === 'buy' ? buyMenu : addMenu;
+      const wasOpen = menu.classList.contains('open');
+      if (wasOpen) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded','false');
+      } else {
+        menu.classList.add('open');
+        btn.setAttribute('aria-expanded','true');
+      }
+    }
+
+    buyBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu('buy'); });
+    addBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu('add'); });
+    buyMenu.addEventListener('click', (e) => e.stopPropagation());
+    addMenu.addEventListener('click', (e) => e.stopPropagation());
+    document.addEventListener('click', closeMenus);
+
+    // Add-to-cart action
+    addMenu.addEventListener('click', (e) => {
+      const item = e.target.closest('[data-action="add"]');
+      if (!item) return;
+      e.preventDefault();
+
+      const priceId = item.getAttribute('data-priceid') || '';
+      const price   = Number(item.getAttribute('data-price')) || 0;
+      const label   = item.getAttribute('data-label') || 'License';
+      const tierKey = item.getAttribute('data-tier') || '';
+      const url     = item.getAttribute('data-url') || '';
+
+      if (!window.TWFCart || typeof window.TWFCart.add !== 'function') {
+        alert('Cart is not available yet. Please use Buy for now.');
+        return;
+      }
+
+      window.TWFCart.add({
+        beatId: beat.id || beat.title || 'beat',
+        title: beat.title || 'Untitled',
+        tierKey,
+        tierLabel: label,
+        price,
+        priceId, // can be empty for now; checkout should enforce later
+        url
+      });
+
+      closeMenus();
+    });
+
+    // --- Player wiring ----------------------------------------------------
+    const ctrlBtn = row.querySelector('.t-ctrl button');
+    const wave    = row.querySelector('.t-wave');
+    const bar     = row.querySelector('.wave-progress');
+    const ttime   = row.querySelector('.t-time');
+
+    // NEW: show total duration by default (idle state), using cache or probing once
+    const rowSrc = row.dataset.src || '';
+    if (rowSrc) {
+      if (__durations.has(rowSrc)) {
+        ttime.textContent = fmtTime(__durations.get(rowSrc) || 0);
+      } else {
+        ttime.textContent = '0:00';
+        getDuration(rowSrc).then((sec) => {
+          if (row.isConnected) ttime.textContent = fmtTime(sec || 0);
+        });
+      }
+    }
+
+    ctrlBtn.addEventListener('click', () => {
+      const src = row.dataset.src;
+      if (!src) return;
+
+      if (currentRow === row) {
+        if (player.paused) { player.play().catch(() => {}); setCtrlIcon(row, true); }
+        else { player.pause(); setCtrlIcon(row, false); }
+        return;
+      }
+
+      if (currentRow) {
+        const prevBar  = currentRow.querySelector('.wave-progress');
+        const prevBtn  = currentRow.querySelector('.t-ctrl button');
+        const prevTime = currentRow.querySelector('.t-time');
+        const prevSrc  = currentRow.dataset.src || '';
+
+        if (prevBar)  prevBar.style.width = '0%';
+        // Show total duration for the previous row when it becomes idle
+        if (prevTime) prevTime.textContent = fmtTime(__durations.get(prevSrc) || 0);
+        if (prevBtn)  prevBtn.innerHTML = ICONS.play;
+      }
+
+      currentRow = row;
+      player.src = src;
+      player.currentTime = 0;
+      player.play().then(() => setCtrlIcon(row, true)).catch(() => {});
+    });
+
+    const onLoaded = () => {
+      if (currentRow === row) {
+        const d = isFinite(player.duration) ? player.duration : 0;
+        __durations.set(row.dataset.src || '', d);
+        ttime.textContent = fmtTime(d);
+      }
+    };
+    const onTime   = () => {
+      if (currentRow !== row || !player.duration) return;
+      const pct = (player.currentTime / player.duration) * 100;
+      bar.style.width = `${pct}%`;
+      wave.setAttribute('aria-valuenow', Math.round(pct));
+      // During playback, show elapsed time
+      ttime.textContent = fmtTime(player.currentTime);
+    };
+    const onEnded  = () => {
+      if (currentRow === row) {
+        setCtrlIcon(row, false);
+        bar.style.width = '0%';
+        // When done, revert to total duration
+        const d = __durations.get(row.dataset.src || '') ?? player.duration ?? 0;
+        ttime.textContent = fmtTime(d);
+      }
+    };
+
+    player.addEventListener('loadedmetadata', onLoaded);
+    player.addEventListener('timeupdate', onTime);
+    player.addEventListener('ended', onEnded);
+
+    bindSeek(row, wave);
+    return row;
+  }
+
+  /* ---------- Data + Filters ---------- */
+  let allBeats = [];
+  let beatsNorm = [];
+
+  function applyFilters() {
+    const q   = (qEl?.value || '').trim().toLowerCase();
+    const g   = genreEl?.value || '';
+    const m   = moodEl?.value || '';
+    const k   = keyEl?.value || '';
+    const min = Number(bpmMinEl?.value) || -Infinity;
+    const max = Number(bpmMaxEl?.value) || Infinity;
+
+    let filtered = beatsNorm.filter(b => {
+      const titleOk = !q || (b.title || '').toLowerCase().includes(q);
+      const genreOk = !g || b._genre === g;
+      const moodOk  = !m || (Array.isArray(b._moods) && b._moods.includes(m));
+      const keyOk   = !k || String(b.key) === k;
+      const bpm     = Number(b.bpm);
+      const bpmOk   = isFinite(bpm) ? (bpm >= min && bpm <= max) : true;
+      return titleOk && genreOk && moodOk && keyOk && bpmOk;
+    });
+
+    switch (sortEl?.value) {
+      case 'bpm-asc':  filtered.sort((a,b)=> (a.bpm||0)-(b.bpm||0)); break;
+      case 'bpm-desc': filtered.sort((a,b)=> (b.bpm||0)-(a.bpm||0)); break;
+      case 'title-asc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')); break;
+      case 'title-desc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')).reverse(); break;
+      default: break;
+    }
+
+    renderList(filtered);
+  }
+
+  function renderList(items) {
+    if (!player.paused) player.pause();
+    currentRow = null;
+
+    listEl.innerHTML = '';
+    items.forEach(beat => listEl.appendChild(buildRow(beat)));
+
+    const n = items.length;
+    if (countEl)  countEl.textContent = String(n);
+    if (countSEl) countSEl.style.display = n === 1 ? 'none' : 'inline';
+    if (statusEl) statusEl.textContent = n ? '' : 'No results with those filters.';
+  }
+
+  function populateControls(beats) {
+    const genres = uniqueValues(beats, b => b._genre);
+    const moods  = uniqueValues(beats, b => b._moods || []);
+    const keys   = uniqueValues(beats, b => b.key);
+
+    if (genreEl) genreEl.innerHTML = `<option value="">All</option>` + genres.map(v => `<option value="${v}">${v}</option>`).join('');
+    if (moodEl)  moodEl.innerHTML  = `<option value="">All</option>` + moods.map(v => `<option value="${v}">${v}</option>`).join('');
+    if (keyEl)   keyEl.innerHTML   = `<option value="">All</option>` + keys.map(v => `<option value="${v}">${v}</option>`).join('');
+  }
+
+  function resetFilters() {
+    if (qEl) qEl.value = '';
+    if (genreEl) genreEl.value = '';
+    if (moodEl)  moodEl.value = '';
+    if (keyEl)   keyEl.value = '';
+    if (bpmMinEl) bpmMinEl.value = '';
+    if (bpmMaxEl) bpmMaxEl.value = '';
+    if (sortEl) sortEl.value = 'default';
+    applyFilters();
+  }
+
+  async function init() {
+    try {
+      if (statusEl) statusEl.textContent = 'Loading beats…';
+      const res = await fetch(BEATS_URL, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      allBeats = await res.json();
+
+      if (!Array.isArray(allBeats) || allBeats.length === 0) {
+        if (statusEl) statusEl.textContent = 'No beats found in beats.json.';
+        return;
+      }
+
+      beatsNorm = allBeats.map(normalizeBeat);
+      populateControls(beatsNorm);
+      if (statusEl) statusEl.textContent = '';
+      applyFilters();
+    } catch (err) {
+      console.error('[Beats] load error:', err);
+      if (statusEl) statusEl.textContent = 'Couldn’t load beats. Make sure /beats.json exists, is valid JSON (no comments), and is publicly accessible.';
+    }
+  }
+
+  // Wire filter events
+  [qEl, genreEl, moodEl, keyEl, bpmMinEl, bpmMaxEl, sortEl].forEach(ctrl => {
+    ctrl && ctrl.addEventListener('input', applyFilters);
+    ctrl && ctrl.addEventListener('change', applyFilters);
+  });
+  resetEl && resetEl.addEventListener('click', resetFilters);
+
+  /* ---------- Modal wiring (MP3 vs WAV) ---------- */
+  (function setupInfoModal(){
+    const trigger = document.getElementById('mp3wav-trigger');
+    const modal   = document.getElementById('mp3wav-modal');
+    if (!trigger || !modal) return;
+
+    const backdrop  = modal.querySelector('.modal-backdrop');
+    const panel     = modal.querySelector('.modal-panel');
+
+    let lastFocus = null;
+
+    function focusables() {
+      return panel.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    }
+
+    function open() {
+      lastFocus = document.activeElement;
+      modal.classList.add('open');
+      const f = focusables();
+      (f[0] || panel).focus();
+      document.addEventListener('keydown', onKey);
+    }
+    function close() {
+      modal.classList.remove('open');
+      document.removeEventListener('keydown', onKey);
+      if (lastFocus) lastFocus.focus();
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') { e.preventDefault(); close(); }
+      if (e.key === 'Tab') {
+        const f = focusables();
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    }
+
+    trigger.addEventListener('click', open);
+    backdrop?.addEventListener('click', close);
+    panel.querySelectorAll('[data-close="modal"], .modal-close').forEach(b => b.addEventListener('click', close));
+  })();
+
+  // Init
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
