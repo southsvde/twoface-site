@@ -73,7 +73,7 @@
     "title": "HERMES",
     "bpm": 120,
     "key": "Dm",
-    "genre": ["Trap", "Alt-Trap"],
+    "genre": "Alt-Trap",
     "mood": ["Dark", "Suspensful"],
     "art": "img/hermes_cover.png",
     "audio": "audio/hermes_mp3.mp3",
