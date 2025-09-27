@@ -74,7 +74,7 @@
     "bpm": 120,
     "key": "Dm",
     "genre": "Alt-Trap",
-    "mood": ["Suspensful", "Dark"],
+    "mood": ["Suspenseful", "Dark"],
     "art": "img/hermes_cover.png",
     "audio": "audio/hermes_mp3.mp3",
     "tiers": {
