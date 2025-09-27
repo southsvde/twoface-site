@@ -1,10 +1,14 @@
 // /js/beats.js — TWOFACE Beats page
 // Filters + inline player + MP3/WAV modal + JSON-driven Buy/Add menus
-// NOW WITH PAGINATION (10 per page)
+// + Pagination (10 per page) + optional Stripe Checkout redirect
 
 (() => {
   const listEl   = document.querySelector('#tracks');
   const statusEl = document.querySelector('#beats-status');
+
+  // Pager UI targets (created dynamically if not present)
+  let pagerTopEl  = document.getElementById('pager-top');
+  let pagerBotEl  = document.getElementById('pager-bot');
 
   // Controls
   const qEl      = document.querySelector('#q');
@@ -23,30 +27,34 @@
   // Allow overriding beats.json via a meta tag if you ever need to
   const BEATS_URL = document.querySelector('meta[name="beats-json"]')?.content || 'beats.json';
 
-  // ===== Pagination state =====
-  const PAGE_SIZE_DEFAULT = 10;
-  let PAGE_SIZE = PAGE_SIZE_DEFAULT;
-  let currentPage = 1;
-  let lastFiltered = [];
+  // --- Stripe wiring (optional) ------------------------------------------------
+  // Provide your publishable key by either:
+  //  1) window.STRIPE_PK = 'pk_live_...';    (set before this file)
+  //  2) <meta name="stripe-pk" content="pk_live_...">
+  //  3) editing the fallback below.
+  const FALLBACK_STRIPE_PK = ''; // <- leave blank; we read from window or <meta> instead
 
-  // Ensure a bottom pager container exists after #tracks
-  let bottomPager = document.getElementById('pager-bottom');
-  if (!bottomPager) {
-    bottomPager = document.createElement('div');
-    bottomPager.id = 'pager-bottom';
-    bottomPager.className = 'pager';
-    listEl.insertAdjacentElement('afterend', bottomPager);
+  function getStripePublishableKey() {
+    return (
+      window.STRIPE_PK ||
+      document.querySelector('meta[name="stripe-pk"]')?.content ||
+      FALLBACK_STRIPE_PK ||
+      ''
+    );
   }
 
-  // Ensure a top pager container exists inside .results-bar (to the right)
-  const resultsBar = document.querySelector('.results-bar');
-  let topPager = document.getElementById('pager-top');
-  if (resultsBar && !topPager) {
-    topPager = document.createElement('div');
-    topPager.id = 'pager-top';
-    topPager.className = 'pager pager-top';
-    resultsBar.appendChild(topPager);
+  let stripeSingleton = null;
+  function getStripe() {
+    const pk = getStripePublishableKey();
+    if (!pk || !window.Stripe) return null;
+    if (!stripeSingleton) stripeSingleton = Stripe(pk);
+    return stripeSingleton;
   }
+
+  // Your live site domain (for success/cancel)
+  const SITE_ORIGIN = 'https://twfc808.com';
+  const STRIPE_SUCCESS_URL = `${SITE_ORIGIN}/success.html?session_id={CHECKOUT_SESSION_ID}`;
+  const STRIPE_CANCEL_URL  = `${SITE_ORIGIN}/beats.html`;
 
   // Shared audio element (single player for all rows)
   const player = new Audio();
@@ -112,12 +120,7 @@
 
     let genre = b.genre ? String(b.genre) : (moods.find(m => KNOWN_GENRES.includes(m)) || '');
     const moodsNoGenre = genre ? moods.filter(m => m !== genre) : moods;
-
-    // Precompute a pretty static duration label if author provided duration (optional)
-    // If not provided, we'll fill it on first metadata load for that row.
-    const durLabel = b.duration ? fmtTime(Number(b.duration) || 0) : '0:00';
-
-    return { ...b, _genre: genre, _moods: moodsNoGenre, _durLabel: durLabel };
+    return { ...b, _genre: genre, _moods: moodsNoGenre };
   }
 
   function uniqueValues(list, extractor) {
@@ -191,9 +194,16 @@
       const recClass = t.recommended ? 'recommended' : '';
 
       if (mode === 'buy') {
-        const hrefAttrs = t.url ? `href="${t.url}" target="_blank" rel="noopener"` : 'aria-disabled="true" tabindex="-1"';
+        // We render as a button-like <a> and handle click in JS:
         return `
-          <a ${hrefAttrs} class="item ${recClass}">
+          <a role="button"
+             class="item ${recClass}"
+             data-action="buy"
+             data-tier="${key}"
+             data-label="${escapeHtmlAttr(t.label)}"
+             data-price="${String(t.price)}"
+             data-priceid="${escapeHtmlAttr(t.priceId)}"
+             data-url="${escapeHtmlAttr(t.url)}">
             <div class="text">
               <div class="title">${t.label}${recBadge}</div>
               <div class="sub">${t.desc}</div>
@@ -248,9 +258,6 @@
       ${Number(beat.bpm) ? `<span class="chip">${beat.bpm} BPM</span>` : ''}
     `;
 
-    // If we know duration from JSON use it idle; otherwise '0:00' gets replaced on metadata load
-    const idleTime = beat._durLabel || '0:00';
-
     row.innerHTML = `
       <div class="t-ctrl">
         <button type="button" aria-label="Play">${ICONS.play}</button>
@@ -268,7 +275,7 @@
       <div class="t-wave" role="progressbar" aria-valuemin="0" aria-valuenow="0" aria-valuemax="100">
         <div class="wave-bars"></div>
         <div class="wave-progress"></div>
-        <div class="t-time" data-idle="${idleTime}">${idleTime}</div>
+        <div class="t-time">0:00</div>
       </div>
 
       <div class="t-actions">
@@ -315,7 +322,41 @@
     addMenu.addEventListener('click', (e) => e.stopPropagation());
     document.addEventListener('click', closeMenus);
 
-    // Add-to-cart action
+    // ---- BUY action (Stripe if priceId; else open URL) -------------------
+    buyMenu.addEventListener('click', async (e) => {
+      const item = e.target.closest('[data-action="buy"]');
+      if (!item) return;
+      e.preventDefault();
+
+      const priceId = (item.getAttribute('data-priceid') || '').trim();
+      const url     = item.getAttribute('data-url') || '';
+
+      if (priceId) {
+        const stripe = getStripe();
+        if (!stripe) {
+          alert('Checkout not ready: Stripe key not found. Please set window.STRIPE_PK or <meta name="stripe-pk">.');
+          return;
+        }
+        // Stripe client-only redirect
+        const { error } = await stripe.redirectToCheckout({
+          lineItems: [{ price: priceId, quantity: 1 }],
+          mode: 'payment',
+          successUrl: STRIPE_SUCCESS_URL,
+          cancelUrl: STRIPE_CANCEL_URL
+        });
+        if (error) {
+          console.error('[Stripe] redirect error:', error);
+          alert('Could not start checkout. Please try again.');
+        }
+      } else if (url) {
+        window.open(url, '_blank', 'noopener');
+      } else {
+        alert('This option is not available yet.');
+      }
+      closeMenus();
+    });
+
+    // ---- Add-to-cart action ----------------------------------------------
     addMenu.addEventListener('click', (e) => {
       const item = e.target.closest('[data-action="add"]');
       if (!item) return;
@@ -338,7 +379,7 @@
         tierKey,
         tierLabel: label,
         price,
-        priceId,
+        priceId, // may be empty; checkout will verify later
         url
       });
 
@@ -361,13 +402,12 @@
         return;
       }
 
-      // Switching rows: reset previous
       if (currentRow) {
         const prevBar  = currentRow.querySelector('.wave-progress');
         const prevBtn  = currentRow.querySelector('.t-ctrl button');
         const prevTime = currentRow.querySelector('.t-time');
         if (prevBar)  prevBar.style.width = '0%';
-        if (prevTime) prevTime.textContent = prevTime.getAttribute('data-idle') || '0:00';
+        if (prevTime) prevTime.textContent = '0:00';
         if (prevBtn)  prevBtn.innerHTML = ICONS.play;
       }
 
@@ -377,17 +417,7 @@
       player.play().then(() => setCtrlIcon(row, true)).catch(() => {});
     });
 
-    const onLoaded = () => {
-      // Fill idle duration the first time metadata arrives
-      if (currentRow === row) ttime.textContent = fmtTime(player.duration);
-      if (ttime.getAttribute('data-idle') === '0:00' || !ttime.getAttribute('data-idle')) {
-        ttime.setAttribute('data-idle', fmtTime(player.duration || 0));
-        if (player.paused || currentRow !== row) {
-          ttime.textContent = ttime.getAttribute('data-idle');
-        }
-      }
-    };
-
+    const onLoaded = () => { if (currentRow === row) ttime.textContent = fmtTime(player.duration); };
     const onTime   = () => {
       if (currentRow !== row || !player.duration) return;
       const pct = (player.currentTime / player.duration) * 100;
@@ -395,13 +425,11 @@
       wave.setAttribute('aria-valuenow', Math.round(pct));
       ttime.textContent = fmtTime(player.currentTime);
     };
-
     const onEnded  = () => {
       if (currentRow === row) {
         setCtrlIcon(row, false);
         bar.style.width = '0%';
-        // Return to idle/full duration at end
-        ttime.textContent = ttime.getAttribute('data-idle') || fmtTime(player.duration || 0);
+        ttime.textContent = fmtTime(player.duration || 0);
       }
     };
 
@@ -416,6 +444,11 @@
   /* ---------- Data + Filters + Pagination ---------- */
   let allBeats = [];
   let beatsNorm = [];
+
+  // pagination state
+  const PAGE_SIZE = 10;
+  let currentPage = 1;
+  let lastFiltered = [];
 
   function applyFilters() {
     const q   = (qEl?.value || '').trim().toLowerCase();
@@ -436,110 +469,95 @@
     });
 
     switch (sortEl?.value) {
-      case 'bpm-asc':   filtered.sort((a,b)=> (a.bpm||0)-(b.bpm||0)); break;
-      case 'bpm-desc':  filtered.sort((a,b)=> (b.bpm||0)-(a.bpm||0)); break;
+      case 'bpm-asc':  filtered.sort((a,b)=> (a.bpm||0)-(b.bpm||0)); break;
+      case 'bpm-desc': filtered.sort((a,b)=> (b.bpm||0)-(a.bpm||0)); break;
       case 'title-asc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')); break;
-      case 'title-desc':filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')).reverse(); break;
+      case 'title-desc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')).reverse(); break;
       default: break;
     }
 
     lastFiltered = filtered;
-    currentPage = 1;              // reset to page 1 whenever filters/sort change
-    renderPage();                 // render the first page
-  }
-
-  function renderList(items) {
-    // Stop audio across page changes
-    if (!player.paused) player.pause();
-    currentRow = null;
-
-    listEl.innerHTML = '';
-    items.forEach(beat => listEl.appendChild(buildRow(beat)));
-  }
-
-  function totalPages() {
-    return Math.max(1, Math.ceil(lastFiltered.length / PAGE_SIZE));
-  }
-
-  function sliceForPage(page) {
-    const p = Math.min(Math.max(1, page), totalPages());
-    const start = (p - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
-    return lastFiltered.slice(start, end);
+    currentPage = 1; // reset to first page on filter change
+    renderPage();
   }
 
   function renderPage() {
-    const pageItems = sliceForPage(currentPage);
-    renderList(pageItems);
-    updateResultsBar();
-    renderPager();
-    // Scroll the top of the tracks into view for better UX on mobile
-    listEl.scrollIntoView({ behavior: 'instant', block: 'start' });
-  }
-
-  function updateResultsBar() {
     const n = lastFiltered.length;
+    // counts (UI expects "X RESULTS" styling via CSS)
     if (countEl)  countEl.textContent = String(n);
     if (countSEl) countSEl.style.display = n === 1 ? 'none' : 'inline';
     if (statusEl) statusEl.textContent = n ? '' : 'No results with those filters.';
+
+    // slice for current page
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const end   = start + PAGE_SIZE;
+    const pageItems = lastFiltered.slice(start, end);
+
+    // render rows
+    if (!player.paused) player.pause();
+    currentRow = null;
+    listEl.innerHTML = '';
+    pageItems.forEach(beat => listEl.appendChild(buildRow(beat)));
+
+    // render pager
+    const totalPages = Math.max(1, Math.ceil(n / PAGE_SIZE));
+    renderPager(totalPages);
   }
 
-  function renderPager() {
-    const pages = totalPages();
-    const page  = Math.min(Math.max(1, currentPage), pages);
-
-    const makeBtn = (label, target, disabled=false, current=false) => {
-      const aria = current ? 'aria-current="page"' : '';
-      const cls  = ['pager-btn'];
-      if (disabled) cls.push('disabled');
-      if (current)  cls.push('current');
-      return `<button class="${cls.join(' ')}" data-page="${target}" ${disabled ? 'disabled' : ''} ${aria}>${label}</button>`;
-    };
-
-    // Build a compact pager with First/Prev … numbered … Next/Last
-    const buttons = [];
-    const showWindow = 5; // how many numeric buttons to show around current
-    const start = Math.max(1, page - Math.floor(showWindow/2));
-    const end   = Math.min(pages, start + showWindow - 1);
-    const realStart = Math.max(1, end - showWindow + 1);
-
-    buttons.push(makeBtn('«', 1, page === 1));
-    buttons.push(makeBtn('‹', page - 1, page === 1));
-
-    if (realStart > 1) {
-      buttons.push(makeBtn('1', 1, false, page === 1));
-      if (realStart > 2) buttons.push(`<span class="pager-ellipsis">…</span>`);
+  function renderPager(totalPages) {
+    // Ensure containers exist
+    if (!pagerTopEl) {
+      pagerTopEl = document.createElement('div');
+      pagerTopEl.id = 'pager-top';
+      pagerTopEl.className = 'pager pager--top';
+      listEl.parentElement?.insertBefore(pagerTopEl, listEl);
+    }
+    if (!pagerBotEl) {
+      pagerBotEl = document.createElement('div');
+      pagerBotEl.id = 'pager-bot';
+      pagerBotEl.className = 'pager pager--bot';
+      listEl.parentElement?.appendChild(pagerBotEl);
     }
 
-    for (let i = realStart; i <= end; i++) {
-      buttons.push(makeBtn(String(i), i, false, i === page));
+    const btn = (label, disabled, goto) => `
+      <button class="pg ${disabled ? 'disabled':''}" ${disabled ? 'disabled':''} data-goto="${goto ?? ''}">
+        ${label}
+      </button>
+    `;
+
+    const pages = [];
+    for (let p = 1; p <= totalPages; p++) {
+      pages.push(`<button class="pg ${p===currentPage?'current':''}" data-goto="${p}">${p}</button>`);
     }
 
-    if (end < pages) {
-      if (end < pages - 1) buttons.push(`<span class="pager-ellipsis">…</span>`);
-      buttons.push(makeBtn(String(pages), pages, false, page === pages));
+    const leftMost  = btn('«', currentPage===1, 1);
+    const left      = btn('‹', currentPage===1, Math.max(1, currentPage-1));
+    const right     = btn('›', currentPage===totalPages, Math.min(totalPages, currentPage+1));
+    const rightMost = btn('»', currentPage===totalPages, totalPages);
+
+    const html = `
+      <div class="pager-rail">
+        ${leftMost}${left}
+        ${pages.join('')}
+        ${right}${rightMost}
+      </div>
+    `;
+
+    pagerTopEl.innerHTML = html;
+    pagerBotEl.innerHTML = html;
+
+    function onClick(e) {
+      const b = e.target.closest('button.pg[data-goto]');
+      if (!b) return;
+      const to = Number(b.getAttribute('data-goto'));
+      if (!to || to === currentPage) return;
+      currentPage = to;
+      renderPage();
+      // scroll to top pager on page change for better UX
+      pagerTopEl.scrollIntoView({ behavior:'smooth', block:'nearest' });
     }
-
-    buttons.push(makeBtn('›', page + 1, page === pages));
-    buttons.push(makeBtn('»', pages, page === pages));
-
-    const html = `<nav class="pager-nav" aria-label="Beats pages">${buttons.join('')}</nav>`;
-
-    if (topPager)    topPager.innerHTML = html;
-    if (bottomPager) bottomPager.innerHTML = html;
-
-    // Delegate clicks from both pagers
-    [topPager, bottomPager].forEach(pager => {
-      if (!pager) return;
-      pager.onclick = (e) => {
-        const btn = e.target.closest('button[data-page]');
-        if (!btn || btn.disabled) return;
-        const target = Number(btn.getAttribute('data-page')) || 1;
-        if (target === currentPage) return;
-        currentPage = target;
-        renderPage();
-      };
-    });
+    pagerTopEl.onclick = onClick;
+    pagerBotEl.onclick = onClick;
   }
 
   function populateControls(beats) {
@@ -560,7 +578,6 @@
     if (bpmMinEl) bpmMinEl.value = '';
     if (bpmMaxEl) bpmMaxEl.value = '';
     if (sortEl) sortEl.value = 'default';
-    currentPage = 1;
     applyFilters();
   }
 
@@ -577,13 +594,9 @@
       }
 
       beatsNorm = allBeats.map(normalizeBeat);
-
-      // Default sort: newest first by array order (we assume newest at top of beats.json)
-      // No change: we preserve the order unless user selects a sort.
-
       populateControls(beatsNorm);
       if (statusEl) statusEl.textContent = '';
-      applyFilters(); // will set lastFiltered and render page 1
+      applyFilters();
     } catch (err) {
       console.error('[Beats] load error:', err);
       if (statusEl) statusEl.textContent = 'Couldn’t load beats. Make sure /beats.json exists, is valid JSON (no comments), and is publicly accessible.';
