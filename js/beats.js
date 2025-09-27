@@ -1,5 +1,6 @@
 // /js/beats.js — TWOFACE Beats page
 // Filters + inline player + MP3/WAV modal + JSON-driven Buy/Add menus
+// NOW WITH PAGINATION (10 per page)
 
 (() => {
   const listEl   = document.querySelector('#tracks');
@@ -22,40 +23,37 @@
   // Allow overriding beats.json via a meta tag if you ever need to
   const BEATS_URL = document.querySelector('meta[name="beats-json"]')?.content || 'beats.json';
 
+  // ===== Pagination state =====
+  const PAGE_SIZE_DEFAULT = 10;
+  let PAGE_SIZE = PAGE_SIZE_DEFAULT;
+  let currentPage = 1;
+  let lastFiltered = [];
+
+  // Ensure a bottom pager container exists after #tracks
+  let bottomPager = document.getElementById('pager-bottom');
+  if (!bottomPager) {
+    bottomPager = document.createElement('div');
+    bottomPager.id = 'pager-bottom';
+    bottomPager.className = 'pager';
+    listEl.insertAdjacentElement('afterend', bottomPager);
+  }
+
+  // Ensure a top pager container exists inside .results-bar (to the right)
+  const resultsBar = document.querySelector('.results-bar');
+  let topPager = document.getElementById('pager-top');
+  if (resultsBar && !topPager) {
+    topPager = document.createElement('div');
+    topPager.id = 'pager-top';
+    topPager.className = 'pager pager-top';
+    resultsBar.appendChild(topPager);
+  }
+
   // Shared audio element (single player for all rows)
   const player = new Audio();
   window.__twfPlayer = player; // expose shared player so add-ons can seek it
   player.preload = 'metadata';
   let currentRow = null;
   let isDragging = false;
-
-  // ---- Duration cache (NEW) ----------------------------------------------
-  const __durations = new Map();
-
-  /** Get duration (in seconds) for a given src. Uses a tiny, metadata-only Audio. */
-  function getDuration(src) {
-    if (!src) return Promise.resolve(0);
-    if (__durations.has(src)) return Promise.resolve(__durations.get(src));
-
-    return new Promise((resolve) => {
-      const a = new Audio();
-      a.preload = 'metadata';
-      a.src = src;
-
-      function done(sec) {
-        __durations.set(src, sec || 0);
-        a.removeEventListener('loadedmetadata', onLoad);
-        a.removeEventListener('error', onErr);
-        resolve(sec || 0);
-      }
-      function onLoad() { done(isFinite(a.duration) ? a.duration : 0); }
-      function onErr()  { done(0); }
-
-      a.addEventListener('loadedmetadata', onLoad);
-      a.addEventListener('error', onErr);
-    });
-  }
-  // ------------------------------------------------------------------------
 
   const ICONS = {
     play:  '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7-11-7Z" fill="white"/></svg>',
@@ -101,7 +99,7 @@
 
   // --- Normalize genre/moods (back-compat with earlier schema) ------------
   const KNOWN_GENRES = [
-    'Trap','Drill','Boom Bap','Boom-Bap','Boombap', 'Alt-Trap',
+    'Trap','Drill','Boom Bap','Boom-Bap','Boombap',
     'Lo-fi','Lofi','LoFi','Lo-Fi',
     'Hip-Hop','Hip Hop','HipHop',
     'R&B','Pop','House','EDM','Afrobeats','Afrobeat','Dancehall','Reggaeton'
@@ -114,7 +112,12 @@
 
     let genre = b.genre ? String(b.genre) : (moods.find(m => KNOWN_GENRES.includes(m)) || '');
     const moodsNoGenre = genre ? moods.filter(m => m !== genre) : moods;
-    return { ...b, _genre: genre, _moods: moodsNoGenre };
+
+    // Precompute a pretty static duration label if author provided duration (optional)
+    // If not provided, we'll fill it on first metadata load for that row.
+    const durLabel = b.duration ? fmtTime(Number(b.duration) || 0) : '0:00';
+
+    return { ...b, _genre: genre, _moods: moodsNoGenre, _durLabel: durLabel };
   }
 
   function uniqueValues(list, extractor) {
@@ -129,10 +132,10 @@
 
   /* ---------- Buy/Add menu: read from JSON with safe fallbacks ---------- */
   const DEFAULT_TIERS = {
-    mp3:        { label: 'MP3',                         price: 29,  desc: 'Great for quick demos & writing. Opt for a WAV for better mixing/mastering quality.' },
-    mp3wav:     { label: 'WAV & MP3',                   price: 49,  desc: 'Full-quality WAV, ideal for recording & streaming releases.', recommended: true },
-    excl_nowav: { label: 'Excl. License',               price: 99,  desc: 'Exclusive rights to this beat. File will be removed from the store after purchase.' },
-    excl_stems: { label: 'Excl. License, WAV, & Stems', price: 249, desc: 'Includes all the above, along with individual track stems for full mix control. File will be removed from the store after purchase.' }
+    mp3:        { label: 'MP3',                      price: 29,  desc: 'Great for quick demos & writing; not ideal for mixing/mastering.' },
+    mp3wav:     { label: 'MP3 + WAV',                price: 49,  desc: 'Full-quality WAV for recording & release + MP3 for reference.', recommended: true },
+    excl_nowav: { label: 'Exclusive License',        price: 99,  desc: 'Your exclusive rights; beat removed from store after purchase.' },
+    excl_stems: { label: 'Exclusive License + Stems',price: 249, desc: 'Exclusive + individual track stems for full mix control.' }
   };
   const TIER_ORDER = ['mp3','mp3wav','excl_nowav','excl_stems'];
 
@@ -199,7 +202,7 @@
           </a>
         `;
       } else {
-        // ADD mode: allow adding even without priceId; checkout can block until IDs exist.
+        // ADD mode
         return `
           <a role="button"
              class="item ${recClass}"
@@ -245,6 +248,9 @@
       ${Number(beat.bpm) ? `<span class="chip">${beat.bpm} BPM</span>` : ''}
     `;
 
+    // If we know duration from JSON use it idle; otherwise '0:00' gets replaced on metadata load
+    const idleTime = beat._durLabel || '0:00';
+
     row.innerHTML = `
       <div class="t-ctrl">
         <button type="button" aria-label="Play">${ICONS.play}</button>
@@ -262,7 +268,7 @@
       <div class="t-wave" role="progressbar" aria-valuemin="0" aria-valuenow="0" aria-valuemax="100">
         <div class="wave-bars"></div>
         <div class="wave-progress"></div>
-        <div class="t-time">0:00</div>
+        <div class="t-time" data-idle="${idleTime}">${idleTime}</div>
       </div>
 
       <div class="t-actions">
@@ -332,7 +338,7 @@
         tierKey,
         tierLabel: label,
         price,
-        priceId, // can be empty for now; checkout should enforce later
+        priceId,
         url
       });
 
@@ -345,19 +351,6 @@
     const bar     = row.querySelector('.wave-progress');
     const ttime   = row.querySelector('.t-time');
 
-    // NEW: show total duration by default (idle state), using cache or probing once
-    const rowSrc = row.dataset.src || '';
-    if (rowSrc) {
-      if (__durations.has(rowSrc)) {
-        ttime.textContent = fmtTime(__durations.get(rowSrc) || 0);
-      } else {
-        ttime.textContent = '0:00';
-        getDuration(rowSrc).then((sec) => {
-          if (row.isConnected) ttime.textContent = fmtTime(sec || 0);
-        });
-      }
-    }
-
     ctrlBtn.addEventListener('click', () => {
       const src = row.dataset.src;
       if (!src) return;
@@ -368,15 +361,13 @@
         return;
       }
 
+      // Switching rows: reset previous
       if (currentRow) {
         const prevBar  = currentRow.querySelector('.wave-progress');
         const prevBtn  = currentRow.querySelector('.t-ctrl button');
         const prevTime = currentRow.querySelector('.t-time');
-        const prevSrc  = currentRow.dataset.src || '';
-
         if (prevBar)  prevBar.style.width = '0%';
-        // Show total duration for the previous row when it becomes idle
-        if (prevTime) prevTime.textContent = fmtTime(__durations.get(prevSrc) || 0);
+        if (prevTime) prevTime.textContent = prevTime.getAttribute('data-idle') || '0:00';
         if (prevBtn)  prevBtn.innerHTML = ICONS.play;
       }
 
@@ -387,27 +378,30 @@
     });
 
     const onLoaded = () => {
-      if (currentRow === row) {
-        const d = isFinite(player.duration) ? player.duration : 0;
-        __durations.set(row.dataset.src || '', d);
-        ttime.textContent = fmtTime(d);
+      // Fill idle duration the first time metadata arrives
+      if (currentRow === row) ttime.textContent = fmtTime(player.duration);
+      if (ttime.getAttribute('data-idle') === '0:00' || !ttime.getAttribute('data-idle')) {
+        ttime.setAttribute('data-idle', fmtTime(player.duration || 0));
+        if (player.paused || currentRow !== row) {
+          ttime.textContent = ttime.getAttribute('data-idle');
+        }
       }
     };
+
     const onTime   = () => {
       if (currentRow !== row || !player.duration) return;
       const pct = (player.currentTime / player.duration) * 100;
       bar.style.width = `${pct}%`;
       wave.setAttribute('aria-valuenow', Math.round(pct));
-      // During playback, show elapsed time
       ttime.textContent = fmtTime(player.currentTime);
     };
+
     const onEnded  = () => {
       if (currentRow === row) {
         setCtrlIcon(row, false);
         bar.style.width = '0%';
-        // When done, revert to total duration
-        const d = __durations.get(row.dataset.src || '') ?? player.duration ?? 0;
-        ttime.textContent = fmtTime(d);
+        // Return to idle/full duration at end
+        ttime.textContent = ttime.getAttribute('data-idle') || fmtTime(player.duration || 0);
       }
     };
 
@@ -419,7 +413,7 @@
     return row;
   }
 
-  /* ---------- Data + Filters ---------- */
+  /* ---------- Data + Filters + Pagination ---------- */
   let allBeats = [];
   let beatsNorm = [];
 
@@ -442,27 +436,110 @@
     });
 
     switch (sortEl?.value) {
-      case 'bpm-asc':  filtered.sort((a,b)=> (a.bpm||0)-(b.bpm||0)); break;
-      case 'bpm-desc': filtered.sort((a,b)=> (b.bpm||0)-(a.bpm||0)); break;
+      case 'bpm-asc':   filtered.sort((a,b)=> (a.bpm||0)-(b.bpm||0)); break;
+      case 'bpm-desc':  filtered.sort((a,b)=> (b.bpm||0)-(a.bpm||0)); break;
       case 'title-asc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')); break;
-      case 'title-desc': filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')).reverse(); break;
+      case 'title-desc':filtered.sort((a,b)=> (a.title||'').localeCompare(b.title||'')).reverse(); break;
       default: break;
     }
 
-    renderList(filtered);
+    lastFiltered = filtered;
+    currentPage = 1;              // reset to page 1 whenever filters/sort change
+    renderPage();                 // render the first page
   }
 
   function renderList(items) {
+    // Stop audio across page changes
     if (!player.paused) player.pause();
     currentRow = null;
 
     listEl.innerHTML = '';
     items.forEach(beat => listEl.appendChild(buildRow(beat)));
+  }
 
-    const n = items.length;
+  function totalPages() {
+    return Math.max(1, Math.ceil(lastFiltered.length / PAGE_SIZE));
+  }
+
+  function sliceForPage(page) {
+    const p = Math.min(Math.max(1, page), totalPages());
+    const start = (p - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    return lastFiltered.slice(start, end);
+  }
+
+  function renderPage() {
+    const pageItems = sliceForPage(currentPage);
+    renderList(pageItems);
+    updateResultsBar();
+    renderPager();
+    // Scroll the top of the tracks into view for better UX on mobile
+    listEl.scrollIntoView({ behavior: 'instant', block: 'start' });
+  }
+
+  function updateResultsBar() {
+    const n = lastFiltered.length;
     if (countEl)  countEl.textContent = String(n);
     if (countSEl) countSEl.style.display = n === 1 ? 'none' : 'inline';
     if (statusEl) statusEl.textContent = n ? '' : 'No results with those filters.';
+  }
+
+  function renderPager() {
+    const pages = totalPages();
+    const page  = Math.min(Math.max(1, currentPage), pages);
+
+    const makeBtn = (label, target, disabled=false, current=false) => {
+      const aria = current ? 'aria-current="page"' : '';
+      const cls  = ['pager-btn'];
+      if (disabled) cls.push('disabled');
+      if (current)  cls.push('current');
+      return `<button class="${cls.join(' ')}" data-page="${target}" ${disabled ? 'disabled' : ''} ${aria}>${label}</button>`;
+    };
+
+    // Build a compact pager with First/Prev … numbered … Next/Last
+    const buttons = [];
+    const showWindow = 5; // how many numeric buttons to show around current
+    const start = Math.max(1, page - Math.floor(showWindow/2));
+    const end   = Math.min(pages, start + showWindow - 1);
+    const realStart = Math.max(1, end - showWindow + 1);
+
+    buttons.push(makeBtn('«', 1, page === 1));
+    buttons.push(makeBtn('‹', page - 1, page === 1));
+
+    if (realStart > 1) {
+      buttons.push(makeBtn('1', 1, false, page === 1));
+      if (realStart > 2) buttons.push(`<span class="pager-ellipsis">…</span>`);
+    }
+
+    for (let i = realStart; i <= end; i++) {
+      buttons.push(makeBtn(String(i), i, false, i === page));
+    }
+
+    if (end < pages) {
+      if (end < pages - 1) buttons.push(`<span class="pager-ellipsis">…</span>`);
+      buttons.push(makeBtn(String(pages), pages, false, page === pages));
+    }
+
+    buttons.push(makeBtn('›', page + 1, page === pages));
+    buttons.push(makeBtn('»', pages, page === pages));
+
+    const html = `<nav class="pager-nav" aria-label="Beats pages">${buttons.join('')}</nav>`;
+
+    if (topPager)    topPager.innerHTML = html;
+    if (bottomPager) bottomPager.innerHTML = html;
+
+    // Delegate clicks from both pagers
+    [topPager, bottomPager].forEach(pager => {
+      if (!pager) return;
+      pager.onclick = (e) => {
+        const btn = e.target.closest('button[data-page]');
+        if (!btn || btn.disabled) return;
+        const target = Number(btn.getAttribute('data-page')) || 1;
+        if (target === currentPage) return;
+        currentPage = target;
+        renderPage();
+      };
+    });
   }
 
   function populateControls(beats) {
@@ -483,6 +560,7 @@
     if (bpmMinEl) bpmMinEl.value = '';
     if (bpmMaxEl) bpmMaxEl.value = '';
     if (sortEl) sortEl.value = 'default';
+    currentPage = 1;
     applyFilters();
   }
 
@@ -499,9 +577,13 @@
       }
 
       beatsNorm = allBeats.map(normalizeBeat);
+
+      // Default sort: newest first by array order (we assume newest at top of beats.json)
+      // No change: we preserve the order unless user selects a sort.
+
       populateControls(beatsNorm);
       if (statusEl) statusEl.textContent = '';
-      applyFilters();
+      applyFilters(); // will set lastFiltered and render page 1
     } catch (err) {
       console.error('[Beats] load error:', err);
       if (statusEl) statusEl.textContent = 'Couldn’t load beats. Make sure /beats.json exists, is valid JSON (no comments), and is publicly accessible.';
