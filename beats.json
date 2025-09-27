@@ -11,26 +11,22 @@
     "audio": "audio/birds_eye_mp3.mp3",
     "tiers": {
       "mp3": {
-        "label": "MP3",
         "price": 29,
         "url": "https://buy.stripe.com/...",
         "priceId": ""
       },
       "mp3wav": {
-        "label": "MP3 + WAV",
         "price": 49,
         "url": "https://buy.stripe.com/...",
         "recommended": true,
         "priceId": ""
       },
       "excl_nowav": {
-        "label": "Exclusive License",
         "price": 99,
         "url": "https://buy.stripe.com/...",
         "priceId": ""
       },
       "excl_stems": {
-        "label": "Exclusive License + Stems",
         "price": 249,
         "url": "https://buy.stripe.com/...",
         "priceId": ""
@@ -49,26 +45,22 @@
     "audio": "audio/family_feud_mp3.mp3",
     "tiers": {
       "mp3": {
-        "label": "MP3",
         "price": 29,
         "url": "https://buy.stripe.com/...",
         "priceId": ""
       },
       "mp3wav": {
-        "label": "MP3 + WAV",
         "price": 49,
         "url": "https://buy.stripe.com/...",
         "recommended": true,
         "priceId": ""
       },
       "excl_nowav": {
-        "label": "Exclusive License",
         "price": 99,
         "url": "https://buy.stripe.com/...",
         "priceId": ""
       },
       "excl_stems": {
-        "label": "Exclusive License + Stems",
         "price": 249,
         "url": "https://buy.stripe.com/...",
         "priceId": ""
@@ -87,26 +79,22 @@
     "audio": "audio/southdowns_mp3.mp3",
     "tiers": {
       "mp3": {
-        "label": "MP3",
         "price": 29,
         "url": "https://buy.stripe.com/...",
         "priceId": ""
       },
       "mp3wav": {
-        "label": "MP3 + WAV",
         "price": 49,
         "url": "https://buy.stripe.com/...",
         "recommended": true,
         "priceId": ""
       },
       "excl_nowav": {
-        "label": "Exclusive License",
         "price": 99,
         "url": "https://buy.stripe.com/...",
         "priceId": ""
       },
       "excl_stems": {
-        "label": "Exclusive License + Stems",
         "price": 249,
         "url": "https://buy.stripe.com/...",
         "priceId": ""
